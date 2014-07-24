@@ -1,0 +1,7 @@
+services:
+    membermanagement.model:
+            class:        BiberLtd\Core\Bundles\MemberManagementBundle\Services\MemberManagementModel
+            arguments:    [@kernel, "default", "doctrine"]
+    membermanagementrender.model:
+            class:        BiberLtd\Core\Bundles\MemberManagementBundle\Controller\RenderController
+            arguments:    [@templating]
