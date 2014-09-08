@@ -1,21 +1,21 @@
 #accountLogin:
 #    pattern:  manage/account/login
-#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Account:login}
+#    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Account:login}
 #processLogin:
 #    pattern:  process/login/{redirect}
-#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Process:login, redirect: "dashboard" }
+#    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Process:login, redirect: "dashboard" }
 #processLogout:
 #    pattern:  process/logout/{backto}
-#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Process:logout, backto: "account-login" }
+#    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Process:logout, backto: "account-login" }
 #processRemind:
 #    pattern:  process/remind/{backto}
-#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Process:remind, backto: "account-login" }
+#    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Process:remind, backto: "account-login" }
 installMembers:
     pattern:  /install/members/{key}
-    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Install:members, key: "needed"}
+    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Install:members, key: "needed"}
 installMemberGroups:
     pattern:  /install/member_groups/{key}
-    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Install:memberGroups, key: "needed"}
+    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Install:memberGroups, key: "needed"}
 #testMemberLocalizations:
 #    pattern:  test/member_localizations
-#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Test:memberLocalizations, _locale: en}
+#    defaults: { _controller: BiberLtdBundleMemberManagementBundle:Test:memberLocalizations, _locale: en}

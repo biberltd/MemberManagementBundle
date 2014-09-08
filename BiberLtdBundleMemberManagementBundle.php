@@ -1,11 +1,11 @@
 <?php
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle;
+namespace BiberLtd\Bundle\MemberManagementBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class BiberLtdCoreBundlesMemberManagementBundle extends Bundle
+class BiberLtdBundleMemberManagementBundle extends Bundle
 {
 
 }

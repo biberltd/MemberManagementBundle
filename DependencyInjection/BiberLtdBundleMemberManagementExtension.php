@@ -1,6 +1,6 @@
 <?php
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\DependencyInjection;
+namespace BiberLtd\Bundle\MemberManagementBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Loader;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class BiberLtdCoreBundlesMemberManagementExtension extends Extension
+class BiberLtdBundleMemberManagementExtension extends Extension
 {
     /**
      * {@inheritDoc}

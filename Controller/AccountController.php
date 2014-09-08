@@ -18,7 +18,7 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Controller;
+namespace BiberLtd\Bundle\MemberManagementBundle\Controller;
 
 use BiberLtd\Core\CoreController;
 use Symfony\Component\HttpKernel\Exception,
@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception,
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-use BiberLtd\Core\Bundles\MemberManagementBundle\Services as MemberManagementService;
+use BiberLtd\Bundle\MemberManagementBundle\Services as MemberManagementService;
 
 class AccountController extends CoreController
 {
@@ -135,7 +135,7 @@ class AccountController extends CoreController
          *      note that if you do not want to immediately render the view to browser you need to use
          *      renderView() method instead of render() method.
          */
-        return $this->render('BiberLtdCoreBundlesCoreBundle:Default:page_login.html.smarty', $tags);
+        return $this->render('BiberLtdBundleCoreBundle:Default:page_login.html.smarty', $tags);
     }
 }
 /**

@@ -14,7 +14,7 @@
  * @description Model / Entity class.
  *
  */
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Entity;
+namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Core\CoreEntity;
@@ -49,7 +49,7 @@ class MemberGroupLocalization extends CoreEntity
     /** 
      * @ORM\Id
      * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberGroup",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup",
      *     inversedBy="localizations"
      * )
      * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false)
@@ -58,7 +58,7 @@ class MemberGroupLocalization extends CoreEntity
 
     /** 
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", nullable=false)
      */
     private $language;

@@ -15,7 +15,7 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Entity;
+namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Core\CoreEntity;
@@ -44,7 +44,7 @@ class FilesOfMember extends CoreEntity
     /** 
      * @ORM\Id
      * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\Member",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member",
      *     inversedBy="files_of_members"
      * )
      * @ORM\JoinColumn(name="member", referencedColumnName="id", nullable=false)
@@ -54,7 +54,7 @@ class FilesOfMember extends CoreEntity
     /** 
      * @ORM\Id
      * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Core\Bundles\FileManagementBundle\Entity\File",
+     *     targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\File",
      *     inversedBy="files_of_members"
      * )
      * @ORM\JoinColumn(name="file", referencedColumnName="id", nullable=false, onDelete="CASCADE")
@@ -112,7 +112,7 @@ class FilesOfMember extends CoreEntity
      *
      * @use             $this->setModified()
      *
-     * @param           BiberLtd\Core\Bundles\FileManagementBundle\Entity\File $file
+     * @param           BiberLtd\Bundle\FileManagementBundle\Entity\File $file
      *
      * @return          object                $this
      */
@@ -133,7 +133,7 @@ class FilesOfMember extends CoreEntity
      * @since           1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bundles\FileManagementBundle\Entity\File           $this->file
+     * @return          BiberLtd\Bundle\FileManagementBundle\Entity\File           $this->file
      */
     public function getFile() {
         return $this->file;
@@ -151,7 +151,7 @@ class FilesOfMember extends CoreEntity
      *
      * @use             $this->setModified()
      *
-     * @param           BiberLtd\Core\Bundles\MemberManagementBundle\Entity\Member $member
+     * @param           BiberLtd\Bundle\MemberManagementBundle\Entity\Member $member
      *
      * @return          object                $this
      */
@@ -172,7 +172,7 @@ class FilesOfMember extends CoreEntity
      * @since           1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bundles\MemberManagementBundle\Entity\Member           $this->member
+     * @return          BiberLtd\Bundle\MemberManagementBundle\Entity\Member           $this->member
      */
     public function getMember() {
         return $this->member;

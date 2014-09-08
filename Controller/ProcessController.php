@@ -17,7 +17,7 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Controller;
+namespace BiberLtd\Bundle\MemberManagementBundle\Controller;
 
 use BiberLtd\Core\CoreController;
 use Symfony\Component\HttpKernel\Exception,

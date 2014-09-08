@@ -16,7 +16,7 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Entity;
+namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -115,7 +115,7 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\FilesOfMember",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember",
      *     mappedBy="member"
      * )
      */
@@ -123,7 +123,7 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberLocalization",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberLocalization",
      *     mappedBy="member"
      * )
      */
@@ -131,13 +131,13 @@ class Member extends CoreLocalizableEntity{
 
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $language;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $site;
@@ -664,7 +664,7 @@ class Member extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Language
+     * @return          BiberLtd\Bundle\MultiLanguageSupportBundle\Language
      */
     public function getLanguage(){
         return $this->language;

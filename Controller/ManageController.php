@@ -19,7 +19,7 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Controller;
+namespace BiberLtd\Bundle\MemberManagementBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller,
     Symfony\Component\HttpKernel\Exception,
