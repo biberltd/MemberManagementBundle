@@ -1,7 +1,7 @@
-parameters:
-#    biber_ltd_member_management.example.class: BiberLtd\Bundle\MemberManagementBundle\Example
-
 services:
-#    biber_ltd_member_management.example:
-#        class: %biber_ltd_member_management.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    membermanagement.model:
+            class:        BiberLtd\Bundle\MemberManagementBundle\Services\MemberManagementModel
+            arguments:    [@kernel, "default", "doctrine"]
+    membermanagementrender.model:
+            class:        BiberLtd\Bundle\MemberManagementBundle\Controller\RenderController
+            arguments:    [@templating]

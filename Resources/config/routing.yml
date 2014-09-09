@@ -1,3 +1,21 @@
-biber_ltd_member_management_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: BiberLtdMemberManagementBundle:Default:index }
+#accountLogin:
+#    pattern:  manage/account/login
+#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Account:login}
+#processLogin:
+#    pattern:  process/login/{redirect}
+#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Process:login, redirect: "dashboard" }
+#processLogout:
+#    pattern:  process/logout/{backto}
+#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Process:logout, backto: "account-login" }
+#processRemind:
+#    pattern:  process/remind/{backto}
+#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Process:remind, backto: "account-login" }
+installMembers:
+    pattern:  /install/members/{key}
+    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Install:members, key: "needed"}
+installMemberGroups:
+    pattern:  /install/member_groups/{key}
+    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Install:memberGroups, key: "needed"}
+#testMemberLocalizations:
+#    pattern:  test/member_localizations
+#    defaults: { _controller: BiberLtdCoreBundlesMemberManagementBundle:Test:memberLocalizations, _locale: en}
