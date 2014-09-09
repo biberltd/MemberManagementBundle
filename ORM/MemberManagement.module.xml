@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+<skipper version="3.0.0.1104" mvc="Symfony2" orm="Doctrine2">
+  <module name="MemberManagementBundle" import-format="Doctrine2Php" import-path="../Entity" uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833">
+    <entity name="FilesOfMember" description="Associates files with members." uuid="07eeeac7-da1a-48f5-96c1-665a12f5d84f">
+      <field name="file" description="Associated file." type="integer" size="15" required="true" primary="true" uuid="10fe7d79-6b4e-453b-87fb-1184aa09fe78"/>
+      <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="85657dc1-baff-4d5f-a466-2774443ee2a1"/>
+      <field name="count_view" description="Total number of views of this file." type="integer" size="10" default="0" required="true" uuid="42a72279-ee1d-4956-ac72-a12747e534ae"/>
+      <field name="date_added" description="Date when the file is added to member." type="datetime" required="true" uuid="877ab001-e622-466e-9366-6e15bd56acf4"/>
+      <index name="idx_u_files_of_member" unique="true">
+        <index-field name="member"/>
+        <index-field name="file"/>
+      </index>
+      <index name="idx_n_files_of_member_date_added">
+        <index-field name="date_added"/>
+      </index>
+      <orm-attributes>
+        <attribute name="options">
+          <attribute name="charset">utf8</attribute>
+          <attribute name="engine">innodb</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+        </attribute>
+        <attribute name="export-file-name">FilesOfMember.php</attribute>
+        <attribute name="table">files_of_member</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="FilesOfMember" to="Member" caption="idx_f_files_of_member_member" owner-alias="files_of_members" inverse-alias="member" uuid="ae4257ec-40ad-4a53-95bc-43688e025441">
+      <association-field from="member" to="id"/>
+    </association>
+    <association from="FilesOfMember" to="File" caption="idx_f_files_of_member_file" owner-alias="files_of_members" inverse-alias="file" uuid="5d9fbbab-e6e7-446b-b35a-5a92b2665907">
+      <association-field from="file" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <entity name="MembersOfGroup" description="Associates members with groups." uuid="a12d9552-e3b0-4189-870d-82bf4cd5b6ed">
+      <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="1077ce84-fde9-4b93-811c-5ce669391ffb"/>
+      <field name="member_group" description="Associated member group." type="integer" required="true" primary="true" uuid="f3180ba8-0ec2-4500-a85f-0581d85fa3c5"/>
+      <field name="date_added" description="Date when the member is added to group." type="datetime" required="true" uuid="f38e4038-b02b-4c40-9b7c-63c34ef1f970"/>
+      <field name="referrer" description="Member who added the member to the group." type="integer" size="10" uuid="e2ebf884-ce38-46c2-9efc-45a19ee46c11"/>
+      <index name="idx_u_members_of_group" unique="true">
+        <index-field name="member"/>
+        <index-field name="member_group"/>
+      </index>
+      <index name="idx_n_members_of_group_date_added">
+        <index-field name="date_added"/>
+      </index>
+      <orm-attributes>
+        <attribute name="options">
+          <attribute name="charset">utf8</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+          <attribute name="engine">innodb</attribute>
+        </attribute>
+        <attribute name="table">members_of_group</attribute>
+        <attribute name="export-file-name">MembersOfGroup.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="MembersOfGroup" to="Member" caption="idx_f_members_of_group_member" inverse-alias="member" uuid="804845fb-f53d-4ae3-923e-e8d8a46ebef1">
+      <association-field from="member" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <association from="MembersOfGroup" to="MemberGroup" caption="idx_f_members_of_group_group" inverse-alias="member_group" uuid="d120204e-3d7c-47ea-bfe6-c33110876e00">
+      <association-field from="member_group" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <association from="MembersOfGroup" to="Member" caption="idx_f_members_of_group_referrer" inverse-alias="referrer" uuid="d42ac154-e050-496f-a729-5305f20f2c71">
+      <association-field from="referrer" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">SET NULL</attribute>
+      </orm-attributes>
+    </association>
+    <entity name="MembersOfSite" description="Associates members with sites." uuid="062dc364-3d01-474f-8a28-77bb8b1e21fd">
+      <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="e2998ad5-2e62-48ea-af77-50e77dc02ea0"/>
+      <field name="site" description="Associated site." type="integer" size="10" required="true" primary="true" uuid="2f4ef3be-bf71-4a9c-b633-8ba1c6095444"/>
+      <field name="date_added" description="Date when the member is added to site." type="datetime" required="true" uuid="72dcad1e-000d-417e-bc2f-b18ee3a32bb4"/>
+      <index name="idx_u_members_of_site" unique="true">
+        <index-field name="member"/>
+        <index-field name="site"/>
+      </index>
+      <index name="idx_n_members_of_site_date_added">
+        <index-field name="date_added"/>
+      </index>
+      <orm-attributes>
+        <attribute name="options">
+          <attribute name="charset">utf8</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+          <attribute name="engine">innodb</attribute>
+        </attribute>
+        <attribute name="table">members_of_site</attribute>
+        <attribute name="export-file-name">MembersOfSite.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="MembersOfSite" to="Member" caption="idx_f_members_of_site_member" inverse-alias="member" uuid="b1bb0d0b-841e-42dd-9eb4-9e33e559358b">
+      <association-field from="member" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <association from="MembersOfSite" to="Site" caption="idx_f_members_of_site_site" inverse-alias="site" uuid="d0a6295c-5f68-40e3-bfb4-da2ca6e40fb6">
+      <association-field from="site" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <entity name="MemberLocalization" description="Stores localized values of member entries." uuid="9df7cd56-6a97-410f-b0fe-2fd5538bd528">
+      <field name="member" description="Localized member." type="integer" size="10" required="true" primary="true" uuid="3e97f3e0-a679-42eb-b6f5-8b66e14d05d5"/>
+      <field name="language" description="Localization laguage." type="integer" size="5" required="true" primary="true" uuid="28ce8907-b175-4c3f-93c4-c8728e174c35"/>
+      <field name="title" description="Localized title of member." type="string" size="255" uuid="4424a1f5-b879-4797-b71d-b90f22a6246c"/>
+      <field name="biography" description="Localized biography of member." type="text" uuid="8e715f50-303c-4ed0-982e-77d62db3bfe8"/>
+      <field name="extra_data" description="Localized extra data - serializaed array - of member." type="text" uuid="42a14804-1cfc-460b-9026-c8a18f39939f"/>
+      <index name="idx_u_member_localization">
+        <index-field name="member"/>
+        <index-field name="language"/>
+      </index>
+      <index name="idx_n_member_localization_title">
+        <index-field name="title"/>
+      </index>
+      <orm-attributes>
+        <attribute name="table">member_localization</attribute>
+        <attribute name="export-file-name">MemberLocalization.php</attribute>
+        <attribute name="options">
+          <attribute name="engine">innodb</attribute>
+          <attribute name="charset">utf8</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+        </attribute>
+      </orm-attributes>
+    </entity>
+    <association from="MemberLocalization" to="Member" caption="idx_f_member_localization_member" owner-alias="localizations" inverse-alias="member" uuid="b9e4d241-2e4f-4fbf-a78c-0414234947d6">
+      <association-field from="member" to="id"/>
+    </association>
+    <association from="MemberLocalization" to="Language" caption="idx_f_member_localization_language" inverse-alias="language" uuid="e615dfba-7f2b-4dac-a61b-519c9538e9f0">
+      <association-field from="language" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <entity name="MemberGroupLocalization" description="Stores localized values of member group entries." uuid="9109d3a6-7a5c-4ab9-8ff7-8b5da86662c6">
+      <field name="member_group" description="Localized member group." type="integer" size="10" required="true" primary="true" uuid="50cea140-df01-48c0-acf5-c4eb21f055ba"/>
+      <field name="language" description="Localization language." type="integer" size="5" required="true" primary="true" uuid="ba9a27ae-211a-4b5b-b339-3e6dd10e8cb0"/>
+      <field name="name" description="Localized name of member group." type="string" size="45" required="true" uuid="fd15aca4-89e3-4898-967b-f0d7cdfc2ef9"/>
+      <field name="url_key" description="Localized url key of member group." type="string" size="55" required="true" uuid="3a9c0e6c-e959-4ae1-ab4a-1648abe633b7"/>
+      <field name="description" description="Localized description of member group." type="text" uuid="cd63de3f-fc90-4f32-b8b9-3a0f25ef6067"/>
+      <index name="idx_u_member_group_localization" unique="true">
+        <index-field name="member_group"/>
+        <index-field name="language"/>
+      </index>
+      <index name="idx_u_member_group_localization_url_key" unique="true">
+        <index-field name="language"/>
+        <index-field name="url_key"/>
+      </index>
+      <orm-attributes>
+        <attribute name="table">member_group_localization</attribute>
+        <attribute name="options">
+          <attribute name="charset">utf8</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+          <attribute name="engine">innodb</attribute>
+        </attribute>
+        <attribute name="export-file-name">MemberGroupLocalization.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="MemberGroupLocalization" to="MemberGroup" caption="idx_f_member_group_localization_member_group" owner-alias="localizations" inverse-alias="member_group" uuid="0132b5a4-c206-4f06-bcf7-08bf61d249f3">
+      <association-field from="member_group" to="id"/>
+    </association>
+    <association from="MemberGroupLocalization" to="Language" caption="idx_f_member_group_localization_language" inverse-alias="language" uuid="1bc49ece-cade-4d01-b739-aa1d5fe2d1e9">
+      <association-field from="language" to="id"/>
+    </association>
+    <entity name="MemberGroup" description="Stores member group definitions." uuid="d731b316-305d-4125-8824-3385eb5120ea">
+      <field name="id" description="System given id." type="integer" size="10" required="true" unique="true" primary="true" auto-increment="true" uuid="f12f3cc9-d7ed-4bce-ba74-12261fed014a"/>
+      <field name="code" description="Member group code. This is not editable." type="string" size="45" required="true" unique="true" uuid="5065cbbc-8d1e-4008-abc2-d625883939f2"/>
+      <field name="date_added" description="Date when the member group is created." type="datetime" required="true" uuid="9c0c1be6-2582-4b8a-8175-e87a6f5ffe4b"/>
+      <field name="date_updated" description="Date when the member group is last updated." type="datetime" required="true" uuid="37adbd02-e691-4c70-8fb8-b920fcb0fab2"/>
+      <field name="type" description="r:regular,a:admin,s:support" type="string" size="1" default="r" required="true" uuid="b478f8ff-bbd5-4f54-8a4b-a3d5afc85969"/>
+      <field name="count_members" description="Number of members associated with the group." type="integer" default="0" required="true" uuid="82011d13-ece5-4fda-95d8-71d03b6c13f7"/>
+      <field name="site" description="Site that member group is associated with." type="integer" size="10" uuid="e817226d-d208-42b0-8042-11eab69ef270"/>
+      <index name="idx_u_member_group_id">
+        <index-field name="id"/>
+      </index>
+      <index name="idx_u_member_group_code" unique="true">
+        <index-field name="code"/>
+      </index>
+      <index name="idx_n_member_group_date_added">
+        <index-field name="date_added"/>
+      </index>
+      <index name="idx_n_member_group_date_updated">
+        <index-field name="date_updated"/>
+      </index>
+      <orm-attributes>
+        <attribute name="options">
+          <attribute name="charset">utf8</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+          <attribute name="engine">innodb</attribute>
+        </attribute>
+        <attribute name="table">member_group</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="MemberGroup" to="Site" caption="idx_f_member_group_site" inverse-alias="site" uuid="5c053399-bdfe-4fd2-b79b-2eebb1c870ef">
+      <association-field from="site" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <entity name="Member" description="Stores member account details." uuid="afaa4cd5-a9f4-4fa8-a0f3-c68989c619fc">
+      <field name="id" description="System given id." type="integer" size="10" required="true" unique="true" primary="true" auto-increment="true" uuid="208ba264-7ded-450f-8908-e8add036ddda"/>
+      <field name="name_first" description="First name of member." type="string" size="155" uuid="506cff93-a7db-47a5-b4a7-20a517cecfef"/>
+      <field name="name_last" description="Last name of member." type="string" size="155" uuid="96c9095a-6035-42a3-a841-54f5bee1260c"/>
+      <field name="email" description="Email of the account owner." type="string" size="255" required="true" unique="true" uuid="4b050af5-6a77-4f90-8ff7-49a2470bde58"/>
+      <field name="username" description="username of the account owner." type="string" size="155" required="true" unique="true" uuid="9d062d3e-f9bd-4e47-b6fd-9285101acfbe"/>
+      <field name="password" description="Encoded password of the user." type="text" required="true" uuid="c6ea77ec-0930-42b3-86ad-4113b83e6052"/>
+      <field name="date_birth" description="Birth date of the member." type="datetime" uuid="247b4de5-b35d-47c1-98fd-7ea975a37b91"/>
+      <field name="file_avatar" description="If exitsts, path to the avatar of the member." type="text" uuid="26747695-1220-4376-ae00-136e565914ad"/>
+      <field name="date_registration" description="Account registration date." type="datetime" required="true" uuid="99a6b542-01a4-4ae1-942a-018fc38967e7"/>
+      <field name="date_activation" description="Account activation date." type="datetime" required="true" uuid="c03c3bed-1f6c-468b-aa0f-8d63c0a19e17"/>
+      <field name="date_status_changed" description="Date when the account status last changed." type="datetime" required="true" uuid="961fc7b1-5168-4b9a-a8b2-b8002c53194b"/>
+      <field name="status" description="a:active,i:inactive,b:banned,n:never activated" type="string" size="1" default="i" required="true" uuid="3d5f335f-3bee-4b2d-83cd-bb040aad4a94"/>
+      <field name="key_activation" description="Activation key / string." type="text" uuid="33d0e83b-9cb4-4af9-84d1-1c5fdf66793d"/>
+      <field name="language" description="Member's default language." type="integer" size="5" uuid="52b469e8-b488-4e30-b008-7f62a031cfe1"/>
+      <field name="site" description="Primary site that user has registered with." type="integer" size="10" uuid="15cbd727-4a4c-4456-8d3b-4191d068c53a"/>
+      <index name="idx_u_member_id" unique="true">
+        <index-field name="id"/>
+      </index>
+      <index name="idx_n_full_name">
+        <index-field name="name_first"/>
+        <index-field name="name_last"/>
+      </index>
+      <index name="idx_u_member_username" unique="true">
+        <index-field name="username"/>
+      </index>
+      <index name="idx_u_member_email">
+        <index-field name="email"/>
+      </index>
+      <index name="idx_n_member_date_registeration">
+        <index-field name="date_registration"/>
+      </index>
+      <index name="idx_n_member_date_birth">
+        <index-field name="date_birth"/>
+      </index>
+      <index name="idx_n_member_date_activation">
+        <index-field name="date_activation"/>
+      </index>
+      <index name="idx_n_member_date_status_changed">
+        <index-field name="date_status_changed"/>
+      </index>
+      <orm-attributes>
+        <attribute name="options">
+          <attribute name="charset">utf8</attribute>
+          <attribute name="collate">utf8_turkish_ci</attribute>
+          <attribute name="engine">innodb</attribute>
+        </attribute>
+        <attribute name="table">member</attribute>
+        <attribute name="export-file-name">Member.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="Member" to="Language" caption="idx_f_member_language" inverse-alias="language" uuid="9aa319f9-0057-4338-9baa-01096d251a53">
+      <association-field from="language" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <association from="Member" to="Site" caption="idx_f_member_site" inverse-alias="site" uuid="98d48d17-f488-4b18-833f-1671af44d614">
+      <association-field from="site" to="id"/>
+      <orm-attributes>
+        <attribute name="on-delete">CASCADE</attribute>
+      </orm-attributes>
+    </association>
+    <comment caption="MemberManagementBundle Pricing" description="files_of_member: 130 TL&#10;member: 370 TL&#10;member_localization: 150 TL&#10;member_group: 185 TL&#10;member_group_localization: 150 TL&#10;members_of_group: 155 TL&#10;members_of_site: 110 TL&#10;&#10;toplam: 1250 TL" uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb"/>
+    <comment caption="MemberManagementBundle Pricing" description="files_of_member: 130 TL&#10;member: 370 TL&#10;member_localization: 150 TL&#10;member_group: 185 TL&#10;member_group_localization: 150 TL&#10;members_of_group: 155 TL&#10;members_of_site: 110 TL&#10;&#10;toplam: 1250 TL" uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb"/>
+    <orm-attributes>
+      <attribute name="namespace">BiberLtd\Core\Bundles\MemberManagementBundle\Entity</attribute>
+      <attribute name="file-suffix">without-suffix</attribute>
+      <attribute name="filename-format">entity-name-only</attribute>
+    </orm-attributes>
+  </module>
+  <visual-data>
+    <entity uuid="062dc364-3d01-474f-8a28-77bb8b1e21fd" bg-color="4294967295" hdr-color="4292006610" position-x="567" position-y="-8" size-x="0" size-x2="118" size-y="0" size-y2="59"/>
+    <entity uuid="07eeeac7-da1a-48f5-96c1-665a12f5d84f" bg-color="4294967295" hdr-color="4292006610" position-x="800" position-y="351" size-x="0" size-x2="125" size-y="0" size-y2="73"/>
+    <entity uuid="9109d3a6-7a5c-4ab9-8ff7-8b5da86662c6" bg-color="4294967295" hdr-color="4292006610" position-x="100" position-y="351" size-x="0" size-x2="140" size-y="0" size-y2="87"/>
+    <entity uuid="9df7cd56-6a97-410f-b0fe-2fd5538bd528" bg-color="4294967295" hdr-color="4292006610" position-x="350" position-y="1" size-x="0" size-x2="112" size-y="0" size-y2="87"/>
+    <entity uuid="a12d9552-e3b0-4189-870d-82bf4cd5b6ed" bg-color="4294967295" hdr-color="4292006610" position-x="800" position-y="201" size-x="0" size-x2="118" size-y="0" size-y2="73"/>
+    <entity uuid="afaa4cd5-a9f4-4fa8-a0f3-c68989c619fc" bg-color="4294967295" hdr-color="4292006610" position-x="412" position-y="209" size-x="0" size-x2="159" size-y="0" size-y2="227"/>
+    <comment uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb" bg-color="4294948765" position-x="0" position-y="-27" size-x="0" size-x2="168" size-y="0" size-y2="128" txt-color="4278190080"/>
+    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="4291231744" size-x="0" size-x2="1100" size-y="49" size-y2="501"/>
+    <entity uuid="d731b316-305d-4125-8824-3385eb5120ea" bg-color="4294967295" hdr-color="4292006610" position-x="100" position-y="151" size-x="0" size-x2="129" size-y="0" size-y2="115"/>
+  </visual-data>
+</skipper>
