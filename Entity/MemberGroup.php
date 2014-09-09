@@ -1,7 +1,7 @@
 <?php
 /**
  * @name        MemberGroup
- * @package		BiberLtd\Core\MemberManagementBundle
+ * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
  *
  * @author		Can Berkol
  *              Murat Ünal
@@ -14,11 +14,11 @@
  * @description Model / Entity class.
  *
  */
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Entity;
+namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use BiberLtd\Core\CoreLocalizableEntity;
-use BiberLtd\Core\Bundles\MemberManagementBundle\Exceptions;
+use BiberLtd\Bundle\CoreBundle\CoreLocalizableEntity;
+use BiberLtd\Bundle\MemberManagementBundle\Exceptions;
 
 /**
  * @ORM\Table(
@@ -41,7 +41,7 @@ class MemberGroup extends CoreLocalizableEntity{
     public $date_updated;
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberGroupLocalization",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroupLocalization",
      *     mappedBy="member_group"
      * )
      */
@@ -71,7 +71,7 @@ class MemberGroup extends CoreLocalizableEntity{
      */
     private $count_members;
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     private $site;
@@ -206,7 +206,7 @@ class MemberGroup extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.7
      *
-     * @param           BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site          $site
+     * @param           BiberLtd\Bundle\SiteManagementBundle\Entity\Site          $site
      *
      * @return          object          $this
      */
@@ -227,7 +227,7 @@ class MemberGroup extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site          $this->site
+     * @return          BiberLtd\Bundle\SiteManagementBundle\Entity\Site          $this->site
      */
     public function getSite(){
         return $this->site;

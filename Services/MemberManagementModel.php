@@ -41,19 +41,19 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Services;
+namespace BiberLtd\Bundle\MemberManagementBundle\Services;
 
 /** CoreModel */
-use BiberLtd\Core\CoreModel;
+use BiberLtd\Bundle\CoreBundle\CoreModel;
 /** Entities to be used */
-use BiberLtd\Core\Bundles\MemberManagementBundle\Entity as BundleEntity;
-use BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity as MLSEntity;
+use BiberLtd\Bundle\MemberManagementBundle\Entity as BundleEntity;
+use BiberLtd\Bundle\MultiLanguageSupportBundle\Entity as MLSEntity;
 /** Helper Models */
-use BiberLtd\Core\Bundles\SiteManagementBundle\Services as SMMService;
-use BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Services as MLSService;
+use BiberLtd\Bundle\SiteManagementBundle\Services as SMMService;
+use BiberLtd\Bundle\MultiLanguageSupportBundle\Services as MLSService;
 /** Core Service */
-use BiberLtd\Core\Services as CoreServices;
-use BiberLtd\Core\Exceptions as CoreExceptions;
+use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
+use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class MemberManagementModel extends CoreModel {
@@ -2773,7 +2773,7 @@ class MemberManagementModel extends CoreModel {
 
     /**
      * @name            validateAndGetMember()
-     *                  Validates $member parameter and returns BiberLtd\Core\Bundles\MemberManagementBundle\Entity\Member if found in database.
+     *                  Validates $member parameter and returns BiberLtd\Bundle\MemberManagementBundle\Entity\Member if found in database.
      *
      * @since           1.3.6
      * @version         1.3.6
@@ -2784,7 +2784,7 @@ class MemberManagementModel extends CoreModel {
      *
      * @param           mixed           $member
      *
-     * @return          object          BiberLtd\Core\Bundles\MemberManagementBundle\Entity\Member
+     * @return          object          BiberLtd\Bundle\MemberManagementBundle\Entity\Member
      */
     public function validateAndGetMember($member){
         if (!is_numeric($member) && !$member instanceof BundleEntity\Member) {

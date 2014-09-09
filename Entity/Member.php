@@ -1,7 +1,7 @@
 <?php
 /**
  * @name        Member
- * @package		BiberLtd\Core\MemberManagementBundle
+ * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
  *
  * @author		Can Berkol
  *              Murat Ünal
@@ -16,11 +16,11 @@
  *
  */
 
-namespace BiberLtd\Core\Bundles\MemberManagementBundle\Entity;
+namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use BiberLtd\Core\CoreLocalizableEntity;
+use BiberLtd\Bundle\CoreBundle\CoreLocalizableEntity;
 
 /**
  * @ORM\Entity
@@ -115,7 +115,7 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\FilesOfMember",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember",
      *     mappedBy="member"
      * )
      */
@@ -123,7 +123,7 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberLocalization",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberLocalization",
      *     mappedBy="member"
      * )
      */
@@ -131,13 +131,13 @@ class Member extends CoreLocalizableEntity{
 
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $language;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $site;
@@ -664,7 +664,7 @@ class Member extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Language
+     * @return          BiberLtd\Bundle\MultiLanguageSupportBundle\Language
      */
     public function getLanguage(){
         return $this->language;
@@ -698,7 +698,7 @@ class Member extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bunles\SiteManagementBundle\Entity\Site
+     * @return          BiberLtd\Bundle\CoreBundle\Bunles\SiteManagementBundle\Entity\Site
      */
     public function getSite(){
         return $this->site;

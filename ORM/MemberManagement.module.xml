@@ -268,7 +268,7 @@
     <comment caption="MemberManagementBundle Pricing" description="files_of_member: 130 TL&#10;member: 370 TL&#10;member_localization: 150 TL&#10;member_group: 185 TL&#10;member_group_localization: 150 TL&#10;members_of_group: 155 TL&#10;members_of_site: 110 TL&#10;&#10;toplam: 1250 TL" uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb"/>
     <comment caption="MemberManagementBundle Pricing" description="files_of_member: 130 TL&#10;member: 370 TL&#10;member_localization: 150 TL&#10;member_group: 185 TL&#10;member_group_localization: 150 TL&#10;members_of_group: 155 TL&#10;members_of_site: 110 TL&#10;&#10;toplam: 1250 TL" uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb"/>
     <orm-attributes>
-      <attribute name="namespace">BiberLtd\Core\Bundles\MemberManagementBundle\Entity</attribute>
+      <attribute name="namespace">BiberLtd\Bundle\MemberManagementBundle\Entity</attribute>
       <attribute name="file-suffix">without-suffix</attribute>
       <attribute name="filename-format">entity-name-only</attribute>
     </orm-attributes>
