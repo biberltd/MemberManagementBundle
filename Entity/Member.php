@@ -6,8 +6,8 @@
  * @author		Can Berkol
  *              Murat Ünal
  *              Said İmamoğlu
- * @version     1.1.1
- * @date        07.07.2014
+ * @version     1.1.4
+ * @date        09.02.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -50,8 +50,8 @@ class Member extends CoreLocalizableEntity{
     protected $id;
 
     /**
-     * 
-     */
+     *
+    @ORM\Column(type="text", nullable=true)*/
     protected $extra_info;
     /**
      * @ORM\Column(type="string", length=155, nullable=true)
@@ -114,8 +114,18 @@ class Member extends CoreLocalizableEntity{
     protected $key_activation;
 
     /**
+     * @ORM\Column(type="string", length=1, nullable=true)
+     */
+    private $gender;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_last_login;
+
+    /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember",
+     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\FilesOfMember",
      *     mappedBy="member"
      * )
      */
@@ -123,24 +133,25 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberLocalization",
+     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberLocalization",
      *     mappedBy="member"
      * )
      */
     protected $localizations;
 
-
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $language;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $site;
+
+    private $passwordChanged = false;
     /******************************************************************
      * PUBLIC SET AND GET FUNCTIONS                                   *
      ******************************************************************/
@@ -332,7 +343,7 @@ class Member extends CoreLocalizableEntity{
      * @author          Can Berkol
      *                  Murat Ünal
      * @since			1.0.0
-     * @version         1.0.7
+     * @version         1.1.2
      *
      * @param           string          $password
      *
@@ -343,8 +354,23 @@ class Member extends CoreLocalizableEntity{
             return $this;
         }
         $this->password = $password;
-
+        $this->passwordChanged = true;
         return $this;
+    }
+    /**
+     * @name            setPasswordChanged()
+     *  				Sets $passwordChanged property.
+     * .
+     * @author          Can Berkol
+     * @since			1.1.2
+     * @version         1.1.2
+     *
+     * @param           bool            $status
+     *
+     * @return          bool
+     */
+    public function setPasswordChanged($status){
+        return $this->passwordChanged = $status;
     }
     /**
      * @name            getPassword()
@@ -358,6 +384,19 @@ class Member extends CoreLocalizableEntity{
      */
     public function getPassword(){
         return $this->password;
+    }
+    /**
+     * @name            isPasswordChanged()
+     *  				Gets $passwordChanged property.
+     * .
+     * @author          Can Berkol
+     * @since			1.1.2
+     * @version         1.1.2
+     *
+     * @return          bool
+     */
+    public function isPasswordChanged(){
+        return $this->passwordChanged;
     }
     /**
      * @name            setDateBirth()
@@ -664,7 +703,7 @@ class Member extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Bundle\MultiLanguageSupportBundle\Language
+     * @return          BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Language
      */
     public function getLanguage(){
         return $this->language;
@@ -698,16 +737,112 @@ class Member extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Bundle\CoreBundle\Bunles\SiteManagementBundle\Entity\Site
+     * @return          BiberLtd\Core\Bunles\SiteManagementBundle\Entity\Site
      */
     public function getSite(){
         return $this->site;
+    }
+
+    /**
+     * @name        getGender ()
+     *
+     * @author      Can Berkol
+     *
+     * @since       1.1.3
+     * @version     1.1.3
+     *
+     * @return      mixed
+     */
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+    /**
+     * @name        setGender ()
+     *
+     * @author      Can Berkol
+     *
+     * @since       1.1.3
+     * @version     1.1.3
+     *
+     * @param       mixed $gender
+     *
+     * @return      $this
+     */
+    public function setGender($gender)
+    {
+        if(!$this->setModifiled('gender', $gender)->isModified()){
+            return $this;
+        }
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    /**
+     * @name        getDateLastLogin ()
+     *
+     * @author      Can Berkol
+     *
+     * @since       1.1.4
+     * @version     1.1.4
+     *
+     * @return      mixed
+     */
+    public function getDateLastLogin()
+    {
+        return $this->date_last_login;
+    }
+
+    /**
+     * @name        setDateLastLogin ()
+     *
+     * @author      Can Berkol
+     *
+     * @since       1.1.4
+     * @version     1.1.4
+     *
+     * @param       mixed $date_last_login
+     *
+     * @return      $this
+     */
+    public function setDateLastLogin($date_last_login){
+        if(!$this->setModifiled('date_last_login', $date_last_login)->isModified()){
+            return $this;
+        }
+        $this->date_last_login = $date_last_login;
+
+        return $this;
     }
 }
 /**
  * Change Log:
  * **************************************
- * v1.1.1                      Said İmamoğlu
+ * v1.1.4                      Can Berkol
+ * 09.02.2015
+ * **************************************
+ * A getDateLastlogin()
+ * A setDateLastlogin()
+ *
+ * **************************************
+ * v1.1.3                      Can Berkol
+ * 28.01.2015
+ * **************************************
+ * A getGender()
+ * A setGender()
+ *
+ * **************************************
+ * v1.1.2                      Can Berkol
+ * 15.08.2014
+ * **************************************
+ * passwordChanged private member added.
+ * A isPasswordChanged()
+ * A setPasswordChanged()
+ * U setPassword()
+ *
+ * **************************************
+ * v1.1.1                   Said İmamoğlu
  * 07.07.2014
  * **************************************
  * A getExtraInfo()
