@@ -125,7 +125,7 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\FilesOfMember",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\MemberManagementBundle\Entity\FilesOfMember",
      *     mappedBy="member"
      * )
      */
@@ -133,20 +133,20 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberLocalization",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\MemberManagementBundle\Entity\MemberLocalization",
      *     mappedBy="member"
      * )
      */
     protected $localizations;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $language;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $site;
@@ -703,7 +703,7 @@ class Member extends CoreLocalizableEntity{
      * @since			1.0.0
      * @version         1.0.0
      *
-     * @return          BiberLtd\Core\Bundles\MultiLanguageSupportBundle\Language
+     * @return          BiberLtd\Bundle\MemberManagementBundle\MultiLanguageSupportBundle\Language
      */
     public function getLanguage(){
         return $this->language;
