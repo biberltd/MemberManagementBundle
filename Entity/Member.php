@@ -125,7 +125,7 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\MemberManagementBundle\Entity\FilesOfMember",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember",
      *     mappedBy="member"
      * )
      */
@@ -133,20 +133,20 @@ class Member extends CoreLocalizableEntity{
 
     /**
      * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\MemberManagementBundle\Entity\MemberLocalization",
+     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberLocalization",
      *     mappedBy="member"
      * )
      */
     protected $localizations;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\MultiLanguageSupportBundle\Entity\Language")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $language;
 
     /**
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\SiteManagementBundle\Entity\Site")
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $site;
