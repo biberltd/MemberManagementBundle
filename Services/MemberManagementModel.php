@@ -14,8 +14,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.3.6
- * @date        07.07.2014
+ * @version     1.3.8
+ * @date        23.03.2015
  *
  * @use         Biberltd\Core\Services\Encryption
  *
@@ -1039,6 +1039,71 @@ class MemberManagementModel extends CoreModel {
     }
 
     /**
+     * @name 			listMembersOfSite()
+     *  				Lists all members that are associated with a site.
+     *
+     * @since			1.3.8
+     * @version         1.3.8
+     *
+     * @author          Can Berkol
+     *
+     * @use             $this->createException()
+     *
+     * @param           integer         $site
+     * @param           array           $filter
+     * @param           array           $sortorder
+     * @param           array           $limit
+     *
+     * @return          array           $response
+     */
+    public function listMembersOfSite($site, $filter = null, $sortorder = null, $limit = null){
+        if(!$site instanceof SiteEntity\Site && !is_numeric($site) && !is_string($site)){
+            return $this->createException('InvalidParameterException', 'Site entity, id, or url_key', 'err.invalid.parameter');
+        }
+        if(!$site instanceof SiteEntity\Site){
+            if(is_numeric($site)){
+                $model = $this->kernel->getContainer()->get('sitemanagement.model');
+                $response = $model->getSite($site);
+                if($response['error']){
+                    return $this->createException('InvalidParameterException', 'Site entity, id, or url_key', 'err.invalid.parameter');
+                }
+                $site = $response['result']['set'];
+            }
+            elseif(is_string($site)){
+                $model = $this->kernel->getContainer()->get('sitemanagement.model');
+                $response = $model->getSite($site, 'url_key');
+                if($response['error']){
+                    return $this->createException('InvalidParameterException', 'Site entity, id, or url_key', 'err.invalid.parameter');
+                }
+                $group = $response['result']['set'];
+            }
+        }
+        $qStr = 'SELECT '.$this->entity['members_of_site']['alias']
+            .' FROM '.$this->entity['members_of_site']['name'].' '.$this->entity['members_of_site']['alias']
+            .' WHERE '.$this->entity['members_of_site']['alias'].'.site = '.$site->getId();
+
+        $query = $this->em->createQuery($qStr);
+
+        $result = $query->getResult();
+        $memberIds = array();
+        foreach($result as $item){
+            $memberIds[] = $item->getMember()->getId();
+        }
+
+        $filter[] = array(
+            'glue' => 'and',
+            'condition' => array(
+                array(
+                    'glue' => 'and',
+                    'condition' => array('column' => $this->entity['member']['alias'].'.id', 'comparison' => 'in', 'value' => $memberIds),
+                )
+            )
+        );
+
+        return $this->listMembers($filter, $sortorder, $limit);
+    }
+    
+    /**
      * @name 			listMemberOfGroups()
      *  				List members of a group from database.
      *
@@ -2053,7 +2118,7 @@ class MemberManagementModel extends CoreModel {
      *  				Updates one or more group details in database.
      *
      * @since			1.0.0
-     * @version         1.3.0
+     * @version         1.3.7
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -2073,6 +2138,13 @@ class MemberManagementModel extends CoreModel {
         foreach($collection as $data){
             if($data instanceof BundleEntity\Member){
                 $entity = $data;
+                if($entity->isPasswordChanged()){
+                    /** We will need the encryption service to encrypt password. */
+                    $enc = $this->kernel->getContainer()->get('encryption');
+                    $password = $enc->input($entity->getPassword())->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
+                    $entity->setPassword($password);
+                    $entity->setPasswordChanged(false);
+                }
                 $this->em->persist($entity);
                 $updatedItems[] = $entity;
                 $countUpdates++;
@@ -2817,22 +2889,34 @@ class MemberManagementModel extends CoreModel {
 /**
  * Change Log
  * **************************************
- * v1.3.6                       Said İmamoğlu
+ * v1.3.8                      Can Berkol
+ * 23.03.2015
+ * **************************************
+ * A listMembersOfSite()
+ *
+ * **************************************
+ * v1.3.7                      Can Berkol
+ * 15.08.2014
+ * **************************************
+ * U updateMembers()
+ *
+ * **************************************
+ * v1.3.6                   Said İmamoğlu
  * 07.07.2014
  * **************************************
  * A validateAndGetMember()
  * **************************************
- * v1.3.5                       Said İmamoğlu
+ * v1.3.5                   Said İmamoğlu
  * 27.06.2014
  * **************************************
  * U listMembers()
  * **************************************
- * v1.3.4                       Can Berkol
+ * v1.3.4                      Can Berkol
  * 05.06.2014
  * **************************************
  * A checkMemberPassword()
  * **************************************
- * v1.3.3                       Can Berkol
+ * v1.3.3                      Can Berkol
  * 25.05.2014
  * **************************************
  * D listMembersOfGroupByGroup()
