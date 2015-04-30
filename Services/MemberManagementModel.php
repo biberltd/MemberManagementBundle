@@ -14,30 +14,8 @@
  *
  * @copyright   Biber Ltd. (www.biberltd.com)
  *
- * @version     1.3.8
- * @date        23.03.2015
- *
- * @use         Biberltd\Core\Services\Encryption
- *
- * =============================================================================================================
- * !! INSTRUCTIONS ON IMPORTANT ASPECTS OF MODEL METHODS !!!
- *
- * Each model function must return a $response ARRAY.
- * The array must contain the following keys and corresponding values.
- *
- * $response = array(
- *              'result'    =>   An array that contains the following keys:
- *                               'set'         Actual result set returned from ORM or null
- *                               'total_rows'  0 or number of total rows
- *                               'last_insert_id' The id of the item that is added last (if insert action)
- *              'error'     =>   true if there is an error; false if there is none.
- *              'code'      =>   null or a semantic and short English string that defines the error concanated
- *                               with dots, prefixed with err and the initials of the name of model class.
- *                               EXAMPLE: err.amm.action.not.found success messages have a prefix called scc..
- *
- *                               NOTE: DO NOT FORGET TO ADD AN ENTRY FOR ERROR CODE IN BUNDLE'S
- *                               RESOURCES/TRANSLATIONS FOLDER FOR EACH LANGUAGE.
- * =============================================================================================================
+ * @version     1.3.9
+ * @date        30.04.2015
  *
  */
 
@@ -261,7 +239,7 @@ class MemberManagementModel extends CoreModel {
      *  				Get the total count of members of a given group.
      *
      * @since			1.2.7
-     * @version         1.2.8
+     * @version         1.3.9
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -282,7 +260,7 @@ class MemberManagementModel extends CoreModel {
                 $groupId = $group->getId();
                 break;
             case is_numeric($group):
-                $response = $this->getMemberGroup($group, 'id');
+                $response = $this->getGroup($group, 'id');
                 if(!$response['error']){
                     $group = $response['result']['set'];
                     $groupId = $group->getId();
@@ -291,7 +269,7 @@ class MemberManagementModel extends CoreModel {
                 unset($response);
                 break;
             case is_string($group):
-                $response = $this->getMemberGroup($group, 'code');
+                $response = $this->getGroup($group, 'code');
                 if(!$response['error']){
                     $group = $response['result']['set'];
                     $groupId = $group->getId();
@@ -703,7 +681,7 @@ class MemberManagementModel extends CoreModel {
      *  				List member groups of a specified member from database.
      *
      * @since			1.2.4
-     * @version         1.2.4
+     * @version         1.3.9
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -811,7 +789,7 @@ class MemberManagementModel extends CoreModel {
 
         $groups = array();
         foreach ($result as $mog) {
-            $groups[] = $mog->getMemberGroup();
+            $groups[] = $mog->getGroup();
         }
         $total_rows = count($groups);
 
@@ -965,7 +943,7 @@ class MemberManagementModel extends CoreModel {
      *  				This an alias that use listMembersOfGroupByGroup()
      *
      * @since			1.3.3
-     * @version         1.3.3
+     * @version         1.3.9
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
@@ -986,14 +964,14 @@ class MemberManagementModel extends CoreModel {
         }
         if(!$group instanceof BundleEntity\MemberGroup){
             if(is_numeric($group)){
-                $response = $this->getMemberGroup($group);
+                $response = $this->getGroup($group);
                 if($response['error']){
                     return $this->createException('InvalidParameterException', 'MemberGroup entity, id, or code', 'err.invalid.parameter');
                 }
                 $group = $response['result']['set'];
             }
             elseif(is_string($group)){
-                $response = $this->getMemberGroup($group, 'code');
+                $response = $this->getGroup($group, 'code');
                 if($response['error']){
                     return $this->createException('InvalidParameterException', 'MemberGroup entity, id, or code', 'err.invalid.parameter');
                 }
@@ -1284,10 +1262,10 @@ class MemberManagementModel extends CoreModel {
         $memberGroups = array();
         $unique = array();
         foreach ($result as $entry) {
-            $id = $entry->getMemberGroup()->getId();
+            $id = $entry->getGroup()->getId();
             if (!isset($unique[$id])) {
-                $memberGroups[] = $entry->getMemberGroup();
-                $unique[$id] = $entry->getMemberGroup();
+                $memberGroups[] = $entry->getGroup();
+                $unique[$id] = $entry->getGroup();
             }
         }
         unset($unique);
@@ -1408,7 +1386,7 @@ class MemberManagementModel extends CoreModel {
     }
 
     /**
-     * @name 			getMemberGroup()
+     * @name 			getGroup()
      *  				Returns details of a member group.
      *
      * @since			1.0.0
@@ -1422,7 +1400,7 @@ class MemberManagementModel extends CoreModel {
      *
      * @return          mixed           $response
      */
-    public function getMemberGroup($group, $by = 'id') {
+    public function getGroup($group, $by = 'id') {
         $this->resetResponse();
         if ($by != 'id' && $by != 'code' && $by != 'entity' && $by != 'url_key') {
             return $this->createException('InvalidParameterException', 'id, code, url_key', 'err.invalid.parameter.by');
@@ -1479,7 +1457,7 @@ class MemberManagementModel extends CoreModel {
     }
 
     /**
-     * @name 			getMemberGroupLocalization()
+     * @name 			getGroupLocalization()
      *  				Gets a specific member group's localization values from database.
      *
      * @since			1.0.1
@@ -1493,7 +1471,7 @@ class MemberManagementModel extends CoreModel {
      *
      * @return          array           $response
      */
-    public function getMemberGroupLocalization($group, $language) {
+    public function getGroupLocalization($group, $language) {
         $this->resetResponse();
         if (!$group instanceof BundleEntity\MemberGroup) {
             return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.group');
@@ -1648,7 +1626,7 @@ class MemberManagementModel extends CoreModel {
      * @version         1.2.2
      * @author          Can Berkol
      *
-     * @use             $this->getMemberGroup()
+     * @use             $this->getGroup()
      *
      * @param           mixed           $group          MemberGroup entity or member group id.
      * @param           string          $by             id, code
@@ -1660,7 +1638,7 @@ class MemberManagementModel extends CoreModel {
         $this->resetResponse();
         $exist = false;
 
-        $response = $this->getMemberGroup($group, $by);
+        $response = $this->getGroup($group, $by);
         if (!$response['error']) {
             if ($response['result']['total_rows'] > 0) {
                 $exist = true;
@@ -2052,7 +2030,7 @@ class MemberManagementModel extends CoreModel {
      *  				Inserts one or more member localizations into database.
      *
      * @since			1.3.0
-     * @version         1.3.0
+     * @version         1.3.9
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -2079,7 +2057,7 @@ class MemberManagementModel extends CoreModel {
             else{
                 foreach($item['localizations'] as $language => $data){
                     $entity = new BundleEntity\MemberGroupLocalization;
-                    $entity->setMemberGroup($item['entity']);
+                    $entity->setGroup($item['entity']);
                     $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
                     $response = $mlsModel->getLanguage($language, 'iso_code');
                     if(!$response['error']){
@@ -2276,7 +2254,7 @@ class MemberManagementModel extends CoreModel {
      *  				Updates one or more group details in database.
      *
      * @since			1.0.0
-     * @version         1.3.0
+     * @version         1.3.9
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -2307,7 +2285,7 @@ class MemberManagementModel extends CoreModel {
                 if(!property_exists($data, 'site')){
                     $data->site = 1;
                 }
-                $response = $this->getMemberGroup($data->id, 'id');
+                $response = $this->getGroup($data->id, 'id');
                 if($response['error']){
                     return $this->createException('EntityDoesNotExist', 'Product with id '.$data->id, 'err.invalid.entity');
                 }
@@ -2326,7 +2304,7 @@ class MemberManagementModel extends CoreModel {
                                     $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
                                     $response = $mlsModel->getLanguage($langCode, 'iso_code');
                                     $localization->setLanguage($response['result']['set']);
-                                    $localization->setMemberGroup($oldEntity);
+                                    $localization->setGroup($oldEntity);
                                 }
                                 foreach($translation as $transCol => $transVal){
                                     $transSet = 'set'.$this->translateColumnName($transCol);
@@ -2446,11 +2424,11 @@ class MemberManagementModel extends CoreModel {
      *  				Add member to one or more groups.
      *
      * @since			1.0.0
-     * @version         1.2.2
+     * @version         1.3.9
      * @author          Can Berkol
      *
      * @use             $this->getMember()
-     * @use             $this->getMemberGroup()
+     * @use             $this->getGroup()
      * @use             $this->isMemberOfGroup()
      * @use             $this->createException()
      *
@@ -2486,7 +2464,7 @@ class MemberManagementModel extends CoreModel {
         $to_add = array();
         foreach ($groups as $group) {
             if (is_numeric($group)) {
-                $response = $this->getMemberGroup($group, 'id');
+                $response = $this->getGroup($group, 'id');
                 if ($response['error']) {
                     new CoreExceptions\MemberGroupDoesNotExistException($this->kernel, $group);
                     break;
@@ -2494,7 +2472,7 @@ class MemberManagementModel extends CoreModel {
                 $group = $response['result']['set'];
             }
             else if (is_string($group)) {
-                $response = $this->getMemberGroup($group, 'code');
+                $response = $this->getGroup($group, 'code');
                 if ($response['error']) {
                     new CoreExceptions\MemberGroupDoesNotExistException($this->kernel, $group);
                     break;
@@ -2511,7 +2489,7 @@ class MemberManagementModel extends CoreModel {
         $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
         foreach ($to_add as $group) {
             $entity = new BundleEntity\MembersOfGroup();
-            $entity->setMember($member)->setMemberGroup($group)->setDateAdded($now);
+            $entity->setMember($member)->setGroup($group)->setDateAdded($now);
             /**
              * Increment count_members of MemberGroup
              */
@@ -2542,7 +2520,7 @@ class MemberManagementModel extends CoreModel {
      * @author          Can Berkol
      *
      * @use             $this->getMember()
-     * @use             $this->getMemberGroup()
+     * @use             $this->getGroup()
      * @use             $this->isMemberOfGroup()
      * @use             $this->createException()
      *
@@ -2554,13 +2532,13 @@ class MemberManagementModel extends CoreModel {
     public function addGroupToMembers($group, $members) {
         $this->resetResponse();
         if (is_numeric($group)) {
-            $response = $this->getMemberGroup($group, 'id');
+            $response = $this->getGroup($group, 'id');
             if ($response['error']) {
                 return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.member_group');
             }
             $group = $response['result']['set'];
         } else if (is_string($group)) {
-            $response = $this->getMemberGroup($group, 'code');
+            $response = $this->getGroup($group, 'code');
             if (!$response['error']) {
                 $group = $response['result']['set'];
             } else {
@@ -2647,7 +2625,7 @@ class MemberManagementModel extends CoreModel {
         if (is_object($group)) {
             $group = $group->getId();
         } else if (is_string($group)) {
-            $response = $this->getMemberGroup($group, 'code');
+            $response = $this->getGroup($group, 'code');
             if (!$response['error']) {
                 $group = $response['result']['set']->getId();
             } else {
@@ -2742,7 +2720,7 @@ class MemberManagementModel extends CoreModel {
                 $group = $group;
             }
             else if (is_string($group)) {
-                $response = $this->getMemberGroup($group, 'code');
+                $response = $this->getGroup($group, 'code');
                 if (!$response['error']) {
                     $group = $response['result']['set']->getId();
                 } else {
@@ -2889,6 +2867,12 @@ class MemberManagementModel extends CoreModel {
 /**
  * Change Log
  * **************************************
+ * v1.3.9                      Can Berkol
+ * 30.04.2015
+ * **************************************
+ * CR :: Fixes based on entity changes.
+ *
+ * **************************************
  * v1.3.8                      Can Berkol
  * 23.03.2015
  * **************************************
@@ -2905,16 +2889,19 @@ class MemberManagementModel extends CoreModel {
  * 07.07.2014
  * **************************************
  * A validateAndGetMember()
+ *
  * **************************************
  * v1.3.5                   Said İmamoğlu
  * 27.06.2014
  * **************************************
  * U listMembers()
+ *
  * **************************************
  * v1.3.4                      Can Berkol
  * 05.06.2014
  * **************************************
  * A checkMemberPassword()
+ *
  * **************************************
  * v1.3.3                      Can Berkol
  * 25.05.2014
@@ -2989,7 +2976,7 @@ class MemberManagementModel extends CoreModel {
  * 16.12.2013
  * **************************************
  * A listMembersOfGroup()
- * U getMemberGroup()
+ * U getGroup()
  * U listMemberGroups()
  *
  * **************************************
@@ -2997,7 +2984,7 @@ class MemberManagementModel extends CoreModel {
  * 16.11.2013
  * **************************************
  * A getMemberLocalization()
- * A getMemberGroupLocalization()
+ * A getGroupLocalization()
  * M Methods are now camelCase.
  *
  * **************************************
@@ -3053,7 +3040,7 @@ class MemberManagementModel extends CoreModel {
  * A does_member_exist()
  * A does_member_group_exist()
  * A getMember()
- * A getMemberGroup()
+ * A getGroup()
  * A insert_member()
  * A insert_member_groups()
  * A list_members()

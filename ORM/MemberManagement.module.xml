@@ -5,13 +5,9 @@
       <field name="file" description="Associated file." type="integer" size="15" required="true" primary="true" uuid="10fe7d79-6b4e-453b-87fb-1184aa09fe78"/>
       <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="85657dc1-baff-4d5f-a466-2774443ee2a1"/>
       <field name="count_view" description="Total number of views of this file." type="integer" size="10" default="0" required="true" uuid="42a72279-ee1d-4956-ac72-a12747e534ae"/>
-      <field name="date_added" description="Date when the file is added to member." type="datetime" required="true" uuid="877ab001-e622-466e-9366-6e15bd56acf4"/>
-      <index name="idx_u_files_of_member" unique="true">
+      <index name="idxUFilesOfMember" unique="true">
         <index-field name="member"/>
         <index-field name="file"/>
-      </index>
-      <index name="idx_n_files_of_member_date_added">
-        <index-field name="date_added"/>
       </index>
       <orm-attributes>
         <attribute name="options">
@@ -23,10 +19,10 @@
         <attribute name="table">files_of_member</attribute>
       </orm-attributes>
     </entity>
-    <association from="FilesOfMember" to="Member" caption="idx_f_files_of_member_member" owner-alias="files_of_members" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="ae4257ec-40ad-4a53-95bc-43688e025441">
+    <association from="FilesOfMember" to="Member" caption="idxFMemberOfFiles" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="ae4257ec-40ad-4a53-95bc-43688e025441">
       <association-field from="member" to="id"/>
     </association>
-    <association from="FilesOfMember" to="File" caption="idx_f_files_of_member_file" owner-alias="files_of_members" inverse-alias="file" many-owner="true" many-inverse="false" parent-required="true" uuid="5d9fbbab-e6e7-446b-b35a-5a92b2665907">
+    <association from="FilesOfMember" to="File" caption="idxFFileOfMember" inverse-alias="file" many-owner="true" many-inverse="false" parent-required="true" uuid="5d9fbbab-e6e7-446b-b35a-5a92b2665907">
       <association-field from="file" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
@@ -36,13 +32,20 @@
       <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="1077ce84-fde9-4b93-811c-5ce669391ffb"/>
       <field name="member_group" description="Associated member group." type="integer" required="true" primary="true" uuid="f3180ba8-0ec2-4500-a85f-0581d85fa3c5"/>
       <field name="date_added" description="Date when the member is added to group." type="datetime" required="true" uuid="f38e4038-b02b-4c40-9b7c-63c34ef1f970"/>
-      <field name="referrer" description="Member who added the member to the group." type="integer" size="10" uuid="e2ebf884-ce38-46c2-9efc-45a19ee46c11"/>
-      <index name="idx_u_members_of_group" unique="true">
+      <field name="date_updated" description="Date when the entry is last updated." type="datetime" required="true" uuid="0c3204d1-0740-4166-828e-3a594f816465"/>
+      <field name="date_removed" description="Date when the entry is last removed." type="datetime" uuid="e50fcc76-476c-4f29-951d-3d2747e28291"/>
+      <index name="idxUMembersOfGroup" unique="true">
         <index-field name="member"/>
         <index-field name="member_group"/>
       </index>
-      <index name="idx_n_members_of_group_date_added">
+      <index name="idxNMembersOfGroupDateAdded">
         <index-field name="date_added"/>
+      </index>
+      <index name="idxNMembersOfGroupDateUpdated">
+        <index-field name="date_updated"/>
+      </index>
+      <index name="idxNMembersOfGroupDateRemoved">
+        <index-field name="date_removed"/>
       </index>
       <orm-attributes>
         <attribute name="options">
@@ -54,34 +57,36 @@
         <attribute name="export-file-name">MembersOfGroup.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="MembersOfGroup" to="Member" caption="idx_f_members_of_group_member" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="804845fb-f53d-4ae3-923e-e8d8a46ebef1">
+    <association from="MembersOfGroup" to="Member" caption="idxFMemberOfGroup" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="804845fb-f53d-4ae3-923e-e8d8a46ebef1">
       <association-field from="member" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="MembersOfGroup" to="MemberGroup" caption="idx_f_members_of_group_group" inverse-alias="member_group" many-owner="true" many-inverse="false" parent-required="true" uuid="d120204e-3d7c-47ea-bfe6-c33110876e00">
+    <association from="MembersOfGroup" to="MemberGroup" caption="idxFGroupOfMember" inverse-alias="group" many-owner="true" many-inverse="false" parent-required="true" uuid="d120204e-3d7c-47ea-bfe6-c33110876e00">
       <association-field from="member_group" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
-      </orm-attributes>
-    </association>
-    <association from="MembersOfGroup" to="Member" caption="idx_f_members_of_group_referrer" inverse-alias="referrer" many-owner="true" many-inverse="false" uuid="d42ac154-e050-496f-a729-5305f20f2c71">
-      <association-field from="referrer" to="id"/>
-      <orm-attributes>
-        <attribute name="on-delete">SET NULL</attribute>
       </orm-attributes>
     </association>
     <entity name="MembersOfSite" description="Associates members with sites." uuid="062dc364-3d01-474f-8a28-77bb8b1e21fd">
       <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="e2998ad5-2e62-48ea-af77-50e77dc02ea0"/>
       <field name="site" description="Associated site." type="integer" size="10" required="true" primary="true" uuid="2f4ef3be-bf71-4a9c-b633-8ba1c6095444"/>
       <field name="date_added" description="Date when the member is added to site." type="datetime" required="true" uuid="72dcad1e-000d-417e-bc2f-b18ee3a32bb4"/>
-      <index name="idx_u_members_of_site" unique="true">
+      <field name="date_updated" description="Date when the entry is last updated." type="datetime" required="true" uuid="a4281f12-9e6e-46df-aad1-cb7f90d10cfd"/>
+      <field name="date_removed" description="Date when the entry is marked as removed." type="datetime" uuid="0f78c242-b66b-44dc-991b-d19059ba7383"/>
+      <index name="idxUMembersOfSite" unique="true">
         <index-field name="member"/>
         <index-field name="site"/>
       </index>
-      <index name="idx_n_members_of_site_date_added">
+      <index name="idxNMembersOfSiteDateAdded">
         <index-field name="date_added"/>
+      </index>
+      <index name="idxNMembersOfSiteDateUpdated">
+        <index-field name="date_updated"/>
+      </index>
+      <index name="idxNMembersOfSiteDateRemoved">
+        <index-field name="date_removed"/>
       </index>
       <orm-attributes>
         <attribute name="options">
@@ -93,13 +98,13 @@
         <attribute name="export-file-name">MembersOfSite.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="MembersOfSite" to="Member" caption="idx_f_members_of_site_member" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="b1bb0d0b-841e-42dd-9eb4-9e33e559358b">
+    <association from="MembersOfSite" to="Member" caption="idxFMemberOfSite" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="b1bb0d0b-841e-42dd-9eb4-9e33e559358b">
       <association-field from="member" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="MembersOfSite" to="Site" caption="idx_f_members_of_site_site" inverse-alias="site" many-owner="true" many-inverse="false" parent-required="true" uuid="d0a6295c-5f68-40e3-bfb4-da2ca6e40fb6">
+    <association from="MembersOfSite" to="Site" caption="idxFSiteOfMember" inverse-alias="site" many-owner="true" many-inverse="false" parent-required="true" uuid="d0a6295c-5f68-40e3-bfb4-da2ca6e40fb6">
       <association-field from="site" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
@@ -111,12 +116,9 @@
       <field name="title" description="Localized title of member." type="string" size="255" uuid="4424a1f5-b879-4797-b71d-b90f22a6246c"/>
       <field name="biography" description="Localized biography of member." type="text" uuid="8e715f50-303c-4ed0-982e-77d62db3bfe8"/>
       <field name="extra_data" description="Localized extra data - serializaed array - of member." type="text" uuid="42a14804-1cfc-460b-9026-c8a18f39939f"/>
-      <index name="idx_u_member_localization">
+      <index name="idxUMemberLocalization" unique="true">
         <index-field name="member"/>
         <index-field name="language"/>
-      </index>
-      <index name="idx_n_member_localization_title">
-        <index-field name="title"/>
       </index>
       <orm-attributes>
         <attribute name="table">member_localization</attribute>
@@ -128,10 +130,10 @@
         </attribute>
       </orm-attributes>
     </entity>
-    <association from="MemberLocalization" to="Member" caption="idx_f_member_localization_member" owner-alias="localizations" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="b9e4d241-2e4f-4fbf-a78c-0414234947d6">
+    <association from="MemberLocalization" to="Member" caption="idxFLocalizedMember" owner-alias="localizations" inverse-alias="member" many-owner="true" many-inverse="false" parent-required="true" uuid="b9e4d241-2e4f-4fbf-a78c-0414234947d6">
       <association-field from="member" to="id"/>
     </association>
-    <association from="MemberLocalization" to="Language" caption="idx_f_member_localization_language" inverse-alias="language" many-owner="true" many-inverse="false" parent-required="true" uuid="e615dfba-7f2b-4dac-a61b-519c9538e9f0">
+    <association from="MemberLocalization" to="Language" caption="idxFMemberLocalizationLanguage" inverse-alias="language" many-owner="true" many-inverse="false" parent-required="true" uuid="e615dfba-7f2b-4dac-a61b-519c9538e9f0">
       <association-field from="language" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
@@ -143,11 +145,11 @@
       <field name="name" description="Localized name of member group." type="string" size="45" required="true" uuid="fd15aca4-89e3-4898-967b-f0d7cdfc2ef9"/>
       <field name="url_key" description="Localized url key of member group." type="string" size="55" required="true" uuid="3a9c0e6c-e959-4ae1-ab4a-1648abe633b7"/>
       <field name="description" description="Localized description of member group." type="text" uuid="cd63de3f-fc90-4f32-b8b9-3a0f25ef6067"/>
-      <index name="idx_u_member_group_localization" unique="true">
+      <index name="idxUMemberGroupLocalization" unique="true">
         <index-field name="member_group"/>
         <index-field name="language"/>
       </index>
-      <index name="idx_u_member_group_localization_url_key" unique="true">
+      <index name="idxUMemberGroupLocalizationUrlKey" unique="true">
         <index-field name="language"/>
         <index-field name="url_key"/>
       </index>
@@ -161,10 +163,10 @@
         <attribute name="export-file-name">MemberGroupLocalization.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="MemberGroupLocalization" to="MemberGroup" caption="idx_f_member_group_localization_member_group" owner-alias="localizations" inverse-alias="member_group" many-owner="true" many-inverse="false" parent-required="true" uuid="0132b5a4-c206-4f06-bcf7-08bf61d249f3">
+    <association from="MemberGroupLocalization" to="MemberGroup" caption="idxFLocalizedMemberGroup" owner-alias="localizations" inverse-alias="group" many-owner="true" many-inverse="false" parent-required="true" uuid="0132b5a4-c206-4f06-bcf7-08bf61d249f3">
       <association-field from="member_group" to="id"/>
     </association>
-    <association from="MemberGroupLocalization" to="Language" caption="idx_f_member_group_localization_language" inverse-alias="language" many-owner="true" many-inverse="false" parent-required="true" uuid="1bc49ece-cade-4d01-b739-aa1d5fe2d1e9">
+    <association from="MemberGroupLocalization" to="Language" caption="idxFMemberGroupLocalizationLanguage" inverse-alias="language" many-owner="true" many-inverse="false" parent-required="true" uuid="1bc49ece-cade-4d01-b739-aa1d5fe2d1e9">
       <association-field from="language" to="id"/>
     </association>
     <entity name="MemberGroup" description="Stores member group definitions." uuid="d731b316-305d-4125-8824-3385eb5120ea">
@@ -172,20 +174,24 @@
       <field name="code" description="Member group code. This is not editable." type="string" size="45" required="true" unique="true" uuid="5065cbbc-8d1e-4008-abc2-d625883939f2"/>
       <field name="date_added" description="Date when the member group is created." type="datetime" required="true" uuid="9c0c1be6-2582-4b8a-8175-e87a6f5ffe4b"/>
       <field name="date_updated" description="Date when the member group is last updated." type="datetime" required="true" uuid="37adbd02-e691-4c70-8fb8-b920fcb0fab2"/>
+      <field name="date_removed" description="Date when the entry is marked as removed." type="datetime" uuid="e79073a8-76cf-49c6-b43c-3b5db185bd0e"/>
       <field name="type" description="r:regular,a:admin,s:support" type="string" size="1" default="r" required="true" uuid="b478f8ff-bbd5-4f54-8a4b-a3d5afc85969"/>
       <field name="count_members" description="Number of members associated with the group." type="integer" default="0" required="true" uuid="82011d13-ece5-4fda-95d8-71d03b6c13f7"/>
       <field name="site" description="Site that member group is associated with." type="integer" size="10" uuid="e817226d-d208-42b0-8042-11eab69ef270"/>
-      <index name="idx_u_member_group_id">
+      <index name="idxUMemberGroupId" unique="true">
         <index-field name="id"/>
       </index>
-      <index name="idx_u_member_group_code" unique="true">
+      <index name="idxUMemberGroupCode" unique="true">
         <index-field name="code"/>
       </index>
-      <index name="idx_n_member_group_date_added">
+      <index name="idxNMemberGroupDateAdded">
         <index-field name="date_added"/>
       </index>
-      <index name="idx_n_member_group_date_updated">
+      <index name="idxNMemberGroupDateUpdated">
         <index-field name="date_updated"/>
+      </index>
+      <index name="idxNMemberGroupDateRemoved">
+        <index-field name="date_removed"/>
       </index>
       <orm-attributes>
         <attribute name="options">
@@ -196,7 +202,7 @@
         <attribute name="table">member_group</attribute>
       </orm-attributes>
     </entity>
-    <association from="MemberGroup" to="Site" caption="idx_f_member_group_site" inverse-alias="site" many-owner="true" many-inverse="false" uuid="5c053399-bdfe-4fd2-b79b-2eebb1c870ef">
+    <association from="MemberGroup" to="Site" caption="idxFSiteOfMemberGroup" inverse-alias="site" many-owner="true" many-inverse="false" uuid="5c053399-bdfe-4fd2-b79b-2eebb1c870ef">
       <association-field from="site" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
@@ -221,29 +227,31 @@
       <field name="gender" description="m:male,f:female" type="string" size="1" default="f" uuid="5e6e69d8-a78b-4807-805b-4de16e45414e"/>
       <field name="date_last_login" description="Date when the user last loggedin." type="datetime" uuid="89974941-8aa3-4153-972c-45b9898a4b41"/>
       <field name="extra_info" description="Extra user details such as settings etc." type="text" uuid="06d8f3d1-22b2-403d-ac25-60798bbb361f"/>
-      <index name="idx_u_member_id" unique="true">
+      <index name="idxUMemberId" unique="true">
         <index-field name="id"/>
       </index>
-      <index name="idx_n_full_name">
+      <index name="idxNFullNameOfMember">
         <index-field name="name_first"/>
         <index-field name="name_last"/>
       </index>
-      <index name="idx_u_member_username" unique="true">
+      <index name="idxUMemberUsername" unique="true">
         <index-field name="username"/>
+        <index-field name="site"/>
       </index>
-      <index name="idx_u_member_email">
+      <index name="idxUMemberEmail" unique="true">
         <index-field name="email"/>
+        <index-field name="site"/>
       </index>
-      <index name="idx_n_member_date_registeration">
+      <index name="idxNMemberDateRegitration">
         <index-field name="date_registration"/>
       </index>
-      <index name="idx_n_member_date_birth">
+      <index name="idxNMemberDateBirth">
         <index-field name="date_birth"/>
       </index>
-      <index name="idx_n_member_date_activation">
+      <index name="idxNMemberDateActivation">
         <index-field name="date_activation"/>
       </index>
-      <index name="idx_n_member_date_status_changed">
+      <index name="idxNMemberDateStatusChanged">
         <index-field name="date_status_changed"/>
       </index>
       <orm-attributes>
@@ -256,20 +264,18 @@
         <attribute name="export-file-name">Member.php</attribute>
       </orm-attributes>
     </entity>
-    <association from="Member" to="Language" caption="idx_f_member_language" inverse-alias="language" many-owner="true" many-inverse="false" uuid="9aa319f9-0057-4338-9baa-01096d251a53">
+    <association from="Member" to="Language" caption="idxFDefaultLanguageOfMember" inverse-alias="language" many-owner="true" many-inverse="false" uuid="9aa319f9-0057-4338-9baa-01096d251a53">
       <association-field from="language" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <association from="Member" to="Site" caption="idx_f_member_site" inverse-alias="site" many-owner="true" many-inverse="false" uuid="98d48d17-f488-4b18-833f-1671af44d614">
+    <association from="Member" to="Site" caption="idxFDefaultSiteOfMember" inverse-alias="site" many-owner="true" many-inverse="false" uuid="98d48d17-f488-4b18-833f-1671af44d614">
       <association-field from="site" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
     </association>
-    <comment caption="MemberManagementBundle Pricing" description="files_of_member: 130 TL&#10;member: 370 TL&#10;member_localization: 150 TL&#10;member_group: 185 TL&#10;member_group_localization: 150 TL&#10;members_of_group: 155 TL&#10;members_of_site: 110 TL&#10;&#10;toplam: 1250 TL" uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb"/>
-    <comment caption="MemberManagementBundle Pricing" description="files_of_member: 130 TL&#10;member: 370 TL&#10;member_localization: 150 TL&#10;member_group: 185 TL&#10;member_group_localization: 150 TL&#10;members_of_group: 155 TL&#10;members_of_site: 110 TL&#10;&#10;toplam: 1250 TL" uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb"/>
     <orm-attributes>
       <attribute name="namespace">BiberLtd\Core\Bundles\MemberManagementBundle\Entity</attribute>
       <attribute name="file-suffix">without-suffix</attribute>
@@ -283,8 +289,7 @@
     <entity uuid="9df7cd56-6a97-410f-b0fe-2fd5538bd528" bg-color="4294967295" hdr-color="4292006610" position-x="350" position-y="1" size-x="0" size-x2="112" size-y="0" size-y2="87"/>
     <entity uuid="a12d9552-e3b0-4189-870d-82bf4cd5b6ed" bg-color="4294967295" hdr-color="4292006610" position-x="800" position-y="201" size-x="0" size-x2="118" size-y="0" size-y2="73"/>
     <entity uuid="afaa4cd5-a9f4-4fa8-a0f3-c68989c619fc" bg-color="4294967295" hdr-color="4292006610" position-x="384" position-y="251" size-x="0" size-x2="159" size-y="0" size-y2="227"/>
-    <comment uuid="c9df540e-a606-4df1-8d8f-2d7a2b99dfeb" bg-color="4294948765" position-x="0" position-y="-27" size-x="0" size-x2="168" size-y="0" size-y2="128" txt-color="4278190080"/>
     <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="4291231744" size-x="0" size-x2="1100" size-y="49" size-y2="540"/>
-    <entity uuid="d731b316-305d-4125-8824-3385eb5120ea" bg-color="4294967295" hdr-color="4292006610" position-x="205" position-y="201" size-x="0" size-x2="129" size-y="0" size-y2="115"/>
+    <entity uuid="d731b316-305d-4125-8824-3385eb5120ea" bg-color="4294967295" hdr-color="4292006610" position-x="200" position-y="151" size-x="0" size-x2="130" size-y="0" size-y2="129"/>
   </visual-data>
 </skipper>

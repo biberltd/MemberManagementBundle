@@ -5,8 +5,8 @@
  *
  * @author		Can Berkol
  *              Murat Ünal
- * @version     1.0.7
- * @date        01.01.2014
+ * @version     1.0.8
+ * @date        30.04.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -25,20 +25,29 @@ use BiberLtd\Bundle\MemberManagementBundle\Exceptions;
  *     name="member_group",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
  *     indexes={
- *         @ORM\Index(name="idx_u_member_group_id", columns={"id"}),
- *         @ORM\Index(name="idx_n_member_group_date_added", columns={"date_added"}),
- *         @ORM\Index(name="idx_n_member_group_date_updated", columns={"date_updated"})
+ *         @ORM\Index(name="idxNMemberGroupDateAdded", columns={"date_added"}),
+ *         @ORM\Index(name="idxNMemberGroupDateUpdated", columns={"date_updated"}),
+ *         @ORM\Index(name="idxNMemberGroupDateRemoved", columns={"date_removed"})
  *     },
- *     uniqueConstraints={@ORM\UniqueConstraint(name="idx_u_member_group_code", columns={"code"})}
+ *     uniqueConstraints={
+ *         @ORM\UniqueConstraint(name="idxUMemberGroupId", columns={"id"}),
+ *         @ORM\UniqueConstraint(name="idxUMemberGroupCode", columns={"code"})
+ *     }
  * )
  * @ORM\Entity
- * 
+ *
  */
 class MemberGroup extends CoreLocalizableEntity{
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
-    public $date_updated;
+	/**
+	 * @ORM\Column(type="datetime", nullable=false)
+	 */
+	public $date_updated;
+
+	/**
+	 * @ORM\Column(type="datetime", nullable=true)
+	 */
+	public $date_removed;
+	/**
     /**
      * @ORM\OneToMany(
      *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroupLocalization",
@@ -284,6 +293,12 @@ class MemberGroup extends CoreLocalizableEntity{
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.8                      30.04.2015
+ * Can Berkol
+ * **************************************
+ * CR :: ORM structure has been updated.
+ *
  * **************************************
  * v1.0.7                      Can Berkol
  * 01.01.2014

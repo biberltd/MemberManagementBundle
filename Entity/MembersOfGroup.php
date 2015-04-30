@@ -3,9 +3,11 @@
  * @name        MembersOfGroup
  * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
  *
+ * @author		Can Berkol
  * @author		Murat Ünal
- * @version     1.0.3
- * @date        08.09.2013
+ *
+ * @version     1.0.4
+ * @date        30.04.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -22,8 +24,12 @@ use BiberLtd\Bundle\CoreBundle\CoreEntity;
  * @ORM\Table(
  *     name="members_of_group",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
- *     indexes={@ORM\Index(name="idx_n_members_of_group_date_added", columns={"date_added"})},
- *     uniqueConstraints={@ORM\UniqueConstraint(name="idx_u_members_of_group", columns={"member","member_group"})}
+ *     indexes={
+ *         @ORM\Index(name="idxNMembersOfGroupDateAdded", columns={"date_added"}),
+ *         @ORM\Index(name="idxNMembersOfGroupDateUpdated", columns={"date_updated"}),
+ *         @ORM\Index(name="idxNMembersOfGroupDateRemoved", columns={"date_removed"})
+ *     },
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMembersOfGroup", columns={"member","member_group"})}
  * )
  */
 class MembersOfGroup extends CoreEntity
@@ -33,6 +39,15 @@ class MembersOfGroup extends CoreEntity
      */
     public $date_added;
 
+	/**
+	 * @ORM\Column(type="datetime", nullable=false)
+	 */
+	public $date_updated;
+
+	/**
+	 * @ORM\Column(type="datetime", nullable=true)
+	 */
+	public $date_removed;
     /** 
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member")
@@ -40,18 +55,13 @@ class MembersOfGroup extends CoreEntity
      */
     private $member;
 
-    /** 
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup")
-     * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false, onDelete="CASCADE")
-     */
-    private $member_group;
+	/**
+	 * @ORM\Id
+	 * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberGroup")
+	 * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+	 */
+	private $group;
 
-    /** 
-     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member")
-     * @ORM\JoinColumn(name="referrer", referencedColumnName="id", onDelete="SET NULL")
-     */
-    private $referrer;
     /******************************************************************
      * PUBLIC SET AND GET FUNCTIONS                                   *
      ******************************************************************/
@@ -89,75 +99,46 @@ class MembersOfGroup extends CoreEntity
     public function getMember(){
         return $this->member;
     }
-    /**
-     * @name            setMemberGroup()
-     *  				Sets $member_group property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $member_group
-     *
-     * @return          object          $this
-     */
-    public function setMemberGroup($member_group){
-        if(!$this->setModified('member_group', $member_group)->isModified()){
-            return $this;
-        }
-        $this->member_group = $member_group;
+	/**
+	 * @name            setGroup()
+	 *
+	 * @author          Can Berkol
+	 * @since			1.0.4
+	 * @version         1.0.4
+	 *
+	 * @param           string          $member_group
+	 *
+	 * @return          object          $this
+	 */
+	public function setGroup($member_group){
+		if(!$this->setModified('group', $member_group)->isModified()){
+			return $this;
+		}
+		$this->group = $member_group;
 
-        return $this;
-    }
-    /**
-     * @name            getMemberGroup()
-     *  				Gets $member_group property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->member_group
-     */
-    public function getMemberGroup(){
-        return $this->member_group;
-    }
-    /**
-     * @name            setReferrer()
-     *  				Sets $referrer property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $referrer
-     *
-     * @return          object          $this
-     */
-    public function setReferrer($referrer){
-        if(!$this->setModified('referrer', $referrer)->isModified()){
-            return $this;
-        }
-        $this->referrer = $referrer;
-
-        return $this;
-    }
-    /**
-     * @name            getReferrer()
-     *  				Gets $referrer property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->referrer
-     */
-    public function getReferrer(){
-        return $this->referrer;
-    }
+		return $this;
+	}
+	/**
+	 * @name            getGroup()
+	 *
+	 * @author          Can Berkol
+	 * @since			1.0.4
+	 * @version         1.0.4
+	 *
+	 * @return          string          $this->member_group
+	 */
+	public function getGroup(){
+		return $this->group;
+	}
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.4                      30.04.2015
+ * Can Berkol
+ * **************************************
+ * CR :: ORM structure has been updated.
+ *
  * **************************************
  * v1.0.3                      Can Berkol
  * 08.09.2013

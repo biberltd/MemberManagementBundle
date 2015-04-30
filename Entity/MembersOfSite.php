@@ -7,8 +7,8 @@ namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
  *
  * @author		Can Berkol
  *              Murat Ünal
- * @version     1.0.3
- * @date        09.08.2013
+ * @version     1.0.4
+ * @date        30.04.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -20,13 +20,17 @@ namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Bundle\CoreBundle\CoreEntity;
 
-/** 
+/**
  * @ORM\Entity
  * @ORM\Table(
  *     name="members_of_site",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
- *     indexes={@ORM\Index(name="idx_n_members_of_site_date_added", columns={"date_added"})},
- *     uniqueConstraints={@ORM\UniqueConstraint(name="idx_u_members_of_site", columns={"member","site"})}
+ *     indexes={
+ *         @ORM\Index(name="idxNMembersOfSiteDateAdded", columns={"date_added"}),
+ *         @ORM\Index(name="idxNMembersOfSiteDateUpdated", columns={"date_updated"}),
+ *         @ORM\Index(name="idxNMembersOfSiteDateRemoved", columns={"date_removed"})
+ *     },
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMembersOfSite", columns={"member","site"})}
  * )
  */
 class MembersOfSite extends CoreEntity
@@ -35,6 +39,16 @@ class MembersOfSite extends CoreEntity
      * @ORM\Column(type="datetime", nullable=false)
      */
     public $date_added;
+
+	/**
+	 * @ORM\Column(type="datetime", nullable=false)
+	 */
+	public $date_updated;
+
+	/**
+	 * @ORM\Column(type="datetime", nullable=true)
+	 */
+	public $date_removed;
 
     /** 
      * @ORM\Id
@@ -123,6 +137,12 @@ class MembersOfSite extends CoreEntity
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.4                      30.04.2015
+ * Can Berkol
+ * **************************************
+ * CR :: ORM structure has been updated.
+ *
  * **************************************
  * v1.0.3                      Can Berkol
  * 08.09.2013

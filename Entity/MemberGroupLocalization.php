@@ -5,8 +5,8 @@
  *
  * @author		Can Berkol
  *              Murat Ünal
- * @version     1.0.4
- * @date        08.09.2013
+ * @version     1.0.5
+ * @date        30.04.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -18,14 +18,14 @@ namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Bundle\CoreBundle\CoreEntity;
-/** 
+/**
  * @ORM\Entity
  * @ORM\Table(
  *     name="member_group_localization",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
  *     uniqueConstraints={
- *         @ORM\UniqueConstraint(name="idx_u_member_group_localization", columns={"member_group","language"}),
- *         @ORM\UniqueConstraint(name="idx_u_member_group_localization_url_key", columns={"language","url_key"})
+ *         @ORM\UniqueConstraint(name="idxUMemberGroupLocalization", columns={"member_group","language"}),
+ *         @ORM\UniqueConstraint(name="idxUMemberGroupLocalizationUrlKey", columns={"language","url_key"})
  *     }
  * )
  */
@@ -46,15 +46,15 @@ class MemberGroupLocalization extends CoreEntity
      */
     private $description;
 
-    /** 
-     * @ORM\Id
-     * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup",
-     *     inversedBy="localizations"
-     * )
-     * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false)
-     */
-    private $member_group;
+	/**
+	 * @ORM\Id
+	 * @ORM\ManyToOne(
+	 *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberGroup",
+	 *     inversedBy="localizations"
+	 * )
+	 * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false)
+	 */
+	private $group;
 
     /** 
      * @ORM\Id
@@ -165,39 +165,39 @@ class MemberGroupLocalization extends CoreEntity
     public function getDescription(){
         return $this->description;
     }
-    /**
-     * @name            setMemberGroup()
-     *  				Sets $member_group property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $member_group
-     *
-     * @return          object          $this
-     */
-    public function setMemberGroup($member_group){
-        if(!$this->setModified('member_group', $member_group)->isModified()){
-            return $this;
-        }
-        $this->member_group = $member_group;
+	/**
+	 * @name            setGroup()
+	 *
+	 * @author          Can Berkol
+	 * @author          Murat Ünal
+	 * @since			1.0.0
+	 * @version         1.0.5
+	 *
+	 * @param           string          $member_group
+	 *
+	 * @return          object          $this
+	 */
+	public function setGroup($member_group){
+		if(!$this->setModified('group', $member_group)->isModified()){
+			return $this;
+		}
+		$this->group = $member_group;
 
-        return $this;
-    }
-    /**
-     * @name            getMemberGroup()
-     *  				Gets $member_group property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->member_group
-     */
-    public function getMemberGroup(){
-        return $this->member_group;
-    }
+		return $this;
+	}
+	/**
+	 * @name            getGroup()
+	 *
+	 * @author          Can Berkol
+	 * @author          Murat Ünal
+	 * @since			1.0.5
+	 * @version         1.0.5
+	 *
+	 * @return          string          $this->member_group
+	 */
+	public function getGroup(){
+		return $this->group;
+	}
     /**
      * @name            setLanguage()
      *  				Sets $language property.
@@ -234,6 +234,12 @@ class MemberGroupLocalization extends CoreEntity
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.5                      30.04.2015
+ * Can Berkol
+ * **************************************
+ * CR :: ORM structure has been updated.
+ *
  * **************************************
  * v1.0.4                      Can Berkol
  * 08.09.2013

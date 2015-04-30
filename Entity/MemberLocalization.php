@@ -5,8 +5,8 @@
  *
  * @author		Can Berkol
  *              Murat Ünal
- * @version     1.0.3
- * @date        08.09.2013
+ * @version     1.0.4
+ * @date        30.04.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -22,10 +22,7 @@ use BiberLtd\Bundle\CoreBundle\CoreEntity;
  * @ORM\Table(
  *     name="member_localization",
  *     options={"engine":"innodb","charset":"utf8","collate":"utf8_turkish_ci"},
- *     indexes={
- *         @ORM\Index(name="idx_u_member_localization", columns={"member","language"}),
- *         @ORM\Index(name="idx_n_member_localization_title", columns={"title"})
- *     }
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMemberLocalization", columns={"member","language"})}
  * )
  */
 class MemberLocalization extends CoreEntity
@@ -232,6 +229,12 @@ class MemberLocalization extends CoreEntity
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.4                      30.04.2015
+ * Can Berkol
+ * **************************************
+ * CR :: ORM structure has been updated.
+ *
  * **************************************
  * v1.0.3                      Murat Ünal
  * 08.09.2013

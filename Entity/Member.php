@@ -6,8 +6,8 @@
  * @author		Can Berkol
  *              Murat Ünal
  *              Said İmamoğlu
- * @version     1.1.4
- * @date        09.02.2015
+ * @version     1.1.5
+ * @date        30.04.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -28,16 +28,16 @@ use BiberLtd\Bundle\CoreBundle\CoreLocalizableEntity;
  *     name="member",
  *     options={"charset":"utf8","collate":"utf8_turkish_ci","engine":"innodb"},
  *     indexes={
- *         @ORM\Index(name="idx_n_full_name", columns={"name_first","name_last"}),
- *         @ORM\Index(name="idx_u_member_email", columns={"email"}),
- *         @ORM\Index(name="idx_n_member_date_registeration", columns={"date_registration"}),
- *         @ORM\Index(name="idx_n_member_date_birth", columns={"date_birth"}),
- *         @ORM\Index(name="idx_n_member_date_activation", columns={"date_activation"}),
- *         @ORM\Index(name="idx_n_member_date_status_changed", columns={"date_status_changed"})
+ *         @ORM\Index(name="idxNFullNameOfMember", columns={"name_first","name_last"}),
+ *         @ORM\Index(name="idxNMemberDateRegitration", columns={"date_registration"}),
+ *         @ORM\Index(name="idxNMemberDateBirth", columns={"date_birth"}),
+ *         @ORM\Index(name="idxNMemberDateActivation", columns={"date_activation"}),
+ *         @ORM\Index(name="idxNMemberDateStatusChanged", columns={"date_status_changed"})
  *     },
  *     uniqueConstraints={
- *         @ORM\UniqueConstraint(name="idx_u_member_id", columns={"id"}),
- *         @ORM\UniqueConstraint(name="idx_u_member_username", columns={"username"})
+ *         @ORM\UniqueConstraint(name="idxUMemberId", columns={"id"}),
+ *         @ORM\UniqueConstraint(name="idxUMemberUsername", columns={"username","site"}),
+ *         @ORM\UniqueConstraint(name="idxUMemberEmail", columns={"email","site"})
  *     }
  * )
  */
@@ -122,14 +122,6 @@ class Member extends CoreLocalizableEntity{
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $date_last_login;
-
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember",
-     *     mappedBy="member"
-     * )
-     */
-    protected $files_of_members;
 
     /**
      * @ORM\OneToMany(
@@ -818,6 +810,12 @@ class Member extends CoreLocalizableEntity{
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.1.5                      30.04.2015
+ * Can Berkol
+ * **************************************
+ * CR :: ORM structure has been updated.
+ *
  * **************************************
  * v1.1.4                      Can Berkol
  * 09.02.2015
