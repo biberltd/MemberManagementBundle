@@ -32,14 +32,14 @@ use BiberLtd\Bundle\MultiLanguageSupportBundle\Services as MLSService;
 /** Core Service */
 use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
 use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
+use BiberLtd\Bundle\CoreBundle\Responses\ModelResponse;
+
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class MemberManagementModel extends CoreModel {
-
     /**
      * @name            __construct()
-     *                  Constructor.
-     *
+	 *
      * @author          Can Berkol
      *
      * @since           1.0.0
@@ -51,6 +51,7 @@ class MemberManagementModel extends CoreModel {
      */
     public function __construct($kernel, $db_connection = 'default', $orm = 'doctrine') {
         parent::__construct($kernel, $db_connection, $orm);
+		$bundleName = 'MemberManagementBundle';
         /**
          * Register entity names for easy reference.
          */
@@ -67,7 +68,6 @@ class MemberManagementModel extends CoreModel {
 
     /**
      * @name            __destruct()
-     *                  Destructor.dumpGroupCodes
      *
      * @author          Can Berkol
      *
@@ -83,7 +83,6 @@ class MemberManagementModel extends CoreModel {
 
     /**
      * @name 			activateMember()
-     *  				Sets the activation status of the member to active.
      *
      * @since			1.0.0
      * @version         1.2.2
@@ -114,34 +113,39 @@ class MemberManagementModel extends CoreModel {
             return $this->createException('MissingActivationKeyException', '', 'err.required.parameter.key');
         }
         if (is_object($member)) {
-            /**
-             * !! IMPORTANT:
-             * Use bypass = true only in MANAGE/ADMIN controller.
-             */
-            if ($bypass) {
-                $member->setStatus = 'a';
-                $member->setDateActivation($activation_date);
-                $member->setDateStatusChanged($activation_date);
-                $member->setKeyActivation(null);
-            }
-        } else if (is_numeric($member) && $this->doesMemberExist($member, 'id', true)) {
-            $response = $this->getMember($member, 'id');
-            if (!$response['error']) {
-                $member = $response['result']['set'];
-            } else {
-                return $this->createException('EntityDoesNotExistException', $member, 'err.db.entry.not.exist');
-            }
-        } else if (is_string($member) && ($this->doesMemberExist($member, 'username', true) || $this->doesMemberExist($member, 'email', true))) {
-            $response_username = $this->getMember($member, 'username');
-            $response_email = $this->getMember($member, 'email');
-            if (!$response_username['error']) {
-                $member = $response_username['result']['set'];
-            } else if (!$response_email['error']) {
-                $member = $response_email['result']['set'];
-            } else {
-                return $this->createException('InvalidParameterException', $member, 'err.invalid.parameter.member');
-            }
-        }
+			/**
+			 * !! IMPORTANT:
+			 * Use bypass = true only in MANAGE/ADMIN controller.
+			 */
+			if ($bypass) {
+				$member->setStatus = 'a';
+				$member->setDateActivation($activation_date);
+				$member->setDateStatusChanged($activation_date);
+				$member->setKeyActivation(null);
+			}
+		}
+		else if (is_numeric($member) && $this->doesMemberExist($member, 'id', true)) {
+			$response = $this->getMember($member, 'id');
+			if (!$response['error']) {
+				$member = $response['result']['set'];
+			}
+			else {
+				return $this->createException('EntityDoesNotExistException', $member, 'err.db.entry.not.exist');
+			}
+		}
+		else if (is_string($member) && ($this->doesMemberExist($member, 'username', true) || $this->doesMemberExist($member, 'email', true))) {
+			$response_username = $this->getMember($member, 'username');
+			$response_email = $this->getMember($member, 'email');
+			if (!$response_username['error']) {
+				$member = $response_username['result']['set'];
+			}
+			else if (!$response_email['error']) {
+				$member = $response_email['result']['set'];
+			}
+			else {
+				return $this->createException('InvalidParameterException', $member, 'err.invalid.parameter.member');
+			}
+		}
         $member->setStatus = 'a';
         $member->setDateActivation($activation_date);
         $member->setDateStatusChanged($activation_date);
