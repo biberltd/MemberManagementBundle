@@ -1323,7 +1323,7 @@ class MemberManagementModel extends CoreModel {
 		foreach($result as $entry){
 			$id = $entry->getMember()->getId();
 			if(!isset($unique[$id])){
-				$entities[] = $entry->getAction();
+				$entities[] = $entry->getMember();
 			}
 		}
 		$totalRows = count($entities);
