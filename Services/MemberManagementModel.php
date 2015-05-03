@@ -1076,15 +1076,16 @@ class MemberManagementModel extends CoreModel {
 		if($response->error->exist){
 			return $response;
 		}
+		$group = $response->result->set;
 		$response = $this->getMember($member);
 		if($response->error->exist){
 			return $response;
 		}
-
+		$member = $response->result->set;
 		$qStr = 'SELECT '.$this->entity['mog']['alias']
 			. ' FROM '.$this->entity['mog']['name'].' '.$this->entity['mog']['alias']
-			. ' WHERE '.$this->entity['mog']['alias'].'.group = '.$group
-			. ' AND '.$this->entity['mog']['alias'].'.member = '.$member;
+			. ' WHERE '.$this->entity['mog']['alias'].'.group = '.$group->getId()
+			. ' AND '.$this->entity['mog']['alias'].'.member = '.$member->getId();
 
 		$q = $this->em->createQuery($qStr);
 
@@ -1496,17 +1497,18 @@ class MemberManagementModel extends CoreModel {
 			return $response;
 		}
 		$member = $response->result->set;
-        $toAdd = array();
+        $idsToRemove = array();
         foreach ($groups as $group) {
 			$response = $this->getGroup($group);
 			if($response->error->exist){
 				return $response;
 			}
-			$toAdd[] = $response->result->set;
+			$idsToRemove[] = $response->result->set->getId();
 		}
-        $notIn = 'NOT IN (' . implode(',', $toAdd) . ')';
-        $qStr = 'DELETE FROM ' . $this->entity['mog']['name'] . ' ' . $this->entity['mog']['alias']
-			. ' WHERE ' . $this->entity['mog']['alias'] . '.group ' . $notIn;
+        $notIn = 'NOT IN (' . implode(',', $idsToRemove) . ')';
+        $qStr = 'DELETE FROM '.$this->entity['mog']['name'].' '.$this->entity['mog']['alias']
+					.' WHERE '.$this->entity['mog']['alias'].'.member '.$member->getId()
+					.' AND '.$this->entity['mog']['alias'].'.group '.$notIn;
 
         $q = $this->em->createQuery($qStr);
         $result = $q->getResult();
