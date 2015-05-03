@@ -1,21 +1,17 @@
 <?php
 /**
- * MemberManagementModel Class
- *
- * This class acts as a database proxy model for MemberManagementBundle functionalities.
- *
  * @vendor      BiberLtd
  * @package		Core\Bundles\MemberManagemetBundle
  * @subpackage	Services
- * @name	    MemberManagemetModel
+ * @name	    MemberManagementModel
  *
  * @author		Can Berkol
  * @author		Said İmamoğlu
  *
- * @copyright   Biber Ltd. (www.biberltd.com)
+ * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.3.9
- * @date        30.04.2015
+ * @version     1.4.1
+ * @date        03.05.2015
  *
  */
 
@@ -43,7 +39,7 @@ class MemberManagementModel extends CoreModel {
      * @author          Can Berkol
      *
      * @since           1.0.0
-     * @version         1.2.3
+     * @version         1.4.0
      *
      * @param           object          $kernel
      * @param           string          $db_connection  Database connection key as set in app/config.yml
@@ -51,18 +47,15 @@ class MemberManagementModel extends CoreModel {
      */
     public function __construct($kernel, $db_connection = 'default', $orm = 'doctrine') {
         parent::__construct($kernel, $db_connection, $orm);
-		$bundleName = 'MemberManagementBundle';
-        /**
-         * Register entity names for easy reference.
-         */
         $this->entity = array(
-            'member' => array('name' => 'MemberManagementBundle:Member', 'alias' => 'm'),
-            'member_localization' => array('name' => 'MemberManagementBundle:MemberLocalization', 'alias' => 'ml'),
-            'members_of_group' => array('name' => 'MemberManagementBundle:MembersOfGroup', 'alias' => 'mog'),
-            'member_group' => array('name' => 'MemberManagementBundle:MemberGroup', 'alias' => 'mg'),
-            'member_group_localization' => array('name' => 'MemberManagementBundle:MemberGroupLocalization', 'alias' => 'mgl'),
-            'language' => array('name' => 'MultiLanguageSupportBundle:Language', 'alias' => 'l'),
-            'site' => array('name' => 'SiteManagementBundle:Site', 'alias' => 's'),
+            'm'			=> array('name' => 'MemberManagementBundle:Member', 'alias' => 'm'),
+            'ml' 		=> array('name' => 'MemberManagementBundle:MemberLocalization', 'alias' => 'ml'),
+            'mog' 		=> array('name' => 'MemberManagementBundle:MembersOfGroup', 'alias' => 'mog'),
+            'mos' 		=> array('name' => 'MemberManagementBundle:MembersOfSite', 'alias' => 'mos'),
+            'mg' 		=> array('name' => 'MemberManagementBundle:MemberGroup', 'alias' => 'mg'),
+            'mgl' 		=> array('name' => 'MemberManagementBundle:MemberGroupLocalization', 'alias' => 'mgl'),
+            'l' 		=> array('name' => 'MultiLanguageSupportBundle:Language', 'alias' => 'l'),
+            's' 		=> array('name' => 'SiteManagementBundle:Site', 'alias' => 's'),
         );
     }
 
@@ -85,923 +78,1293 @@ class MemberManagementModel extends CoreModel {
      * @name 			activateMember()
      *
      * @since			1.0.0
-     * @version         1.2.2
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
      * @param           mixed           $member             Member entity, id, username, or, email.
      * @param           string          $key                Activation key.
-     * @param           DateTime        $activation_date    Date of activation.
+     * @param           \DateTime       $activationDate     Date of activation.
      * @param           bool            $bypass             If set to true, it bypasses key check.
      *
-     * @return          array           $response
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function activateMember($member, $key = null, $activation_date = null, $bypass = false) {
-        $this->resetResponse();
-        if ($activation_date == null) {
-            $activation_date = new DateTime('now', new DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-        } else {
-            if (!$activation_date instanceof DateTime) {
-                return $this->createException('InvalidDateTimeException', '$activation_date', 'invalid.parameter.activation_date');
+    public function activateMember($member, $key = null, $activationDate = null, $bypass = false) {
+        $timeStamp = time();
+        if ($activationDate == null) {
+			$activationDate = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+        }
+		else {
+            if (!$activationDate instanceof \DateTime) {
+				return $this->createException('InvalidDateTimeException', '$activationDate', 'E:S:006');
             }
         }
         /**
          * $key is required if $bypass is set to false
          */
         if (!$bypass && is_null($key)) {
-            return $this->createException('MissingActivationKeyException', '', 'err.required.parameter.key');
+			return new ModelResponse(null, 0, 0, null, true, 'E:SEC:001', 'Activation key is missing. The account cannot be activated.', $timeStamp, time());
         }
-        if (is_object($member)) {
+        if ($member instanceof BundleEntity\Member) {
 			/**
 			 * !! IMPORTANT:
 			 * Use bypass = true only in MANAGE/ADMIN controller.
 			 */
 			if ($bypass) {
-				$member->setStatus = 'a';
-				$member->setDateActivation($activation_date);
-				$member->setDateStatusChanged($activation_date);
+				$member->setStatus('a');
+				$member->setDateActivation($activationDate);
+				$member->setDateStatusChanged($activationDate);
 				$member->setKeyActivation(null);
 			}
 		}
-		else if (is_numeric($member) && $this->doesMemberExist($member, 'id', true)) {
-			$response = $this->getMember($member, 'id');
-			if (!$response['error']) {
-				$member = $response['result']['set'];
+		else{
+			$response = $this->getMember($member);
+			if ($response->error->exist) {
+				return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'A member with the given id / username / email cannot be found in our database.', $timeStamp, time());
 			}
-			else {
-				return $this->createException('EntityDoesNotExistException', $member, 'err.db.entry.not.exist');
-			}
-		}
-		else if (is_string($member) && ($this->doesMemberExist($member, 'username', true) || $this->doesMemberExist($member, 'email', true))) {
-			$response_username = $this->getMember($member, 'username');
-			$response_email = $this->getMember($member, 'email');
-			if (!$response_username['error']) {
-				$member = $response_username['result']['set'];
-			}
-			else if (!$response_email['error']) {
-				$member = $response_email['result']['set'];
-			}
-			else {
-				return $this->createException('InvalidParameterException', $member, 'err.invalid.parameter.member');
-			}
+			$member = $response->result->set;
 		}
         $member->setStatus = 'a';
-        $member->setDateActivation($activation_date);
-        $member->setDateStatusChanged($activation_date);
+        $member->setDateActivation($activationDate);
+        $member->setDateStatusChanged($activationDate);
         $member->setKeyActivation(null);
 
         $this->em->persists($member);
 
         $this->em->flush();
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $member,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.account.activated',
-        );
+		return new ModelResponse($member, 1, 1, null, false, 'S:SEC:001', 'The account has been successfully activated.', $timeStamp, time());
     }
+	/**
+	 * @name 			addGroupToMembers()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->getMember()
+	 * @use             $this->getGroup()
+	 * @use             $this->isMemberOfGroup()
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $group
+	 * @param           array           $members
+	 *
+	 * @return          array           $response
+	 */
+	public function addGroupToMembers($group, $members) {
+		$timeStamp = time();
+		$response = $this->getGroup($group);
+		if($response->error->exist){
+			return $response;
+		}
+		$group = $response->result->set;
+		if (!is_array($members)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
+		}
+		$to_add = array();
+		foreach ($members as $member) {
+			$response = $this->getMember($member);
+			if($response->error->exist){
+				break;
+			}
+			$member = $response->result->set;
+			if (!$this->isMemberOfGroup($member, $group, true)) {
+				$to_add[] = $group;
+			}
+		}
+		$now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
+		$insertedItems = array();
+		foreach ($to_add as $group) {
+			$entity = new BundleEntity\MembersOfGroup();
+			$entity->setMember($member)->setGroup($group)->setDateAdded($now);
+			/**
+			 * Increment count_members of MemberGroup
+			 */
+			$group->incrementMemberCount(1);
+			$this->em->persist($entity);
+			$this->em->persist($group);
+			$insertedItems[] = $entity;
+		}
+		$countInserts = count($to_add);
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			addMemberToGroups()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->getMember()
+	 * @use             $this->getGroup()
+	 * @use             $this->isMemberOfGroup()
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $member
+	 * @param           array           $groups
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function addMemberToGroups($member, $groups) {
+		$timeStamp = time();
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+		if (!is_array($groups)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
+		}
+		$to_add = array();
+		foreach ($groups as $group) {
+			$response = $this->getGroup($group);
+			if($response->error->exist){
+				break;
+			}
+			$group = $response->result->set;
+			if (!$this->isMemberOfGroup($member, $group, true)) {
+				$to_add[] = $group;
+			}
+		}
+		$now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
+		$insertedItems = array();
+		foreach ($to_add as $group) {
+			$entity = new BundleEntity\MembersOfGroup();
+			$entity->setMember($member)->setGroup($group)->setDateAdded($now);
+			/**
+			 * Increment count_members of MemberGroup
+			 */
+			$group->incrementMemberCount(1);
+			$this->em->persist($entity);
+			$this->em->persist($group);
+			$insertedItems[] = $entity;
+		}
+		$countInserts = count($to_add);
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
+	 * @name 		checkMemberPassword()
+	 *
+	 * @since   	1.3.4
+	 * @version 	1.4.2
+	 *
+	 * @use 		$this->getMember()
+	 *
+	 * @param   	mixed 		$member
+	 * @param   	string 		$password
+	 *
+	 * @return 		BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function checkMemberPassword($member, $password, $bypass = false){
+		$timeStamp = time();
+		if(!is_string($password)){
+			return $this->createException('InvalidParameterValueException', 'Password must be a string.', 'E:S:007');
+		}
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+		/** We will need the encryption service to encrypt password. */
+		$enc = $this->kernel->getContainer()->get('encryption');
+		$password = $enc->input($password)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
+
+		$correct = false;
+		if($member->getPasword() === $password){
+			$correct = true;
+		}
+
+		if($bypass){
+			return $correct;
+		}
+		return new ModelResponse($correct, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
     /**
      * @name 			countMembers()
-     *  				Get the total count of members.
      *
      * @since			1.2.6
-     * @version         1.2.6
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           array           $filter             Multi-dimensional array     *
-     * @param           string          $query_str              Custom query
+     * @param           array           $filter
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function countMembers($filter = null, $query_str = null) {
-        $this->resetResponse();
-        /**
-         * Add filter checks to below to set join_needed to true.
-         */
-        $where_str = '';
+    public function countMembers($filter = null) {
+        $timeStamp = time();
 
-        /**
-         * Start creating the query.
-         *
-         * Note that if no custom select query is provided we will use the below query as a start.
-         */
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $this->entity['member_localization']['alias'] . '.language', 'comparison' => '=', 'value' => 1),
-                )
-            )
-        );
+        $wStr = $fStr = '';
 
-        if (is_null($query_str)) {
-            $query_str = 'SELECT COUNT('. $this->entity['member']['alias'].')'
-                .' FROM '.$this->entity['member_localization']['name'].' '.$this->entity['member_localization']['alias']
-                .' JOIN '.$this->entity['member_localization']['alias'].'.member '.$this->entity['member']['alias'];
-        }
+		$qStr = 'SELECT COUNT('. $this->entity['m']['alias'].')'
+                .' FROM '.$this->entity['ml']['name'].' '.$this->entity['ml']['alias']
+                .' JOIN '.$this->entity['ml']['alias'].'.member '.$this->entity['m']['alias'];
 
-        /**
-         * Prepare WHERE section of query.
-         */
         if ($filter != null) {
-            $filter_str = $this->prepare_where($filter);
-            $where_str .= ' WHERE ' . $filter_str;
+            $fStr = $this->prepareWhere($filter);
+			$wStr .= ' WHERE ' . $fStr;
         }
-        $query_str .= $where_str;
+		$qStr .= $wStr;
 
-        $query = $this->em->createQuery($query_str);
+        $q = $this->em->createQuery($qStr);
 
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getSingleScalarResult();
+        $result = $q->getSingleScalarResult();
 
-        $this->response = array(
-            'result' => array(
-                'set' => $result,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, time());
     }
     /**
      * @name 			countMembersOfGroup()
-     *  				Get the total count of members of a given group.
      *
      * @since			1.2.7
-     * @version         1.3.9
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
      * @param           mixed           $group              object, integer, or string
      * @param           array           $filter             Multi-dimensional array
-     * @param           string          $query_str          Custom query
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function countMembersOfGroup($group, $filter = null, $query_str = null) {
-        $this->resetResponse();
-        if(!is_null($group) && (is_object($group) && !$group instanceof BundleEntity\MemberGroup) && !is_integer($group) && !is_string($group)){
-            return $this->createException('InvalidParameterException', $group, 'err.invalid.parameter.group');
-        }
-        switch($group){
-            case is_object($group) && $group instanceof BundleEntity\MemberGroup:
-                $groupId = $group->getId();
-                break;
-            case is_numeric($group):
-                $response = $this->getGroup($group, 'id');
-                if(!$response['error']){
-                    $group = $response['result']['set'];
-                    $groupId = $group->getId();
-                }
-                $groupId = null;
-                unset($response);
-                break;
-            case is_string($group):
-                $response = $this->getGroup($group, 'code');
-                if(!$response['error']){
-                    $group = $response['result']['set'];
-                    $groupId = $group->getId();
-                    unset($response);
-                }
-                else{
-                    $groupId = null;
-                }
-                break;
-            default:
-                $groupId = null;
-                break;
-        }
+    public function countMembersOfGroup($group, $filter = null) {
+        $timeStamp = time();
+        $response = $this->getGroup($group);
 
-        /**
-         * Add filter checks to below to set join_needed to true.
-         */
-        $where_str = '';
-        /**
-         * Start creating the query.
-         *
-         * Note that if no custom select query is provided we will use the below query as a start.
-         */
-        if(!is_null($groupId)){
-            $filter[] = array(
-                'glue' => 'and',
-                'condition' => array(
-                    array(
-                        'glue' => 'and',
-                        'condition' => array('column' => $this->entity['members_of_group']['alias'] . '.member_group', 'comparison' => '=', 'value' => $groupId),
-                    )
-                )
-            );
-        }
+		if($response->error->exist){
+			return $response;
+		}
+		$group = $response->result->set;
+        $wStr = $fStr = '';
 
-        if (is_null($query_str)) {
-            $query_str = 'SELECT COUNT('. $this->entity['member']['alias'].')'
-                .' FROM '.$this->entity['members_of_group']['name'].' '.$this->entity['members_of_group']['alias']
-                .' JOIN '.$this->entity['members_of_group']['alias'].'.member '.$this->entity['member']['alias'];
-        }
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => array('column' => $this->entity['mog']['alias'] . '.group', 'comparison' => '=', 'value' => $group->getId()),
+				)
+			)
+		);
 
-        /**
-         * Prepare WHERE section of query.
-         */
+		$qStr = 'SELECT COUNT('. $this->entity['m']['alias'].')'
+                .' FROM '.$this->entity['mog']['name'].' '.$this->entity['mog']['alias']
+                .' JOIN '.$this->entity['mog']['alias'].'.member '.$this->entity['m']['alias'];
+
         if ($filter != null) {
-            $filter_str = $this->prepare_where($filter);
-            $where_str .= ' WHERE ' . $filter_str;
+			$fStr = $this->prepare_where($filter);
+			$wStr .= ' WHERE ' . $fStr;
         }
 
-        $query_str .= $where_str;
+		$qStr .= $wStr;
 
-        $query = $this->em->createQuery($query_str);
+        $q = $this->em->createQuery($qStr);
+        $result = $q->getSingleScalarResult();
 
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getSingleScalarResult();
-
-        $this->response = array(
-            'result' => array(
-                'set' => $result,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, time());
+	}
     /**
      * @name 			deactivateMember()
-     *  				Sets the activation status of the member to inactive.
      *
      * @since			1.0.0
-     * @version         1.2.2
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           mixed           $member         Member entity, id, username, or, email.
+     * @param           mixed           $member
      * @param           bool            $bypass         if set to true it returns bool instead of response
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function deactivateMember($member, $bypass = false) {
-        $this->resetResponse();
+		$timeStamp = time();
         $now = new DateTime('now', new DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-        if (is_object($member)) {
-            /**
-             * !! IMPORTANT:
-             * Use bypass = true only in MANAGE/ADMIN controller.
-             */
-            if ($bypass) {
-                $member->setStatus = 'i';
-                $member->setDateStatusChanged($now);
-            }
-        }
-        else if (is_numeric($member) && $this->does_member_exist($member, 'id', true)) {
-            $response = $this->getMember($member, 'id');
-            if (!$response['error']) {
-                $member = $response['result']['set'];
-            } else {
-                return $this->createException('InvalidParameterException', $member, 'err.invalid.parameter.member');
-            }
-        }
-        else if (is_string($member) && ($this->doesMemberExist($member, 'username', true) || $this->doesMemberExist($member, 'email', true))) {
-            $response_username = $this->getMember($member, 'username');
-            $response_email = $this->getMember($member, 'email');
-            if (!$response_username['error']) {
-                $member = $response_username['result']['set'];
-            } else if (!$response_email['error']) {
-                $member = $response_email['result']['set'];
-            } else {
-                return $this->createException('InvalidParameterException', $member, 'err.invalid.parameter.member');
-            }
-        }
+
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			if($bypass){
+				return false;
+			}
+			return $response;
+		}
         $member->setStatus = 'i';
         $member->setDateStatusChanged($now);
 
         $this->em->persists($member);
 
         $this->em->flush();
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $member,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.account.deactivated',
-        );
+		if($bypass){
+			return true;
+		}
+		return new ModelResponse($member, 1, 1, null, false, 'S:SEC:002', 'The account has been successfully deactivated.', $timeStamp, time());
     }
-
-    /**
-     * @name 			validateAccount()
-     *  				Checks if the user credentials are correct. And returns the member details if user can be logged
-     *                  in.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     * @use             $this->createException()
-     *
-     * @param           string          $username
-     * @param           string          $password
-     *
-     * @return          array           $response
-     */
-    public function validateAccount($username, $password) {
-        $this->resetResponse();
-        $response = $this->getMember($username, 'username');
-        if ($response['error']) {
-            /**
-             * Try with email!
-             */
-            $response = $this->getMember($username, 'email');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExistException', 'Checked against username and email: ' . $username, 'err.invalid.username');
-            }
-        }
-        $member = $response['result']['set'];
-        $enc = $this->kernel->getContainer()->get('encryption');
-
-        $hashed_password = $enc->input($password)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
-        
-        
-        if ($member->getPassword() != $hashed_password) {
-            return $this->response = array(
-                'result' => array(
-                    'set' => $member,
-                    'total_rows' => 1,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.account.notvalidated',
-            );
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'result' => array(
-                'set' => $member,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.account.validated',
-        );
-        return $this->response;
-    }
-
+	/**
+	 * @name 			deleteMember()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->deleteMembers()
+	 *
+	 * @param           mixed           $member
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function deleteMember($member) {
+		return $this->deleteMembers(array($member));
+	}
     /**
      * @name 			deleteMembers()
-     *  				Deletes provided members from database. If the member does not exist, throws
-     *                  MemberDoesNotExistException.
      *
      * @since			1.0.0
-     * @version         1.2.2
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           array           $collection     Collection of Member entities, member ids, usernames or emails.
-     *
-     * @return          array           $response
+     * @param           array           $collection
+	 *
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function deleteMembers($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValue', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countDeleted = 0;
-        foreach ($collection as $entry) {
-            if ($entry instanceof BundleEntity\Member) {
-                $this->em->remove($entry);
-                $countDeleted++;
-            } else {
-                switch ($entry) {
-                    case is_numeric($entry):
-                        $response = $this->getMember($entry, 'id');
-                        break;
-                    case is_string($entry):
-                        $response = $this->getMember($entry, 'username');
-                        break;
-                }
-                if ($response['error']) {
-                    $this->createException('EntryDoesNotExist', $entry, 'err.invalid.entry');
-                }
-                $entry = $response['result']['set'];
-                $this->em->remove($entry);
-                $countDeleted++;
-            }
-        }
-        if ($countDeleted < 0) {
-            $this->response['error'] = true;
-            $this->response['code'] = 'err.db.fail.delete';
+	public function deleteMembers($collection) {
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countDeleted = 0;
+		foreach($collection as $entry){
+			if($entry instanceof BundleEntity\Member){
+				$this->em->remove($entry);
+				$countDeleted++;
+			}
+			else{
+				$response = $this->getMember($entry);
+				if(!$response->error->exists){
+					$entry = $response->result->set;
+					$this->em->remove($entry);
+					$countDeleted++;
+				}
+			}
+		}
+		if($countDeleted < 0){
+			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		}
+		$this->em->flush();
 
-            return $this->response;
-        }
-        $this->em->flush();
-        $this->response = array(
-            'rowCount' => 0,
-            'result' => array(
-                'set' => null,
-                'total_rows' => $countDeleted,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.deleted',
-        );
-        return $this->response;
-    }
+		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+	}
 
-    /**
-     * @name 			deleteMember()
-     *  				Deletes an existing member from database. If the language does not exist, throws
-     *                  MemberDoesNotExistException.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->deleteMember()
-     *
-     * @param           mixed           $member           Member entity or id.
-     * @return          mixed           $response
-     */
-    public function deleteMember($member) {
-        return $this->deleteMembers(array($member));
-    }
+	/**
+	 * @name 			deleteMemberGroup()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->deleteMemberGroups()
+	 *
+	 * @param           mixed           $group
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function deleteMemberGroup($group) {
+		return $this->deleteMemberGroups(array($group));
+	}
 
     /**
      * @name 			deleteMemberGroups()
-     *  				Deletes provided member groups from database. If the group does not exist, throws
-     *                  MemberGroupDoesNotExistException.
      *
      * @since			1.0.0
-     * @version         1.2.2
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
-     * @param           array           $collection         Collection of MemberGroups entities, member ids, usernames or emails.
-     * @param           string          $by             Accepts the following options: entity, id, code
+     * @param           array           $collection
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function deleteMemberGroups($collection, $by = 'id') {
-        $this->resetResponse();
-        $by_opts = array('entity', 'id', 'code');
-        if (!in_array($by, $by_opts)) {
-            return $this->createException('InvalidParameterException', implode(',', $by_opts), 'err.invalid.parameter.by');
-        }
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $entries = array();
-        /** Loop through languages and collect values. */
-        foreach ($collection as $group) {
-            $value = '';
-            if (is_object($group)) {
-                if (!$group instanceof BundleEntity\MemberGroup) {
-                    return $this->createException('InvalidEntityException', 'MemberGroup', 'err.invalid.paramter.collection');
-                }
-                switch ($by) {
-                    case 'entity':
-                    case 'id':
-                        $value = $group->getId();
-                        break;
-                    case 'code':
-                        $value = $group->getCode();
-                        break;
-                }
-            } else if (is_numeric($group) || is_string($group)) {
-                $value = $group;
-            } else {
-                /** If array values are not numeric nor object */
-                return $this->createException('InvalidParameterException', 'Integer, String or MemberGroup Entity', 'err.invalid.parameter.group');
-            }
-            /**
-             * Check if member exits in database.
-             */
-            if ($this->doesMemberGroupExist($value, $by, true)) {
-                $entries[] = $value;
-            } else {
-                new CoreExceptions\MemberGroupDoesNotExistException($this->kernel, $value);
-            }
-        }
-        /**
-         * Control if there is any member group id in collection.
-         */
-        if (count($entries) < 1) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        /**
-         * Prepare query string.
-         */
-        switch ($by) {
-            case 'entity':
-                $by = 'id';
-            case 'id':
-                $values = implode(',', $entries);
-                break;
-            case 'code':
-                $values = implode('\',\'', $entries);
-                $values = '\'' . $values . '\'';
-                break;
-        }
-        $query_str = 'DELETE '
-                . ' FROM ' . $this->entity['member_group']['name'] . ' ' . $this->entity['member_group']['alias']
-                . ' WHERE ' . $this->entity['member_group']['alias'] . '.' . $by . ' IN('.$values.')';
-        /**
-         * Create query object.
-         */
-        $query = $this->em->createQuery($query_str);
-        /**
-         * Free memory.
-         */
-        unset($values);
-        /**
-         * Run query
-         */
-        $query->getResult();
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $collection,
-                'total_rows' => count($collection),
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.delete.done',
-        );
-    }
+	public function deleteMemberGroups($collection) {
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countDeleted = 0;
+		foreach($collection as $entry){
+			if($entry instanceof BundleEntity\MemberGroup){
+				$this->em->remove($entry);
+				$countDeleted++;
+			}
+			else{
+				$response = $this->getGroup($entry);
+				if(!$response->error->exists){
+					$entry = $response->result->set;
+					$this->em->remove($entry);
+					$countDeleted++;
+				}
+			}
+		}
+		if($countDeleted < 0){
+			return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+		}
+		$this->em->flush();
 
-    /**
-     * @name 			deleteMemberGroup()
-     *  				Deletes an existing member from database. If the language does not exist, throws
-     *                  MemberDoesNotExistException.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->deleteMembetGroups()
-     *
-     * @param           mixed           $group           MemberGroup entity or id.
-     *
-     * @return          mixed           $response
-     */
-    public function deleteMemberGroup($group) {
-        return $this->deleteMemberGroups(array($group));
-    }
+		return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			doesGroupExist()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->getGroup()
+	 *
+	 * @param           mixed           $group
+	 * @param           bool            $bypass         If set to true does not return response but only the result.
+	 *
+	 * @return          mixed           $response
+	 */
+	public function doesGroupExist($group, $bypass = false) {
+		$timeStamp = time();
+		$exist = false;
 
+		$response = $this->getGroup($group);
+
+		if ($response->error->exists) {
+			if($bypass){
+				return $exist;
+			}
+			$response->result->set = false;
+			return $response;
+		}
+		$exist = true;
+		if ($bypass) {
+			return $exist;
+		}
+
+		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			doesMemberExist()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->getGroup()
+	 *
+	 * @param           mixed           $member
+	 * @param           bool            $bypass         If set to true does not return response but only the result.
+	 *
+	 * @return          mixed           $response
+	 */
+	public function doesMemberExist($member, $bypass = false) {
+		$timeStamp = time();
+		$exist = false;
+
+		$response = $this->getMember($member);
+
+		if ($response->error->exists) {
+			if($bypass){
+				return $exist;
+			}
+			$response->result->set = false;
+			return $response;
+		}
+		$exist = true;
+		if ($bypass) {
+			return $exist;
+		}
+
+		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			getGroup()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @param           mixed           $group
+	 *
+	 * @return          mixed           $response
+	 */
+	public function getGroup($group) {
+		$timeStamp = time();
+		if($group instanceof BundleEntity\MemberGroup){
+			return new ModelResponse($group, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		}
+		$result = null;
+		switch($group){
+			case is_numeric($group):
+				$result = $this->em->getRepository($this->entity['mg']['name'])->findOneBy(array('id' => $group));
+				break;
+			case is_string($group):
+				$result = $this->em->getRepository($this->entity['mg']['name'])->findOneBy(array('code' => $group));
+				break;
+		}
+		if(is_null($result)){
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+		}
+
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			getMember()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @param           mixed           $member
+	 *
+	 * @return          mixed           $response
+	 */
+	public function getMember($member) {
+		$timeStamp = time();
+		if($member instanceof BundleEntity\Member){
+			return new ModelResponse($member, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+		}
+		$result = null;
+		switch($member){
+			case is_numeric($member):
+				$result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('id' => $member));
+				break;
+			case is_string($member):
+				$result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('username' => $member));
+				if(is_null($result)){
+					$result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('email' => $member));
+				}
+				break;
+		}
+		if(is_null($result)){
+			return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+		}
+
+		return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			insertGroup()
+	 *
+	 * @since			1.4.1
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->insertMemberGroup()
+	 *
+	 * @param           mixed           $group
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertGroup($group) {
+		return $this->insertMemberGroup($group);
+	}
+	/**
+	 * @name 			insertGroups()
+	 *
+	 * @since			1.4.1
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->insertMemberGroups()
+	 *
+	 * @param           mixed           $collection
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertGroups($collection) {
+		return $this->insertMemberGroups($collection);
+	}
+	/**
+	 * @name 			insertMember()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->insertMembers()
+	 *
+	 * @param           mixed           $member
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertMember($member) {
+		return $this->insertMembers(array($member));
+	}
+	/**
+	 * @name 			insertMembers()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array           $collection
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertMembers($collection)	{
+		$timeStamp = time();
+		/** Parameter must be an array */
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countInserts = 0;
+		$countLocalizations = 0;
+		$countGroups = 0;
+		$insertedItems = array();
+		$localizations = array();
+		foreach ($collection as $data) {
+			if ($data instanceof BundleEntity\Member) {
+				$entity = $data;
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+			else if (is_object($data)) {
+				$entity = new BundleEntity\Member;
+				if(!property_exists($data, 'date_registration')){
+					$data->date_registration = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+				}
+				if(!property_exists($data, 'date_status_changed')){
+					$data->date_status_changed = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+				}
+				if(!property_exists($data, 'language')){
+					$data->language = 1;
+				}
+				if(!property_exists($data, 'site')){
+					$data->site = 1;
+				}
+				if(isset($data->status) && $data->status == 'a' && !isset($data->date_activation)){
+					$data->date_activation = $data->date_registration;
+				}
+				foreach ($data as $column => $value) {
+					$localeSet = false;
+					$groupSet = false;
+					$set = 'set' . $this->translateColumnName($column);
+					switch ($column) {
+						case 'local':
+							$localizations[$countInserts]['localizations'] = $value;
+							$localeSet = true;
+							$countLocalizations++;
+							break;
+						case 'language':
+							$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+							$response = $lModel->getLanguage($value);
+							if(!$response->error->exist){
+								$entity->$set($response->result->set);
+							}
+							unset($response, $lModel);
+							break;
+						case 'site':
+							$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+							$response = $sModel->getSite($value);
+							if(!$response->error->exist){
+								$entity->$set($response->result->set);
+							}
+							unset($response, $sModel);
+							break;
+						case 'groups':
+							$groups[$countInserts]['groups'] = $value;
+							$groupSet = true;
+							$countGroups++;
+							break;
+						case 'password':
+							/** We will need the encryption service to encrypt password. */
+							$enc = $this->kernel->getContainer()->get('encryption');
+							$password = $enc->input($value)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
+							$entity->$set($password);
+							break;
+						default:
+							$entity->$set($value);
+							break;
+					}
+					if ($localeSet) {
+						$localizations[$countInserts]['entity'] = $entity;
+					}
+					if($groupSet){
+						$groups[$countInserts]['entity'] = $entity;
+					}
+				}
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+
+				$countInserts++;
+			}
+		}
+		if ($countInserts > 0) {
+			$this->em->flush();
+		}
+		/** Now handle localizations */
+		if ($countInserts > 0 && $countLocalizations > 0) {
+			$response = $this->insertMemberLocalizations($localizations);
+		}
+		if($countInserts > 0 && $countGroups > 0){
+			foreach($groups as $group){
+				$response =$this->addMemberToGroups($group['entity'], $group['groups']);
+			}
+		}
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			insertMemberGroup()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->insertMemberGroups()
+	 *
+	 * @param           mixed           $group
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertMemberGroup($group) {
+		return $this->insertMemberGroups(array($group));
+	}
+	/**
+	 * @name 			insertMemberGroups()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array           $collection
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertMemberGroups($collection)	{
+		$timeStamp = time();
+		/** Parameter must be an array */
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countInserts = 0;
+		$countLocalizations = 0;
+		$insertedItems = array();
+		$localizations = array();
+		foreach ($collection as $data) {
+			if ($data instanceof BundleEntity\MemberGroup) {
+				$entity = $data;
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+			else if (is_object($data)) {
+				$entity = new BundleEntity\MemberGroup;
+				if(!property_exists($data, 'date_added')){
+					$data->date_added = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+				}
+				if(!property_exists($data, 'date_updated')){
+					$data->date_updated = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+				}
+				if(!property_exists($data, 'count_members')){
+					$data->count_members = 0;
+				}
+				if(!property_exists($data, 'site')){
+					$data->site = 1;
+				}
+				foreach ($data as $column => $value) {
+					$localeSet = false;
+					$set = 'set' . $this->translateColumnName($column);
+					switch ($column) {
+						case 'local':
+							$localizations[$countInserts]['localizations'] = $value;
+							$localeSet = true;
+							$countLocalizations++;
+							break;
+						case 'site':
+							$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+							$response = $sModel->getSite($value);
+							if (!$response->error->exist) {
+								$entity->$set($response->result->set);
+							} else {
+								return $this->createException('EntityDoesNotExist', 'The site with the id / key / domain "'.$value.'" does not exist in database.', 'E:D:002');
+							}
+							unset($response, $sModel);
+							break;
+						default:
+							$entity->$set($value);
+							break;
+					}
+					if ($localeSet) {
+						$localizations[$countInserts]['entity'] = $entity;
+					}
+				}
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+
+				$countInserts++;
+			}
+		}
+		if ($countInserts > 0) {
+			$this->em->flush();
+		}
+		/** Now handle localizations */
+		if ($countInserts > 0 && $countLocalizations > 0) {
+			$response = $this->insertMemberGroupLocalizations($localizations);
+		}
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			insertMemberLocalizations()
+	 *
+	 * @since			1.2.9
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array           $collection        Collection of entities or post data.
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertMemberLocalizations($collection) {
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countInserts = 0;
+		$insertedItems = array();
+		foreach($collection as $data){
+			if($data instanceof BundleEntity\MemberLocalization){
+				$entity = $data;
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+			else if(is_object($data)){
+				$entity = new BundleEntity\MemberLocalization();
+				foreach($data as $column => $value){
+					$set = 'set'.$this->translateColumnName($column);
+					switch($column){
+						case 'language':
+							$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+							$response = $lModel->getLanguage($value);
+							if(!$response->error->exists){
+								$entity->$set($response->result->set);
+							}
+							unset($response, $lModel);
+							break;
+						case 'member':
+							$response = $this->getMember($value);
+							if(!$response->error->exists){
+								$entity->$set($response->result->set);
+							}
+							unset($response, $lModel);
+							break;
+						default:
+							$entity->$set($value);
+							break;
+					}
+				}
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+		}
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			insertMemberGroupLocalizations()
+	 *  				Inserts one or more member localizations into database.
+	 *
+	 * @since			1.3.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array           $collection        Collection of entities or post data.
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function insertMemberGroupLocalizations($collection) {
+		$timeStamp = time();
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countInserts = 0;
+		$insertedItems = array();
+		foreach($collection as $data){
+			if($data instanceof BundleEntity\MemberLocalization){
+				$entity = $data;
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+			else if(is_object($data)){
+				$entity = new BundleEntity\MemberLocalization();
+				foreach($data as $column => $value){
+					$set = 'set'.$this->translateColumnName($column);
+					switch($column){
+						case 'language':
+							$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+							$response = $lModel->getLanguage($value);
+							if(!$response->error->exists){
+								$entity->$set($response->result->set);
+							}
+							unset($response, $lModel);
+							break;
+						case 'group':
+							$response = $this->getGroup($value);
+							if(!$response->error->exists){
+								$entity->$set($response->result->set);
+							}
+							unset($response, $lModel);
+							break;
+						default:
+							$entity->$set($value);
+							break;
+					}
+				}
+				$this->em->persist($entity);
+				$insertedItems[] = $entity;
+				$countInserts++;
+			}
+		}
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			isMemberOfGroup()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $member
+	 * @param           mixed           $group
+	 * @param           bool            $bypass                 if set to true returns the result directly.
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function isMemberOfGroup($member, $group, $bypass = false) {
+		$timeStamp = time();
+		$response = $this->getGroup($group);
+		if($response->error->exist){
+			return $response;
+		}
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+
+		$qStr = 'SELECT '.$this->entity['mog']['alias']
+			. ' FROM '.$this->entity['mog']['name'].' '.$this->entity['mog']['alias']
+			. ' WHERE '.$this->entity['mog']['alias'].'.group = '.$group
+			. ' AND '.$this->entity['mog']['alias'].'.member = '.$member;
+
+		$q = $this->em->createQuery($qStr);
+
+		$result = $q->getResult();
+
+		$exist = false;
+		if (count($result) > 0) {
+			$exist = true;
+		}
+		if ($bypass) {
+			return $exist;
+		}
+		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			listGroups()
+	 *
+	 * @since			1.4.1
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           array           $filter
+	 * @param           array           $sortOrder
+	 * @param           array           $limit
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function listGroups($filter = null, $sortOrder = null, $limit = null) {
+		return $this->listMemberGroups($filter, $sortOrder, $limit);
+	}
     /**
      * @name 			listGroupsOfMember()
-     *  				List member groups of a specified member from database.
      *
      * @since			1.2.4
-     * @version         1.3.9
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->createException()
      *
      * @param           mixed           $member
-     *
-     * @param           array           $sortorder              Array
-     *                                      'column'            => 'asc|desc'
+     * @param           array           $sortOrder
      * @param           array           $limit
-     *                                      start
-     *                                      count
-     *
-     * @param           mixed           $site                   id or Site Entity.
-     *
-     * @return          array           $response
+	 *
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listGroupsOfMember($member, $filter = null, $sortorder = null, $limit = null, $site = 1) {
-        $this->resetResponse();
-        if (!$member instanceof BundleEntity\Member && !is_numeric($member) && !is_string($member)) {
-            return $this->createException('InvalidParameterException', 'Member entity', 'err.invalid.parameter.member');
-        }
-        if (!is_object($member)) {
-            switch ($member) {
-                case is_numeric($member):
-                    $response = $this->getMember($member, 'id');
-                    break;
-                case is_string($member):
-                    $response = $this->getMember($member, 'username');
-                    if ($response['error']) {
-                        $response = $this->getMember($member, 'email');
-                    }
-                    break;
-            }
-            if ($response['error']) {
-                return $this->createException('InvalidParameterException', 'Member entity', 'err.invalid.parameter.member');
-            }
-            $member = $response['result']['set'];
-            ;
-        }
-        /**
-         * Prepare $filter
-         */
-        $q_str = 'SELECT ' . $this->entity['members_of_group']['alias'] . ', ' . $this->entity['member_group']['alias']
-                . ' FROM ' . $this->entity['members_of_group']['name'] . ' ' . $this->entity['members_of_group']['alias']
-                . ' JOIN ' . $this->entity['members_of_group']['alias'] . '.member_group ' . $this->entity['member_group']['alias']
-                . ' WHERE ' . $this->entity['members_of_group']['alias'] . '.member = ' . $member->getId();
+    public function listGroupsOfMember($member, $sortOrder = null, $limit = null){
+        $timeStamp = time();
+        $response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
 
-        /**
-         * Prepare ORDER BY section of query.
-         *
-         * Note that sorting is done through Member table/entity by default.
-         */
-        $order_str = '';
-        if ($sortorder != null) {
-            foreach ($sortorder as $column => $direction) {
+        $qStr = 'SELECT ' . $this->entity['mog']['alias'] . ', ' . $this->entity['mg']['alias']
+                . ' FROM ' . $this->entity['mog']['name'] . ' ' . $this->entity['mog']['alias']
+                . ' JOIN ' . $this->entity['mog']['alias'] . '.mg ' . $this->entity['mg']['alias']
+                . ' WHERE ' . $this->entity['mog']['alias'] . '.m = ' . $member->getId();
+
+        $oStr = '';
+        if ($sortOrder != null) {
+            foreach ($sortOrder as $column => $direction) {
                 switch ($column) {
                     case 'code':
                     case 'date_added':
                     case 'date_updated':
                     case 'id':
-                        $column = $this->entity['member_group']['alias'] . '.' . $column;
+                        $column = $this->entity['mg']['alias'] . '.' . $column;
                         break;
                     default:
-                        $column = $this->entity['members_of_group']['alias'] . '.' . $column;
+                        $column = $this->entity['mog']['alias'] . '.' . $column;
                         break;
                 }
-                $order_str .= ' ' . $column . ' ' . strtoupper($direction) . ', ';
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
             }
-            $order_str = rtrim($order_str, ', ');
-            $order_str = ' ORDER BY ' . $order_str . ' ';
+			$oStr = rtrim($oStr, ', ');
+			$oStr = ' ORDER BY '.$oStr.' ';
         }
 
-        $q_str .= $order_str;
+		$qStr .= $oStr;
 
-        $query = $this->em->createQuery($q_str);
+        $q = $this->em->createQuery($qStr);
+		$q = $this->addLimit($q, $limit);
 
-        /**
-         * Prepare LIMIT section of query
-         */
-        if ($limit != null) {
-            if (isset($limit['start']) && isset($limit['count'])) {
-                /** If limit is set */
-                $query->setFirstResult($limit['start']);
-                $query->setMaxResults($limit['count']);
-            } else {
-                new CoreExceptions\InvalidLimitException($this->kernel, '');
-            }
-        }
+        $result = $q->getResult();
+		$groups = array();
+		foreach ($result as $mog) {
+			$groups[] = $mog->getGroup();
+		}
+		$totalRows = count($groups);
 
-        $result = $query->getResult();
-        $total_rows = count($result);
-        if ($total_rows < 1) {
-            $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => $total_rows,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($groups, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			listMemberGroups()
+	 *
+	 * @since			1.3.8
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 * @author          Said İmamoğlu
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param   		array   $filter
+	 * @param   		array   $sortOrder
+	 * @param   		array   $limit
+	 *
+	 * @return   		BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function listMemberGroups($filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		if(!is_array($sortOrder) && !is_null($sortOrder)){
+			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
+		}
+		$oStr = $wStr = $gStr = $fStr = '';
 
-        $groups = array();
-        foreach ($result as $mog) {
-            $groups[] = $mog->getGroup();
-        }
-        $total_rows = count($groups);
+		$qStr = 'SELECT '.$this->entity['mg']['alias'].', '.$this->entity['mg']['alias']
+			.' FROM '.$this->entity['mgl']['name'].' '.$this->entity['mgl']['alias']
+			.' JOIN '.$this->entity['mgl']['alias'].'.group '.$this->entity['mg']['alias'];
 
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $groups,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'err.db.entry.exist',
-        );
-        return $this->response;
-    }
+		if(!is_null($sortOrder)){
+			foreach($sortOrder as $column => $direction){
+				switch($column){
+					case 'id':
+					case 'code':
+					case 'date_added':
+					case 'date_removed':
+					case 'date_updated':
+					case 'count_members':
+						$column = $this->entity['mg']['alias'].'.'.$column;
+						break;
+					case 'name':
+					case 'url_key':
+						$column = $this->entity['mgl']['alias'].'.'.$column;
+						break;
+				}
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			$oStr = rtrim($oStr, ', ');
+			$oStr = ' ORDER BY '.$oStr.' ';
+		}
 
+		if(!is_null($filter)){
+			$fStr = $this->prepareWhere($filter);
+			$wStr .= ' WHERE '.$fStr;
+		}
+
+		$qStr .= $wStr.$gStr.$oStr;
+		$q = $this->em->createQuery($qStr);
+		$q = $this->addLimit($q, $limit);
+
+		$result = $q->getResult();
+
+		$entities = array();
+		foreach($result as $entry){
+			$id = $entry->getMember()->getId();
+			if(!isset($unique[$id])){
+				$entities[] = $entry->getAction();
+			}
+		}
+		$totalRows = count($entities);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
     /**
      * @name 			listMembers()
-     *  				List members from database based on a variety of conditions.
      *
-     * @since			1.0.0
-     * @version         1.3.5
+     * @since			1.3.8
+	 * @version         1.4.1
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->createException()
      *
-     * @param   array   $filter
-     * @param   array   $sortorder
-     * @param   array   $limit
-     * @param   int   $language
-     * @param   string   $query_str
+     * @param   		array   $filter
+     * @param   		array   $sortOrder
+     * @param   		array   $limit
      *
-     * @return   array   $response
+     * @return   		BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMembers($filter = null, $sortorder = null, $limit = null, $language = 1, $query_str = null) {
-        $this->resetResponse();
-        if (!is_array($sortorder) && !is_null($sortorder)) {
-            return $this->createException('InvalidSortOrderException', '', 'err.invalid.parameter.sortorder');
-        }
-        /**
-         * Add filter checks to below to set join_needed to true.
-         */
-        $order_str = '';
-        $where_str = '';
-        $group_str = '';
-        $filter_str = '';
+	public function listMembers($filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		if(!is_array($sortOrder) && !is_null($sortOrder)){
+			return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
+		}
+		$oStr = $wStr = $gStr = $fStr = '';
 
-        /**
-         * Start creating the query.
-         *
-         * Note that if no custom select query is provided we will use the below query as a start.
-         */
-        $specialQuery = true;
-        if(is_null($query_str)){
-//            $filter[] = array(
-//                'glue' => 'and',
-//                'condition' => array(
-//                    array(
-//                        'glue' => 'and',
-//                        'condition' => array('column' => $this->entity['member']['alias'] . '.language', 'comparison' => '=', 'value' => $language),
-//                    )
-//                )
-//            );
-            $specialQuery = false;
-            $query_str = 'SELECT ' . $this->entity['member_localization']['alias'] . ', ' . $this->entity['member']['alias']
-                    . ' FROM ' . $this->entity['member_localization']['name'] . ' ' . $this->entity['member_localization']['alias']
-                    . ' JOIN ' . $this->entity['member_localization']['alias'] . '.member ' . $this->entity['member']['alias'];
-        }
-        /**
-         * Prepare ORDER BY section of query.
-         */
-        if ($sortorder != null) {
-            foreach ($sortorder as $column => $direction) {
-                switch ($column) {
-                    case 'id':
-                    case 'name_first':
-                    case 'name_last':
-                    case 'email':
-                    case 'username':
-                    case 'date_birth':
-                    case 'date_activation':
-                    case 'date_registration':
-                    case 'date_status_changed':
-                        $column = $this->entity['member']['alias'] . '.' . $column;
-                        break;
-                    case 'title':
-                        $column = $this->entity['member_group']['alias'] . '.' . $column;
-                        break;
-                }
-                $order_str .= ' ' . $column . ' ' . strtoupper($direction) . ', ';
-            }
-            $order_str = rtrim($order_str, ', ');
-            $order_str = ' ORDER BY ' . $order_str . ' ';
-        }
+		$qStr = 'SELECT '.$this->entity['m']['alias'].', '.$this->entity['m']['alias']
+			.' FROM '.$this->entity['ml']['name'].' '.$this->entity['ml']['alias']
+			.' JOIN '.$this->entity['ml']['alias'].'.member '.$this->entity['m']['alias'];
 
-        /**
-         * Prepare WHERE section of query.
-         */
-        if ($filter != null) {
-            $filter_str = $this->prepareWhere($filter);
-            $where_str .= ' WHERE ' . $filter_str;
-        }
+		if(!is_null($sortOrder)){
+			foreach($sortOrder as $column => $direction){
+				switch($column){
+					case 'id':
+					case 'name_first':
+					case 'name_last':
+					case 'email':
+					case 'username':
+					case 'date_birth':
+					case 'date_activation':
+					case 'date_last_login':
+					case 'date_status_changed':
+					case 'status':
+					case 'gender':
+						$column = $this->entity['m']['alias'].'.'.$column;
+						break;
+					case 'title':
+						$column = $this->entity['ml']['alias'].'.'.$column;
+						break;
+				}
+				$oStr .= ' '.$column.' '.strtoupper($direction).', ';
+			}
+			$oStr = rtrim($oStr, ', ');
+			$oStr = ' ORDER BY '.$oStr.' ';
+		}
 
-        $query_str .= $where_str . $group_str . $order_str;
-        $query = $this->em->createQuery($query_str);
-        $query = $this->addLimit($query, $limit);
+		if(!is_null($filter)){
+			$fStr = $this->prepareWhere($filter);
+			$wStr .= ' WHERE '.$fStr;
+		}
 
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getResult();
+		$qStr .= $wStr.$gStr.$oStr;
+		$q = $this->em->createQuery($qStr);
+		$q = $this->addLimit($q, $limit);
 
-        $members = array();
+		$result = $q->getResult();
 
-        if(!$specialQuery){
-            $unique = array();
-            foreach ($result as $entry) {
-                $id = $entry->getMember()->getId();
-                if (!isset($unique[$id])) {
-                    $members[] = $entry->getMember();
-                    $unique[$id] = $entry->getMember();
-                }
-            }
-            unset($unique);
-        }
-        else{
-            $members = $result;
-        }
-        $total_rows = count($members);
-
-        if ($total_rows < 1) {
-            $this->response['code'] = 'err.db.entry.notexist';
-            return $this->response;
-        }
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $members,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
+		$entities = array();
+		foreach($result as $entry){
+			$id = $entry->getMember()->getId();
+			if(!isset($unique[$id])){
+				$entities[] = $entry->getAction();
+			}
+		}
+		$totalRows = count($entities);
+		if ($totalRows < 1) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+		}
+		return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
 
     /**
      * @name 			listMembersOfGroup()
-     *  				This an alias that use listMembersOfGroupByGroup()
      *
      * @since			1.3.3
-     * @version         1.3.9
+     * @version         1.4.1
      *
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
      * @use             $this->createException()
      *
-     * @param           $group
-     * @param           $filter
-     * @param           $sortorder
-     * @param           $limit
-     * @param           $site
+     * @param           mixed		$group
+     * @param           array		$filter
+     * @param           array		$sortOrder
+     * @param           array 		$limit
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMembersOfGroup($group, $filter = null, $sortorder = null, $limit = null, $site = 1){
-        if(!$group instanceof BundleEntity\MembersOfGroup && !is_numeric($group) && !is_string($group)){
-            return $this->createException('InvalidParameterException', 'MemberGroup entity, id, or code', 'err.invalid.parameter');
-        }
-        if(!$group instanceof BundleEntity\MemberGroup){
-            if(is_numeric($group)){
-                $response = $this->getGroup($group);
-                if($response['error']){
-                    return $this->createException('InvalidParameterException', 'MemberGroup entity, id, or code', 'err.invalid.parameter');
-                }
-                $group = $response['result']['set'];
-            }
-            elseif(is_string($group)){
-                $response = $this->getGroup($group, 'code');
-                if($response['error']){
-                    return $this->createException('InvalidParameterException', 'MemberGroup entity, id, or code', 'err.invalid.parameter');
-                }
-                $group = $response['result']['set'];
-            }
-        }
-        $qStr = 'SELECT '.$this->entity['members_of_group']['alias'].' FROM '.$this->entity['members_of_group']['name'].' '.$this->entity['members_of_group']['alias']
-                .' WHERE '.$this->entity['members_of_group']['alias'].'.member_group = '.$group->getId();
+    public function listMembersOfGroup($group, $filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+        $response = $this->getGroup($group);
+		if($response->error->exist){
+			return $response;
+		}
+		$group = $response->result->set;
+        $qStr = 'SELECT '.$this->entity['mog']['alias'].' FROM '.$this->entity['mog']['name'].' '.$this->entity['mog']['alias']
+                .' WHERE '.$this->entity['mog']['alias'].'.group = '.$group->getId();
 
-        $query = $this->em->createQuery($qStr);
+        $q = $this->em->createQuery($qStr);
 
-        $result = $query->getResult();
+        $result = $q->getResult();
 
-        if(count($result) < 1){
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
         $memberIds = array();
         foreach($result as $item){
             $memberIds[] = $item->getMember()->getId();
@@ -1012,20 +1375,26 @@ class MemberManagementModel extends CoreModel {
             'condition' => array(
                 array(
                     'glue' => 'and',
-                    'condition' => array('column' => $this->entity['member']['alias'].'.id', 'comparison' => 'in', 'value' => $memberIds),
+                    'condition' => array('column' => $this->entity['m']['alias'].'.id', 'comparison' => 'in', 'value' => $memberIds),
                 )
             )
         );
 
-        return $this->listMembers($filter, $sortorder, $limit);
+        $response = $this->listMembers($filter, $sortOrder, $limit);
+		if($response->error->exist){
+			return $response;
+		}
+		$response->stats->execution->start = $timeStamp;
+		$response->stats->execution->end = time();
+
+		return $response;
     }
 
     /**
      * @name 			listMembersOfSite()
-     *  				Lists all members that are associated with a site.
      *
      * @since			1.3.8
-     * @version         1.3.8
+     * @version         1.4.1
      *
      * @author          Can Berkol
      *
@@ -1033,283 +1402,66 @@ class MemberManagementModel extends CoreModel {
      *
      * @param           integer         $site
      * @param           array           $filter
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      * @param           array           $limit
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMembersOfSite($site, $filter = null, $sortorder = null, $limit = null){
-        if(!$site instanceof SiteEntity\Site && !is_numeric($site) && !is_string($site)){
-            return $this->createException('InvalidParameterException', 'Site entity, id, or url_key', 'err.invalid.parameter');
-        }
-        if(!$site instanceof SiteEntity\Site){
-            if(is_numeric($site)){
-                $model = $this->kernel->getContainer()->get('sitemanagement.model');
-                $response = $model->getSite($site);
-                if($response['error']){
-                    return $this->createException('InvalidParameterException', 'Site entity, id, or url_key', 'err.invalid.parameter');
-                }
-                $site = $response['result']['set'];
-            }
-            elseif(is_string($site)){
-                $model = $this->kernel->getContainer()->get('sitemanagement.model');
-                $response = $model->getSite($site, 'url_key');
-                if($response['error']){
-                    return $this->createException('InvalidParameterException', 'Site entity, id, or url_key', 'err.invalid.parameter');
-                }
-                $group = $response['result']['set'];
-            }
-        }
-        $qStr = 'SELECT '.$this->entity['members_of_site']['alias']
-            .' FROM '.$this->entity['members_of_site']['name'].' '.$this->entity['members_of_site']['alias']
-            .' WHERE '.$this->entity['members_of_site']['alias'].'.site = '.$site->getId();
+    public function listMembersOfSite($site, $filter = null, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		$response = $this->getGroup($site);
+		if($response->error->exist){
+			return $response;
+		}
+		$site = $response->result->set;
+		$qStr = 'SELECT '.$this->entity['mos']['alias'].' FROM '.$this->entity['mos']['name'].' '.$this->entity['mos']['alias']
+			.' WHERE '.$this->entity['mos']['alias'].'.group = '.$site->getId();
 
-        $query = $this->em->createQuery($qStr);
+		$q = $this->em->createQuery($qStr);
 
-        $result = $query->getResult();
-        $memberIds = array();
-        foreach($result as $item){
-            $memberIds[] = $item->getMember()->getId();
-        }
+		$result = $q->getResult();
 
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $this->entity['member']['alias'].'.id', 'comparison' => 'in', 'value' => $memberIds),
-                )
-            )
-        );
+		$memberIds = array();
+		foreach($result as $item){
+			$memberIds[] = $item->getMember()->getId();
+		}
 
-        return $this->listMembers($filter, $sortorder, $limit);
-    }
-    
-    /**
-     * @name 			listMemberOfGroups()
-     *  				List members of a group from database.
-     *
-     * @since			1.2.3
-     * @version         1.2.3
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     *
-     * @param           $filter
-     * @param           $sortorder
-     * @param           $limit
-     * @param           $site
-     *
-     * @return          array           $response
-     */
-    public function listMemberOfGroups($filter = null, $sortorder = null, $limit = null, $site = 1) {
-        /**
-         * Prepare $filter
-         */
-        $q_str = 'SELECT ' . $this->entity['members_of_group']['alias'] . ', ' . $this->entity['member']['alias']
-                . ' FROM ' . $this->entity['members_of_group']['name'] . ' ' . $this->entity['members_of_group']['alias']
-                . ' JOIN ' . $this->entity['members_of_group']['alias'] . '.member ' . $this->entity['member']['alias'];
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => array('column' => $this->entity['m']['alias'].'.id', 'comparison' => 'in', 'value' => $memberIds),
+				)
+			)
+		);
 
-        /**
-         * Prepare ORDER BY section of query.
-         *
-         * Note that sorting is done through Member table/entity by default.
-         */
-        $order_str = '';
-        if ($sortorder != null) {
-            foreach ($sortorder as $column => $direction) {
-                switch ($column) {
-                    case 'name_first':
-                    case 'name_last':
-                    case 'email':
-                    case 'id':
-                    case 'date_birth':
-                    case 'date_registration':
-                    case 'sort_order':
-                    case 'date_activation':
-                        $column = $this->entity['member']['alias'] . '.' . $column;
-                        break;
-                    default:
-                        $column = $this->entity['members_of_group']['alias'] . '.' . $column;
-                        break;
-                }
-                $order_str .= ' ' . $column . ' ' . strtoupper($direction) . ', ';
-            }
-            $order_str = rtrim($order_str, ', ');
-            $order_str = ' ORDER BY ' . $order_str . ' ';
-        }
+		$response = $this->listMembers($filter, $sortOrder, $limit);
+		if($response->error->exist){
+			return $response;
+		}
+		$response->stats->execution->start = $timeStamp;
+		$response->stats->execution->end = time();
 
-        $q_str .= $order_str;
-
-        $query = $this->em->createQuery($q_str);
-        $query = $this->addLimit($query, $limit);
-
-        $result = $query->getResult();
-
-        $total_rows = count($result);
-        if ($total_rows < 1) {
-            $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => null,
-                    'total_rows' => $total_rows,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.entry.notexist',
-            );
-            return $this->response;
-        }
-
-        $members = array();
-        foreach ($result as $mog) {
-            $members[] = $mog->getMember();
-        }
-        $total_rows = count($members);
-
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $members,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'err.db.entry.exist',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			listMemberGroups()
-     *  				List member groups from database based on a variety of conditions.
-     *
-     * @since			1.0.0
-     * @version         1.2.3
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array           $filter             Multi-dimensional array
-     * @param           array           $sortorder
-     * @param           array           $limit
-     *
-     * @param           string          $query_str
-     *
-     * @return          array           $response
-     */
-    public function listMemberGroups($filter = null, $sortorder = null, $limit = null, $query_str = null) {
-        $this->resetResponse();
-        if (!is_array($sortorder) && !is_null($sortorder)) {
-            return $this->createException('InvalidSortOrderException', '', 'err.invalid.parameter.sortorder');
-        }
-        /**
-         * Add filter checks to below to set join_needed to true.
-         */
-        /**         * ************************************************** */
-        $order_str = '';
-        $where_str = '';
-        $group_str = '';
-        $filter_str = '';
-
-        /**
-         * Start creating the query.
-         *
-         * Note that if no custom select query is provided we will use the below query as a start.
-         */
-        if (is_null($query_str)) {
-            $query_str = 'SELECT ' . $this->entity['member_group_localization']['alias']
-                    . ' FROM ' . $this->entity['member_group_localization']['name'] . ' ' . $this->entity['member_group_localization']['alias']
-                    . ' JOIN ' . $this->entity['member_group_localization']['alias'] . '.member_group ' . $this->entity['member_group']['alias'];
-        }
-
-        /**
-         * Prepare ORDER BY section of query.
-         */
-        if ($sortorder != null) {
-            foreach ($sortorder as $column => $direction) {
-                switch ($column) {
-                    case 'id':
-                    case 'code':
-                    case 'date_added':
-                    case 'date_updated':
-                    case 'count_members':
-                        $column = $this->entity['member_group']['alias'] . '.' . $column;
-                        break;
-                    case 'name':
-                    case 'url_key':
-                        $column = $this->entity['member_group_localization']['alias'] . '.' . $column;
-                        break;
-                }
-                $order_str .= ' ' . $column . ' ' . strtoupper($direction) . ', ';
-            }
-            $order_str = rtrim($order_str, ', ');
-            $order_str = ' ORDER BY ' . $order_str . ' ';
-        }
-
-        /**
-         * Prepare WHERE section of query.
-         */
-        if ($filter != null) {
-            $filter_str = $this->prepare_where($filter);
-            $where_str .= ' WHERE ' . $filter_str;
-        }
-
-        $query_str .= $where_str . $group_str . $order_str;
-        $query = $this->em->createQuery($query_str);
-
-        $query = $this->addLimit($query, $limit);
-        /**
-         * Prepare & Return Response
-         */
-        $result = $query->getResult();
-        $memberGroups = array();
-        $unique = array();
-        foreach ($result as $entry) {
-            $id = $entry->getGroup()->getId();
-            if (!isset($unique[$id])) {
-                $memberGroups[] = $entry->getGroup();
-                $unique[$id] = $entry->getGroup();
-            }
-        }
-        unset($unique);
-        
-        $total_rows = count($memberGroups);
-        if ($total_rows < 1) {
-            $this->response['error'] = true;
-            $this->response['code'] = 'err.db.entry.notexist';
-            return $this->response;
-        }
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $memberGroups,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
+		return $response;
     }
 
     /**
      * @name 			listRegularMemberGroups()
-     *  				returns a list of member groups of type "r" only.
      *
      * @since			1.3.1
-     * @version         1.3.1
+     * @version         1.4.1
      * @author          Can Berkol
      *
      * @use             $this->listMemberGroups()
      *
-     * @param           array           $sortorder
+     * @param           array           $sortOrder
      * @param           array           $limit
      *
-     * @return          array           $response
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listRegularMemberGroups($sortorder = null, $limit = null) {
-        $column = $this->entity['member_group']['alias'] . '.type';
+    public function listRegularMemberGroups($sortOrder = null, $limit = null) {
+        $column = $this->entity['mg']['alias'] . '.type';
         $condition = array('column' => $column, 'comparison' => 'eq', 'value' => 'r');
         $filter[] = array(
             'glue' => 'and',
@@ -1320,1556 +1472,359 @@ class MemberManagementModel extends CoreModel {
                 )
             )
         );
-        return $this->listMemberGroups($filter, $sortorder, $limit);
+        return $this->listMemberGroups($filter, $sortOrder, $limit);
     }
-    /**
-     * @name 			getMember()
-     *  				Returns details of a member.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->listMembers()
-     *
-     * @param           mixed           $member             Member entity or member id, email, or username.
-     * @param           string          $by                 entity, id, email or username
-     *
-     * @return          mixed           $response
-     */
-    public function getMember($member, $by = 'id') {
-        $this->resetResponse();
-        if ($by != 'id' && $by != 'username' && $by != 'email' && $by != 'entity') {
-            return $this->createException('InvalidParamterException', 'id, username, email, entity', 'err.invalid.parameter.by');
-        }
-        if (!is_object($member) && !is_numeric($member) && !is_string($member)) {
-            return $this->createException('InvalidParameterException', 'Member Entity or string representing username, email, or id.', 'err.invalid.parameter.member');
-        }
-        if (is_object($member)) {
-            if (!$member instanceof BundleEntity\Member) {
-                return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.member');
-            }
-            $member = $member->getId();
-            $by = 'id';
-        }
-        switch ($by) {
-            case 'email':
-            case 'id':
-            case 'username':
-                $by = $this->entity['member']['alias'] . '.' . $by;
-                break;
-        }
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $by, 'comparison' => '=', 'value' => $member),
-                )
-            )
-        );
-        $response = $this->listMembers($filter, null, array('start' => 0, 'count' => 1));
-        if ($response['error']) {
-            return $response;
-        }
-        $collection = $response['result']['set'];
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $collection[0],
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			getGroup()
-     *  				Returns details of a member group.
-     *
-     * @since			1.0.0
-     * @version         1.2.3
-     * @author          Can Berkol
-     *
-     * @use             $this->listMemberGroups()
-     *
-     * @param           mixed           $group              Member Group entity or id, email, or username.
-     * @param           string          $by                 entity, id, code, url_key
-     *
-     * @return          mixed           $response
-     */
-    public function getGroup($group, $by = 'id') {
-        $this->resetResponse();
-        if ($by != 'id' && $by != 'code' && $by != 'entity' && $by != 'url_key') {
-            return $this->createException('InvalidParameterException', 'id, code, url_key', 'err.invalid.parameter.by');
-        }
-        if (!is_object($group) && !is_numeric($group) && !is_string($group)) {
-            return $this->createException('InvalidParameterException', 'Member Group entity, or string representing code or id.', 'err.invalid.parameter.member_Group');
-        }
-        if (is_object($group)) {
-            if (!$group instanceof BundleEntity\MemberGroup) {
-                return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.member_group');
-            }
-            $group = $group->getId();
-            $by = 'id';
-        }
-        switch ($by) {
-            case 'code':
-            case 'id':
-                $by = $this->entity['member_group']['alias'] . '.' . $by;
-                break;
-            case 'url_key':
-                $by = $this->entity['member_group_localization']['alias'] . '.' . $by;
-                break;
-        }
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $by, 'comparison' => '=', 'value' => $group),
-                )
-            )
-        );
-        
-        $response = $this->listMemberGroups($filter, null, array('start' => 0, 'count' => 1));
-        if ($response['error']) {
-            return $response;
-        }
-        
-        $collection = $response['result']['set'];
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $collection[0],
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			getGroupLocalization()
-     *  				Gets a specific member group's localization values from database.
-     *
-     * @since			1.0.1
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           BundleEntity\MemberGroup        $group
-     * @param           MLSEntity\Language              $language
-     *
-     * @return          array           $response
-     */
-    public function getGroupLocalization($group, $language) {
-        $this->resetResponse();
-        if (!$group instanceof BundleEntity\MemberGroup) {
-            return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.group');
-        }
-        /** Parameter must be an array */
-        if (!$language instanceof MLSEntity\Language) {
-            return $this->createException('InvalidParameterException', 'Language', 'err.invalid.parameter.language');
-        }
-        $q_str = 'SELECT ' . $this->entity['member_group_localization']['alias'] . ' FROM ' . $this->entity['member_group_localization']['name'] . ' ' . $this->entity['member_group_localization']['alias']
-                . ' WHERE ' . $this->entity['member_group_localization']['alias'] . '.member_group = ' . $group->getId()
-                . ' AND ' . $this->entity['member_group_localization']['alias'] . '.language = ' . $language->getId();
-
-        $query = $this->em->createQuery($q_str);
-        /**
-         * 6. Run query
-         */
-        $result = $query->getResult();
-        /**
-         * Prepare & Return Response
-         */
-        $total_rows = count($result);
-
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $result,
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist.',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			getMemberLocalization()
-     *  				Gets a specific member's localization values from database.
-     *
-     * @since			1.0.1
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           BundleEntity\Member             $member
-     * @param           MLSEntity\Language              $language
-     *
-     * @return          array           $response
-     */
-    public function getMemberLocalization($member, $language) {
-        $this->resetResponse();
-        if (!$member instanceof BundleEntity\Member) {
-            return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.member');
-        }
-        /** Parameter must be an array */
-        if (!$language instanceof MLSEntity\Language) {
-            return $this->createException('InvalidParameterException', 'Language', 'err.invalid.parameter.language');
-        }
-        $q_str = 'SELECT ' . $this->entity['member_localization']['alias'] . ' FROM ' . $this->entity['member_localization']['name'] . ' ' . $this->entity['member_localization']['alias']
-                . ' WHERE ' . $this->entity['member_localization']['alias'] . '.member = ' . $member->getId()
-                . ' AND ' . $this->entity['member_localization']['alias'] . '.language = ' . $language->getId();
-
-        $query = $this->em->createQuery($q_str);
-        /**
-         * 6. Run query
-         */
-        $result = $query->getResult();
-        /**
-         * Prepare & Return Response
-         */
-        $total_rows = count($result);
-
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $result[0],
-                'total_rows' => $total_rows,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist.',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			doesMemberExist()
-     *  				Checks if member exists in database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     *
-     * @param           mixed           $member         Member entity, email, member id, username.
-     * @param           string          $by             all, entity, id, username or email
-     * @param           bool            $bypass         If set to true does not return response but only the result.
-     *
-     * @return          mixed           $response
-     */
-    public function doesMemberExist($member, $by = 'all', $bypass = false) {
-        $this->resetResponse();
-        $exist = false;
-        $error = true;
-        if ($by == 'all') {
-            $response_by_id = $this->getMember($member, 'id');
-            $response_by_username = $this->getMember($member, 'username');
-            $response_by_email = $this->getMember($member, 'email');
-            $response_by_entity = $this->getMember($member, 'entity');
-
-            if (!$response_by_id['result']['total_rows'] > 0 || !$response_by_username['result']['total_rows'] > 0 || !$response_by_email['result']['total_rows'] > 0 || !$response_by_entity['result']['total_rows'] > 0) {
-                $exist = true;
-                $error = false;
-            }
-        } else {
-            $response = $this->getMember($member, $by);
-        }
-
-        if (!$response['error']) {
-            if ($response['result']['total_rows'] > 0) {
-                $exist = true;
-                $error = false;
-                
-            }
-        }
-        if ($bypass) {
-            return $exist;
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	        'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $response['result']['set'],
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => $error,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			doesMemberGroupExist()
-     *  				Checks if member group exists in database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->getGroup()
-     *
-     * @param           mixed           $group          MemberGroup entity or member group id.
-     * @param           string          $by             id, code
-     * @param           bool            $bypass         If set to true does not return response but only the result.
-     *
-     * @return          mixed           $response
-     */
-    public function doesMemberGroupExist($group, $by = 'id', $bypass = false) {
-        $this->resetResponse();
-        $exist = false;
-
-        $response = $this->getGroup($group, $by);
-        if (!$response['error']) {
-            if ($response['result']['total_rows'] > 0) {
-                $exist = true;
-            }
-        }
-        if ($bypass) {
-            return $exist;
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $exist,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			insertMembers()
-     *  				Inserts one or more members into database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array           $collection      Collection of Member entities or array of member detail array.
-     *
-     * @return          array           $response
-     */
-    public function insertMembers($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countInserts = 0;
-        $countLocalizations = 0;
-        $countGroups = 0;
-        $insertedItems = array();
-        foreach($collection as $data){
-            if($data instanceof BundleEntity\Member){
-                $entity = $data;
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-            else if(is_object($data)){
-                $localizations = array();
-                $groups = array();
-                $entity = new BundleEntity\Member;
-                if(!property_exists($data, 'date_registration')){
-                    $data->date_registration = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-                }
-                if(!property_exists($data, 'date_status_changed')){
-                    $data->date_status_changed = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-                }
-                if(!property_exists($data, 'language')){
-                    $data->language = 1;
-                }
-                if(!property_exists($data, 'site')){
-                    $data->site = 1;
-                }
-                if(isset($data->status) && $data->status == 'a' && !isset($data->date_activation)){
-                    $data->date_activation = $data->date_registration;
-                }
-                foreach($data as $column => $value){
-                    $localeSet = false;
-                    $groupSet = false;
-                    $set = 'set'.$this->translateColumnName($column);
-                    switch($column){
-                        case 'local':
-                            $localizations[$countInserts]['localizations'] = $value;
-                            $localeSet = true;
-                            $countLocalizations++;
-                            break;
-                        case 'language':
-                            $lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                            if(is_numeric($value)){
-                                $response = $lModel->getLanguage($value, 'id');
-                            }
-                            else{
-                                $response = $lModel->getLanguage($value, 'iso_code');
-                            }
-                            if(!$response['error']){
-                                $entity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\EntityDosNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'site':
-                            $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
-                            $response = $sModel->getSite($value, 'id');
-                            if(!$response['error']){
-                                $entity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\SiteDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'groups':
-                            $groups[$countInserts]['groups'] = $value;
-                            $groupSet = true;
-                            $countGroups++;
-                            break;
-                        case 'password':
-                            /** We will need the encryption service to encrypt password. */
-                            $enc = $this->kernel->getContainer()->get('encryption');
-                            $password = $enc->input($value)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
-                            $entity->$set($password);
-                            break;
-                        default:
-                            $entity->$set($value);
-                            break;
-                    }
-                    if($localeSet){
-                        $localizations[$countInserts]['entity'] = $entity;
-                    }
-                    if($groupSet){
-                        $groups[$countInserts]['entity'] = $entity;
-                    }
-                }
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-
-                $countInserts++;
-            }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
-        }
-        if($countInserts > 0){
-            $this->em->flush();
-        }
-        /** Now handle localizations */
-        if($countInserts > 0 && $countLocalizations > 0){
-            $this->insertMemberLocalizations($localizations);
-        }
-        if($countInserts > 0 && $countGroups > 0){
-            foreach($groups as $group){
-                $this->addMemberToGroups($group['entity'], $group['groups']);
-            }
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => $entity->getId(),
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			insertMemberGroups()
-     *  				Inserts one or more members into database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->createExcepiton()
-     *
-     * @param           array           $collection      Collection of MemberGroup entities or array of member detail array.
-     *
-     * @return          array           $response
-     */
-    public function insertMemberGroups($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countInserts = 0;
-        $countLocalizations = 0;
-        $insertedItems = array();
-        foreach($collection as $data){
-            if($data instanceof BundleEntity\MemberGroup){
-                $entity = $data;
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-            else if(is_object($data)){
-                $localizations = array();
-                $entity = new BundleEntity\MemberGroup;
-                if(!property_exists($data, 'date_added')){
-                    $data->date_added = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-                }
-                if(!property_exists($data, 'date_updated')){
-                    $data->date_updated = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-                }
-                if(!property_exists($data, 'count_members')){
-                    $data->count_members = 0;
-                }
-                if(!property_exists($data, 'site')){
-                    $data->site = 1;
-                }
-                foreach($data as $column => $value){
-                    $localeSet = false;
-                    $set = 'set'.$this->translateColumnName($column);
-                    switch($column){
-                        case 'local':
-                            $localizations[$countInserts]['localizations'] = $value;
-                            $localeSet = true;
-                            $countLocalizations++;
-                            break;
-                        case 'site':
-                            $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
-                            $response = $sModel->getSite($value, 'id');
-                            if(!$response['error']){
-                                $entity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\SiteDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        default:
-                            $entity->$set($value);
-                            break;
-                    }
-                    if($localeSet){
-                        $localizations[$countInserts]['entity'] = $entity;
-                    }
-                }
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-
-                $countInserts++;
-            }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
-        }
-        if($countInserts > 0){
-            $this->em->flush();
-        }
-        /** Now handle localizations */
-        if($countInserts > 0 && $countLocalizations > 0){
-            $this->insertMemberGroupLocalizations($localizations);
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => $entity->getId(),
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			insertMember()
-     *  				Inserts one member into database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->insertMembers()
-     *
-     * @param           mixed           $member      Member Entity or a collection of post input that stores entity details.
-     *
-     * @return          array           $response
-     */
-    public function insertMember($member) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($member) && !is_object($member)) {
-            return $this->createException('InvalidParameterException', 'Array or Member Entity', 'err.invalid.parameter.member');
-        }
-        return $this->insertMembers(array($member));
-    }
-
-    /**
-     * @name 			insertMemberGroup()
-     *  				Inserts one member groups into database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->insertMemberGroups()
-     *
-     * @param           mixed           $group      MemberGroup Entity or a collection of post input that stores entity details.
-     *
-     * @return          array           $response
-     */
-    public function insertMemberGroup($group) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($group) && !is_object($group)) {
-            return $this->createException('InvalidParameterException', 'Array or MemberGroup Entity', 'err.invalid.parameter.group');
-        }
-        return $this->insertMemberGroups(array($group));
-    }
-    /**
-     * @name 			insertMemberLocalizations()
-     *  				Inserts one or more member localizations into database.
-     *
-     * @since			1.2.9
-     * @version         1.2.9
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array           $collection        Collection of entities or post data.
-     *
-     * @return          array           $response
-     */
-    public function insertMemberLocalizations($collection){
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countInserts = 0;
-        $insertedItems = array();
-        foreach($collection as $item){
-            if($item instanceof BundleEntity\MemberLocalization){
-                $entity = $item;
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-            else{
-                foreach($item['localizations'] as $language => $data){
-                    $entity = new BundleEntity\MemberLocalization;
-                    $entity->setMember($item['entity']);
-                    $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                    $response = $mlsModel->getLanguage($language, 'iso_code');
-                    if(!$response['error']){
-                        $entity->setLanguage($response['result']['set']);
-                    }
-                    else{
-                        break 1;
-                    }
-                    foreach($data as $column => $value){
-                        $set = 'set'.$this->translateColumnName($column);
-                        $entity->$set($value);
-                    }
-                    $this->em->persist($entity);
-                }
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-        }
-        if($countInserts > 0){
-            $this->em->flush();
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
-    /**
-     * @name 			insertMemberLocalizations()
-     *  				Inserts one or more member localizations into database.
-     *
-     * @since			1.3.0
-     * @version         1.3.9
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array           $collection        Collection of entities or post data.
-     *
-     * @return          array           $response
-     */
-    public function insertMemberGroupLocalizations($collection){
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countInserts = 0;
-        $insertedItems = array();
-        foreach($collection as $item){
-            if($item instanceof BundleEntity\MemberGroupLocalization){
-                $entity = $item;
-                $this->em->persist($entity);
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-            else{
-                foreach($item['localizations'] as $language => $data){
-                    $entity = new BundleEntity\MemberGroupLocalization;
-                    $entity->setGroup($item['entity']);
-                    $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                    $response = $mlsModel->getLanguage($language, 'iso_code');
-                    if(!$response['error']){
-                        $entity->setLanguage($response['result']['set']);
-                    }
-                    else{
-                        break 1;
-                    }
-                    foreach($data as $column => $value){
-                        $set = 'set'.$this->translateColumnName($column);
-                        $entity->$set($value);
-                    }
-                    $this->em->persist($entity);
-                }
-                $insertedItems[] = $entity;
-                $countInserts++;
-            }
-        }
-        if($countInserts > 0){
-            $this->em->flush();
-        }
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $insertedItems,
-                'total_rows' => $countInserts,
-                'last_insert_id' => -1,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
-    /**
-     * @name 			updateMembers()
-     *  				Updates one or more group details in database.
-     *
-     * @since			1.0.0
-     * @version         1.3.7
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array           $collection      Collection of Member entities or array of entity details.
-     *
-     * @return          array           $response
-     */
-    public function updateMembers($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countUpdates = 0;
-        $updatedItems = array();
-        foreach($collection as $data){
-            if($data instanceof BundleEntity\Member){
-                $entity = $data;
-                if($entity->isPasswordChanged()){
-                    /** We will need the encryption service to encrypt password. */
-                    $enc = $this->kernel->getContainer()->get('encryption');
-                    $password = $enc->input($entity->getPassword())->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
-                    $entity->setPassword($password);
-                    $entity->setPasswordChanged(false);
-                }
-                $this->em->persist($entity);
-                $updatedItems[] = $entity;
-                $countUpdates++;
-            }
-            else if(is_object($data)){
-                if(!property_exists($data, 'id') || !is_numeric($data->id)){
-                    return $this->createException('InvalidParameterException', 'Each data must contain a valid identifier id, integer', 'err.invalid.parameter.collection');
-                }
-                if(!property_exists($data, 'site')){
-                    $data->site = 1;
-                }
-                if(!property_exists($data, 'language')){
-                    $data->language = 1;
-                }
-                $response = $this->getMember($data->id, 'id');
-                if($response['error']){
-                    return $this->createException('EntityDoesNotExist', 'Product with id '.$data->id, 'err.invalid.entity');
-                }
-                $oldEntity = $response['result']['set'];
-                foreach($data as $column => $value){
-                    $set = 'set'.$this->translateColumnName($column);
-                    switch($column){
-                        case 'local':
-                            $localizations = array();
-                            foreach($value as $langCode => $translation){
-                                $localization = $oldEntity->getLocalization($langCode, true);
-                                $newLocalization = false;
-                                if(!$localization){
-                                    $newLocalization = true;
-                                    $localization = new BundleEntity\MemberLocalization();
-                                    $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                                    $response = $mlsModel->getLanguage($langCode, 'iso_code');
-                                    $localization->setLanguage($response['result']['set']);
-                                    $localization->setMember($oldEntity);
-                                }
-                                foreach($translation as $transCol => $transVal){
-                                    $transSet = 'set'.$this->translateColumnName($transCol);
-                                    $localization->$transSet($transVal);
-                                }
-                                if($newLocalization){
-                                    $this->em->persist($localization);
-                                }
-                                $localizations[] = $localization;
-                            }
-                            $oldEntity->setLocalizations($localizations);
-                            break;
-                        case 'site':
-                            $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
-                            $response = $sModel->getSite($value, 'id');
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\SiteDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'language':
-                            $lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                            $response = $lModel->getLanguage($value, 'iso_code');
-                            if($response['error']){
-                                $response = $lModel->getLanguage($value, 'id');
-                            }
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\EntityDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'password':
-                            /** We will need the encryption service to encrypt password. */
-                            $enc = $this->kernel->getContainer()->get('encryption');
-                            $password = $enc->input($value)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
-                            $oldEntity->$set($password);
-                            break;
-                        case 'groups':
-                            $this->removeMemberFromOtherGroups($oldEntity, $value);
-                            $this->addMemberToGroups($oldEntity, $value);
-                            break;
-                        case 'id':
-                            break;
-                        default:
-                            $oldEntity->$set($value);
-                            break;
-                    }
-                    if($oldEntity->isModified()){
-                        $this->em->persist($oldEntity);
-                        $countUpdates++;
-                        $updatedItems[] = $oldEntity;
-                    }
-                }
-            }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
-        }
-        if($countUpdates > 0){
-            $this->em->flush();
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => $updatedItems,
-                    'total_rows' => $countUpdates,
-                    'last_insert_id' => null,
-                ),
-                'error' => false,
-                'code' => 'scc.db.update.done',
-            );
-        }
-        else{
-            $this->response = array(
-                'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => $updatedItems,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => true,
-                'code' => 'err.db.update',
-            );
-        }
-        return $this->response;
-    }
-
-    /**
-     * @name 			updateMemberGroups()
-     *  				Updates one or more group details in database.
-     *
-     * @since			1.0.0
-     * @version         1.3.9
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array           $collection      Collection of Member entities or array of entity details.
-     *
-     * @return          array           $response
-     */
-    public function updateMemberGroups($collection) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterException', 'Array', 'err.invalid.parameter.collection');
-        }
-        $countUpdates = 0;
-        $updatedItems = array();
-        foreach($collection as $data){
-            if($data instanceof BundleEntity\MemberGroup){
-                $entity = $data;
-                $this->em->persist($entity);
-                $updatedItems[] = $entity;
-                $countUpdates++;
-            }
-            else if(is_object($data)){
-                if(!property_exists($data, 'id') || !is_numeric($data->id)){
-                    return $this->createException('InvalidParameterException', 'Each data must contain a valid identifier id, integer', 'err.invalid.parameter.collection');
-                }
-                if(!property_exists($data, 'site')){
-                    $data->site = 1;
-                }
-                $response = $this->getGroup($data->id, 'id');
-                if($response['error']){
-                    return $this->createException('EntityDoesNotExist', 'Product with id '.$data->id, 'err.invalid.entity');
-                }
-                $oldEntity = $response['result']['set'];
-                foreach($data as $column => $value){
-                    $set = 'set'.$this->translateColumnName($column);
-                    switch($column){
-                        case 'local':
-                            $localizations = array();
-                            foreach($value as $langCode => $translation){
-                                $localization = $oldEntity->getLocalization($langCode, true);
-                                $newLocalization = false;
-                                if(!$localization){
-                                    $newLocalization = true;
-                                    $localization = new BundleEntity\MemberGroupLocalization();
-                                    $mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                                    $response = $mlsModel->getLanguage($langCode, 'iso_code');
-                                    $localization->setLanguage($response['result']['set']);
-                                    $localization->setGroup($oldEntity);
-                                }
-                                foreach($translation as $transCol => $transVal){
-                                    $transSet = 'set'.$this->translateColumnName($transCol);
-                                    $localization->$transSet($transVal);
-                                }
-                                if($newLocalization){
-                                    $this->em->persist($localization);
-                                }
-                                $localizations[] = $localization;
-                            }
-                            $oldEntity->setLocalizations($localizations);
-                            break;
-                        case 'site':
-                            $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
-                            $response = $sModel->getSite($value, 'id');
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\SiteDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'language':
-                            $by = is_int($value) ? 'id' : 'iso_code';
-                            $lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-                            $response = $lModel->getLanguage($value, $by);
-                            if(!$response['error']){
-                                $oldEntity->$set($response['result']['set']);
-                            }
-                            else{
-                                new CoreExceptions\EntityDoesNotExistException($this->kernel, $value);
-                            }
-                            unset($response, $sModel);
-                            break;
-                        case 'id':
-                            break;
-                        default:
-                            $oldEntity->$set($value);
-                            break;
-                    }
-                    if($oldEntity->isModified()){
-                        $this->em->persist($oldEntity);
-                        $countUpdates++;
-                        $updatedItems[] = $oldEntity;
-                    }
-                }
-            }
-            else{
-                new CoreExceptions\InvalidDataException($this->kernel);
-            }
-        }
-        if($countUpdates > 0){
-            $this->em->flush();
-        }
-        /**
-         * Prepare & Return Response
-         */
-        $this->response = array(
-            'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $updatedItems,
-                'total_rows' => $countUpdates,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.update.done',
-        );
-        return $this->response;
-    }
-    /**
-     * @name 			updateMember()
-     *  				Update one member in database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->updateMembers()
-     * @use             $this->createException()
-     *
-     * @param           array           $member      Member Entity or a collection of post input that stores site details.
-     *
-     * @return          array           $response
-     */
-    public function updateMember($member) {
-        $this->resetResponse();
-        return $this->updateMembers(array($member));
-    }
-
-    /**
-     * @name 			updateMemberGroup()
-     *  				Update one member groups in database.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->updateMemberGroups()
-     * @use             $this->createException()
-     *
-     * @param           array           $group      MemberGroup Entity or a collection of post input that stores site details.
-     *
-     * @return          array           $response
-     */
-    public function updateMemberGroup($group) {
-        $this->resetResponse();
-        /** Parameter must be an array */
-        if (!is_array($group) && !is_object($group)) {
-            return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.member_group');
-        }
-        return $this->updateMemberGroups(array($group));
-    }
-
-    /**
-     * @name 			addMemberToGroups()
-     *  				Add member to one or more groups.
-     *
-     * @since			1.0.0
-     * @version         1.3.9
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     * @use             $this->getGroup()
-     * @use             $this->isMemberOfGroup()
-     * @use             $this->createException()
-     *
-     * @param           mixed           $member                 Member Entity, id, username, or email.
-     * @param           array           $groups                 Array of MemberGroup entitites, ids, or codes.
-     *
-     * @return          array           $response
-     */
-    public function addMemberToGroups($member, $groups) {
-        $this->resetResponse();
-        if (is_numeric($member)) {
-            $response = $this->getMember($member, 'id');
-            if ($response['error']) {
-                return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.member');
-            }
-            $member = $response['result']['set'];
-        } else if (is_string($member)) {
-            $response_u = $this->getMember($member, 'username');
-            $response_e = $this->getMember($member, 'email');
-            if ($response_u['error'] && $response_e['error']) {
-                return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.member');
-            }
-            if (!$response_u['error']) {
-                $member = $response_u['result']['set'];
-            }
-            if (!$response_e['error']) {
-                $member = $response_e['result']['set'];
-            }
-        }
-        if (!is_array($groups)) {
-            return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.member_groups');
-        }
-        $to_add = array();
+	/**
+	 * @name 			removeMemberFromOtherGroups()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->doesMemberGroupExist()
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $member                 Member Entity, id, username, email.
+	 * @param           array           $groups                 MemberGroup Entities, ids, code.
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function removeMemberFromOtherGroups($member, $groups) {
+		$timeStamp = time();
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+        $toAdd = array();
         foreach ($groups as $group) {
-            if (is_numeric($group)) {
-                $response = $this->getGroup($group, 'id');
-                if ($response['error']) {
-                    new CoreExceptions\MemberGroupDoesNotExistException($this->kernel, $group);
-                    break;
-                }
-                $group = $response['result']['set'];
-            }
-            else if (is_string($group)) {
-                $response = $this->getGroup($group, 'code');
-                if ($response['error']) {
-                    new CoreExceptions\MemberGroupDoesNotExistException($this->kernel, $group);
-                    break;
-                }
-                $group = $response['result']['set'];
-            }
-            /**
-             * If not already in group we will add the member to group.
-             */
-            if (!$this->isMemberOfGroup($member, $group, true)) {
-                $to_add[] = $group;
-            }
-        }
-        $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-        foreach ($to_add as $group) {
-            $entity = new BundleEntity\MembersOfGroup();
-            $entity->setMember($member)->setGroup($group)->setDateAdded($now);
-            /**
-             * Increment count_members of MemberGroup
-             */
-            $group->incrementMemberCount(1);
-            $this->em->persist($entity);
-            $this->em->persist($group);
-        }
-        $this->em->flush();
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $to_add,
-                'total_rows' => count($to_add),
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
+			$response = $this->getGroup($group);
+			if($response->error->exist){
+				return $response;
+			}
+			$toAdd[] = $response->result->set;
+		}
+        $notIn = 'NOT IN (' . implode(',', $toAdd) . ')';
+        $qStr = 'DELETE FROM ' . $this->entity['mog']['name'] . ' ' . $this->entity['mog']['alias']
+			. ' WHERE ' . $this->entity['mog']['alias'] . '.group ' . $notIn;
 
-    /**
-     * @name 			addGroupToMembers()
-     *  				Add group to one or more groups.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     * @use             $this->getGroup()
-     * @use             $this->isMemberOfGroup()
-     * @use             $this->createException()
-     *
-     * @param           mixed           $group                  MemberGroup Entity, id, or code.
-     * @param           array           $members                Array of Member entitites, ids, usernames, or emails.
-     *
-     * @return          array           $response
-     */
-    public function addGroupToMembers($group, $members) {
-        $this->resetResponse();
-        if (is_numeric($group)) {
-            $response = $this->getGroup($group, 'id');
-            if ($response['error']) {
-                return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.member_group');
-            }
-            $group = $response['result']['set'];
-        } else if (is_string($group)) {
-            $response = $this->getGroup($group, 'code');
-            if (!$response['error']) {
-                $group = $response['result']['set'];
-            } else {
-                return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.member_group');
-            }
-        }
-        if (!is_array($members)) {
-            return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.members');
-        }
-        $to_add = array();
-        foreach ($members as $member) {
-            if (is_numeric($member)) {
-                $response = $this->getMember($member, 'id');
-                if ($response['error']) {
-                    new CoreExceptions\MemberDoesNotExistException($this->kernel, $group);
-                    break;
-                }
-                $member = $response['result']['set'];
-            } else if (is_string($member)) {
-                $response_u = $this->getMember($member, 'username');
-                $response_e = $this->getMember($member, 'email');
-                if ($response_u['error'] && $response_e['error']) {
-                    new CoreExceptions\MemberDoesNotExistException($this->kernel, $member);
-                    break;
-                }
-                if (!$response_u['error']) {
-                    $member = $response['result']['set'];
-                }
-                if (!$response_e['error']) {
-                    $member = $response['result']['set'];
-                }
-            }
-            /**
-             * If not already in group we will add the member to group.
-             */
-            if (!$this->isMemberOfGroup($member, $group, true)) {
-                $to_add[] = $member;
-            }
-        }
-        $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-        foreach ($to_add as $member) {
-            $entity = new BundleEntity\MembersOfGroup();
-            $entity->setMember($member)->set_group($group)->setDateAdded($now);
-            /**
-             * Increment count_members of MemberGroup
-             */
-            $group->incremenet_count_members(1);
-            $this->em->persist($entity);
-            $this->em->persist($group);
-        }
-        $this->em->flush();
-
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $to_add,
-                'total_rows' => count($to_add),
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.insert.done',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			isMemberOfGroup()
-     *  				Checks if a given member is a part of a given group.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed           $member                 Member Entity, id, username, email.
-     * @param           mixed           $group                  MemberGroup Entity, id, code.
-     * @param           bool            $bypass                 if set to true returns the resuşt directly.
-     *
-     * @return          mixed           $response
-     */
-    public function isMemberOfGroup($member, $group, $bypass) {
-        $this->resetResponse();
-        if (is_object($group)) {
-            $group = $group->getId();
-        } else if (is_string($group)) {
-            $response = $this->getGroup($group, 'code');
-            if (!$response['error']) {
-                $group = $response['result']['set']->getId();
-            } else {
-                return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.group');
-            }
-        }
-        if (is_object($member)) {
-            $member = $member->getId();
-        } else if (is_string($member)) {
-            $response_u = $this->getMember($member, 'username');
-            $response_e = $this->getMember($member, 'email');
-            if ($response_u['error'] && $response_e['error']) {
-                return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.member');
-            }
-            if (!$response_u['error']) {
-                $member = $response['result']['set']->getId();
-            }
-            if (!$response_e['error']) {
-                $member = $response['result']['set']->getId();
-            }
-        }
-        $query_str = 'SELECT ' . $this->entity['members_of_group']['alias']
-                . ' FROM ' . $this->entity['members_of_group']['name'] . ' ' . $this->entity['members_of_group']['alias']
-                . ' WHERE ' . $this->entity['members_of_group']['alias'] . '.member_group = ' . $group
-                . ' AND ' . $this->entity['members_of_group']['alias'] . '.member = ' . $member;
-
-        $query = $this->em->createQuery($query_str);
-
-        $result = $query->getResult();
-
-        $exist = false;
-        if (count($result) > 0) {
-            $exist = true;
-        }
-        if ($bypass) {
-            return $exist;
-        }
-
-        $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-            'result' => array(
-                'set' => $exist,
-                'total_rows' => 1,
-                'last_insert_id' => null,
-            ),
-            'error' => false,
-            'code' => 'scc.db.entry.exist',
-        );
-        return $this->response;
-    }
-
-    /**
-     * @name 			removeMemberFromOtherGroups()
-     *  				Removes member from any other groups than the ones provided by parameter.
-     *
-     * @since			1.0.0
-     * @version         1.2.2
-     * @author          Can Berkol
-     *
-     * @use             $this->doesMemberGroupExist()
-     * @use             $this->createException()
-     *
-     * @param           mixed           $member                 Member Entity, id, username, email.
-     * @param           array           $groups                 MemberGroup Entities, ids, code.
-     * @param           bool            $bypass                 if set to true returns the resuşt directly.
-     *
-     * @return          mixed           $response
-     */
-    public function removeMemberFromOtherGroups($member, $groups) {
-        $this->resetResponse();
-        if (is_object($member)) {
-            $member = $member->getId();
-        } else if (is_string($member)) {
-            $response_u = $this->getMember($member, 'username');
-            $response_e = $this->getMember($member, 'email');
-            if ($response_u['error'] && $response_e['error']) {
-                return $this->createException('InvalidParameterException', 'Member', 'err.invalid.parameter.member');
-            }
-            if (!$response_u['error']) {
-                $member = $response_u['result']['set']->getId();
-            }
-            if (!$response_e['error']) {
-                $member = $response_e['result']['set']->getId();
-            }
-        }
-        $to_add = array();
-        foreach ($groups as $group) {
-            if (is_object($group)) {
-                $group = $group->getId();
-            }
-            else if (is_numeric($group)){
-                $group = $group;
-            }
-            else if (is_string($group)) {
-                $response = $this->getGroup($group, 'code');
-                if (!$response['error']) {
-                    $group = $response['result']['set']->getId();
-                } else {
-                    return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.group');
-                }
-            }
-            $to_add[] = $group;
-        }
-        $not_in = 'NOT IN (' . implode(',', $to_add) . ')';
-        $query_str = 'DELETE FROM ' . $this->entity['members_of_group']['name'] . ' ' . $this->entity['members_of_group']['alias']
-                . ' WHERE ' . $this->entity['members_of_group']['alias'] . '.member_group ' . $not_in;
-
-        $query = $this->em->createQuery($query_str);
-
-        $result = $query->getResult();
+        $q = $this->em->createQuery($qStr);
+        $result = $q->getResult();
 
         $deleted = true;
         if (!$result) {
-            $deleted = false;
-        }
+			$deleted = false;
+		}
         if ($deleted) {
-            $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => $deleted,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => false,
-                'code' => 'scc.db.delete.done',
-            );
-        } else {
-            $this->response = array(
-	    'rowCount' => $this->response['rowCount'],
-                'result' => array(
-                    'set' => $deleted,
-                    'total_rows' => 0,
-                    'last_insert_id' => null,
-                ),
-                'error' => false,
-                'code' => 'scc.db.delete.failed',
-            );
-        }
-        return $this->response;
+			return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
     }
 
+	/**
+	 * @name 			updateGroup()
+	 *
+	 * @since			1.4.1
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->updateMemberGroups()
+	 *
+	 * @param           array           $group
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function updateGroup($group) {
+		return $this->updateMemberGroups(array($group));
+	}
+	/**
+	 * @name 			updateGroups()
+	 *
+	 * @since			1.4.1
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->updateMemberGroups()
+	 *
+	 * @param           array           $collection
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function updateGroups($collection) {
+		return $this->updateMemberGroups($collection);
+	}
+	/**
+	 * @name 			updateMember()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->updateMembers()
+	 *
+	 * @param           array           $member
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function updateMember($member) {
+		return $this->updateMembers(array($member));
+	}
     /**
-     * @name checkMemberPassword()
+     * @name 			updateMembers()
      *
-     * @since   1.3.4
-     * @version 1.3.4
-     *
-     * @use $this->getMember()
-     *
-     * @param   mixed $member
-     * @param   string $password
-     *
-     * @return bool
-     */
-    public function checkMemberPassword($member,$password){
-        if ((!is_int($member) && !is_object($member) && !$member instanceof BundleEntity\Member) || (is_null($password) && !is_string($password) && $password == '' && $password == null)) {
-            return $this->createException('InvalidParameterException', 'MemberGroup', 'err.invalid.parameter.group');
-        }
-
-        if ($member instanceof BundleEntity\Member) {
-            $member = $member->getId();
-        }
-        if ($member instanceof \stdClass) {
-            $member = $member->id;
-        }
-
-        /** We will need the encryption service to encrypt password. */
-        $enc = $this->kernel->getContainer()->get('encryption');
-        $password = $enc->input($password)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
-
-        /** Prepare Filter */
-        $filter = array();
-        $filter[] = array(
-            'glue' => 'and',
-            'condition' => array(
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $this->entity['member']['alias'] . '.id', 'comparison' => '=', 'value' => $member),
-                ),
-                array(
-                    'glue' => 'and',
-                    'condition' => array('column' => $this->entity['member']['alias'] . '.password', 'comparison' => '=', 'value' => $password),
-                ),
-            )
-        );
-        /** Now we can check password */
-
-        $response = $this->listMembers($filter,null,array('start'=>0,'count'=>1));
-        if ($response['error']) {
-            return false;
-        }
-        unset($response);
-        return true;
-    }
-
-    /**
-     * @name            validateAndGetMember()
-     *                  Validates $member parameter and returns BiberLtd\Bundle\MemberManagementBundle\Entity\Member if found in database.
-     *
-     * @since           1.3.6
-     * @version         1.3.6
-     * @author          Said İmamoğlu
+     * @since			1.0.0
+     * @version         1.4.1
+     * @author          Can Berkol
      *
      * @use             $this->createException()
-     * @use             $this->getMember()
      *
-     * @param           mixed           $member
+     * @param           array           $collection
      *
-     * @return          object          BiberLtd\Bundle\MemberManagementBundle\Entity\Member
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function validateAndGetMember($member){
-        if (!is_numeric($member) && !$member instanceof BundleEntity\Member) {
-            return $this->createException('InvalidParameter', '$member parameter must hold BiberLtd\\Core\\Bundles\\MemberManagementBundle\\Entity\\Member Entity, string representing url_key or sku, or integer representing database row id', 'msg.error.invalid.parameter.member');
-        }
-        if ($member instanceof BundleEntity\Member) {
-            return $member;
-        }
-        if (is_numeric($member)) {
-            $response = $this->getMember($member, 'id');
-            if ($response['error']) {
-                return $this->createException('EntityDoesNotExist', 'Table: member, id: ' . $member, 'msg.error.db.member.notfound');
-            }
-            $member = $response['result']['set'];
-        } else if (is_string($member)) {
-            $response = $this->getMember($member, 'sku');
-            if ($response['error']) {
-                $response = $this->getMember($member, 'url_key');
-                if ($response['error']) {
-                    return $this->createException('EntityDoesNotExist', 'Table : member, id / sku / url_key: ' . $member, 'msg.error.db.member.notfound');
-                }
-            }
-            $member = $response['result']['set'];
-        }
+	public function updateMembers($collection){
+		$timeStamp = time();
+		/** Parameter must be an array */
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countUpdates = 0;
+		$updatedItems = array();
+		$localizations = array();
+		foreach ($collection as $data) {
+			if ($data instanceof BundleEntity\Member) {
+				$entity = $data;
+				$this->em->persist($entity);
+				$updatedItems[] = $entity;
+				$countUpdates++;
+			}
+			else if (is_object($data)) {
+				if(!property_exists($data, 'id') || !is_numeric($data->id)){
+					return $this->createException('InvalidParameterException', 'Each data must contain a valid identifier id, integer', 'err.invalid.parameter.collection');
+				}
+				if(!property_exists($data, 'site')){
+					$data->site = 1;
+				}
+				if(!property_exists($data, 'language')){
+					$data->language = 1;
+				}
+				$response = $this->getMember($data->id);
+				if ($response->error->exist) {
+					return $this->createException('EntityDoesNotExist', 'Member with id / username / email '.$data->id.' does not exist in database.', 'E:D:002');
+				}
+				$oldEntity = $response->result->set;
+				foreach ($data as $column => $value) {
+					$set = 'set' . $this->translateColumnName($column);
+					switch ($column) {
+						case 'local':
+							foreach ($value as $langCode => $translation) {
+								$localization = $oldEntity->getLocalization($langCode, true);
+								$newLocalization = false;
+								if (!$localization) {
+									$newLocalization = true;
+									$localization = new BundleEntity\MemberLocalization();
+									$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+									$response = $mlsModel->getLanguage($langCode);
+									$localization->setLanguage($response->result->set);
+									$localization->setMember($oldEntity);
+								}
+								foreach ($translation as $transCol => $transVal) {
+									$transSet = 'set' . $this->translateColumnName($transCol);
+									$localization->$transSet($transVal);
+								}
+								if ($newLocalization) {
+									$this->em->persist($localization);
+								}
+								$localizations[] = $localization;
+							}
+							$oldEntity->setLocalizations($localizations);
+							break;
+						case 'site':
+							$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+							$response = $sModel->getSite($value);
+							if (!$response->error->exist) {
+								$oldEntity->$set($response->result->set);
+							} else {
+								return $this->createException('EntityDoesNotExist', 'The site with the id / key / domain "'.$value.'" does not exist in database.', 'E:D:002');
+							}
+							unset($response, $sModel);
+							break;
+						case 'id':
+							break;
+						default:
+							$oldEntity->$set($value);
+							break;
+					}
+					if ($oldEntity->isModified()) {
+						$this->em->persist($oldEntity);
+						$countUpdates++;
+						$updatedItems[] = $oldEntity;
+					}
+				}
+			}
+		}
+		if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
 
-        return $member;
-    }
+	/**
+	 * @name 			updateMemberGroup()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->updateMemberGroups()
+	 *
+	 * @param           array           $group
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function updateMemberGroup($group) {
+		return $this->updateMemberGroups(array($group));
+	}
 
+    /**
+     * @name 			updateMemberGroups()
+     *
+     * @since			1.0.0
+     * @version         1.4.1
+     * @author          Can Berkol
+     *
+     * @use             $this->createException()
+     *
+     * @param           array           $collection
+     *
+     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     */
+	public function updateMemberGroups($collection){
+		$timeStamp = time();
+		/** Parameter must be an array */
+		if (!is_array($collection)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
+		}
+		$countUpdates = 0;
+		$updatedItems = array();
+		$localizations = array();
+		foreach ($collection as $data) {
+			if ($data instanceof BundleEntity\MemberGroup) {
+				$entity = $data;
+				$this->em->persist($entity);
+				$updatedItems[] = $entity;
+				$countUpdates++;
+			}
+			else if (is_object($data)) {
+				if(!property_exists($data, 'id') || !is_numeric($data->id)){
+					return $this->createException('InvalidParameterException', 'Each data must contain a valid identifier id, integer', 'err.invalid.parameter.collection');
+				}
+				if(!property_exists($data, 'site')){
+					$data->site = 1;
+				}
+				$response = $this->getGroup($data->id);
+				if ($response->error->exist) {
+					return $this->createException('EntityDoesNotExist', 'Group with id / code '.$data->id.' does not exist in database.', 'E:D:002');
+				}
+				$oldEntity = $response->result->set;
+				foreach ($data as $column => $value) {
+					$set = 'set' . $this->translateColumnName($column);
+					switch ($column) {
+						case 'local':
+							foreach ($value as $langCode => $translation) {
+								$localization = $oldEntity->getLocalization($langCode, true);
+								$newLocalization = false;
+								if (!$localization) {
+									$newLocalization = true;
+									$localization = new BundleEntity\MemberGroupLocalization();
+									$mlsModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+									$response = $mlsModel->getLanguage($langCode);
+									$localization->setLanguage($response->result->set);
+									$localization->setGroup($oldEntity);
+								}
+								foreach ($translation as $transCol => $transVal) {
+									$transSet = 'set' . $this->translateColumnName($transCol);
+									$localization->$transSet($transVal);
+								}
+								if ($newLocalization) {
+									$this->em->persist($localization);
+								}
+								$localizations[] = $localization;
+							}
+							$oldEntity->setLocalizations($localizations);
+							break;
+						case 'site':
+							$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+							$response = $sModel->getSite($value);
+							if (!$response->error->exist) {
+								$oldEntity->$set($response->result->set);
+							} else {
+								return $this->createException('EntityDoesNotExist', 'The site with the id / key / domain "'.$value.'" does not exist in database.', 'E:D:002');
+							}
+							unset($response, $sModel);
+							break;
+						case 'id':
+							break;
+						default:
+							$oldEntity->$set($value);
+							break;
+					}
+					if ($oldEntity->isModified()) {
+						$this->em->persist($oldEntity);
+						$countUpdates++;
+						$updatedItems[] = $oldEntity;
+					}
+				}
+			}
+		}
+		if($countUpdates > 0){
+			$this->em->flush();
+			return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+	}
+
+	/**
+	 * @name 			validateAccount()
+	 *
+	 * @since			1.0.0
+	 * @version         1.4.1
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->getMember()
+	 * @use             $this->createException()
+	 *
+	 * @param           string          $username
+	 * @param           string          $password
+	 *
+	 * @return          array           $response
+	 */
+	public function validateAccount($username, $password) {
+		$timeStamp = time();
+		$response = $this->getMember($username);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+		$enc = $this->kernel->getContainer()->get('encryption');
+
+		$hashedPass= $enc->input($password)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
+
+		if ($member->getPassword() != $hashedPass) {
+			return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
+	}
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.1                      03.05.2015
+ * Can Berkol
+ * **************************************
+ * CR :: Made compatible with CoreBundle v3.3.
+ *
  * **************************************
  * v1.3.9                      Can Berkol
  * 30.04.2015
