@@ -1602,7 +1602,7 @@ class MemberManagementModel extends CoreModel {
 			}
 			else if (is_object($data)) {
 				if(!property_exists($data, 'id') || !is_numeric($data->id)){
-					return $this->createException('InvalidParameterException', 'Each data must contain a valid identifier id, integer', 'err.invalid.parameter.collection');
+					return $this->createException('InvalidParameterException', 'Parameter must be an object with the "id" property and id property ​must have an integer value.', 'E:S:003');
 				}
 				if(!property_exists($data, 'site')){
 					$data->site = 1;
