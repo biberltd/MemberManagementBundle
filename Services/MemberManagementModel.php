@@ -220,7 +220,7 @@ class MemberManagementModel extends CoreModel {
 		if (!is_array($groups)) {
 			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
 		}
-		$to_add = array();
+		$toAdd = array();
 		foreach ($groups as $group) {
 			$response = $this->getGroup($group);
 			if($response->error->exist){
@@ -228,12 +228,12 @@ class MemberManagementModel extends CoreModel {
 			}
 			$group = $response->result->set;
 			if (!$this->isMemberOfGroup($member, $group, true)) {
-				$to_add[] = $group;
+				$toAdd[] = $group;
 			}
 		}
 		$now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
 		$insertedItems = array();
-		foreach ($to_add as $group) {
+		foreach ($toAdd as $group) {
 			$entity = new BundleEntity\MembersOfGroup();
 			$entity->setMember($member)->setGroup($group)->setDateAdded($now);
 			/**
@@ -244,7 +244,7 @@ class MemberManagementModel extends CoreModel {
 			$this->em->persist($group);
 			$insertedItems[] = $entity;
 		}
-		$countInserts = count($to_add);
+		$countInserts = count($toAdd);
 		if($countInserts > 0){
 			$this->em->flush();
 			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
