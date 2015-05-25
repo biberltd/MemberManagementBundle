@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.1
- * @date        03.05.2015
+ * @version     1.4.2
+ * @date        25.05.2015
  *
  */
 
@@ -42,11 +42,11 @@ class MemberManagementModel extends CoreModel {
      * @version         1.4.0
      *
      * @param           object          $kernel
-     * @param           string          $db_connection  Database connection key as set in app/config.yml
+     * @param           string          $dbConnection  Database connection key as set in app/config.yml
      * @param           string          $orm            ORM that is used.
      */
-    public function __construct($kernel, $db_connection = 'default', $orm = 'doctrine') {
-        parent::__construct($kernel, $db_connection, $orm);
+    public function __construct($kernel, $dbConnection = 'default', $orm = 'doctrine') {
+        parent::__construct($kernel, $dbConnection, $orm);
         $this->entity = array(
             'm'			=> array('name' => 'MemberManagementBundle:Member', 'alias' => 'm'),
             'ml' 		=> array('name' => 'MemberManagementBundle:MemberLocalization', 'alias' => 'ml'),
@@ -1821,6 +1821,12 @@ class MemberManagementModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.2                      25.05.2015
+ * Can Berkol
+ * **************************************
+ * BF :: db_connection is replaced with dbConnection
+ *
  * **************************************
  * v1.4.1                      03.05.2015
  * Can Berkol
