@@ -49,7 +49,7 @@ class MemberGroupLocalization extends CoreEntity
 	/**
 	 * @ORM\Id
 	 * @ORM\ManyToOne(
-	 *     targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\MemberGroup",
+	 *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup",
 	 *     inversedBy="localizations"
 	 * )
 	 * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false)

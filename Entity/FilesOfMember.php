@@ -37,14 +37,14 @@ class FilesOfMember extends CoreEntity
 
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\MemberManagementBundle\Entity\Member")
+	 * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member")
 	 * @ORM\JoinColumn(name="member", referencedColumnName="id", nullable=false)
 	 */
 	private $member;
 
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="BiberLtd\Core\Bundles\FileManagementBundle\Entity\File")
+	 * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\FileManagementBundle\Entity\File")
 	 * @ORM\JoinColumn(name="file", referencedColumnName="id", nullable=false, onDelete="CASCADE")
 	 */
 	private $file;
