@@ -44,10 +44,7 @@ class MemberLocalization extends CoreEntity
 
     /**
      * @ORM\Id
-     * @ORM\ManyToOne(
-     *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member",
-     *     inversedBy="localizations"
-     * )
+     * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member", inversedBy="localizations")
      * @ORM\JoinColumn(name="member", referencedColumnName="id", nullable=false)
      */
     private $member;

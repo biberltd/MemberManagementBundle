@@ -29,7 +29,7 @@ use BiberLtd\Bundle\CoreBundle\CoreEntity;
  *         @ORM\Index(name="idxNMembersOfGroupDateUpdated", columns={"date_updated"}),
  *         @ORM\Index(name="idxNMembersOfGroupDateRemoved", columns={"date_removed"})
  *     },
- *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMembersOfGroup", columns={"member","group"})}
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMembersOfGroup", columns={"member","member_group"})}
  * )
  */
 class MembersOfGroup extends CoreEntity

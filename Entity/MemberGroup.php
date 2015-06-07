@@ -51,7 +51,7 @@ class MemberGroup extends CoreLocalizableEntity{
     /**
      * @ORM\OneToMany(
      *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroupLocalization",
-     *     mappedBy="member_group"
+     *     mappedBy="group"
      * )
      */
     protected $localizations;
@@ -72,11 +72,11 @@ class MemberGroup extends CoreLocalizableEntity{
     public $date_added;
 
     /**
-     * @ORM\Column(type="string", length=1, nullable=false)
+     * @ORM\Column(type="string", length=1, nullable=false, options={"default":"r"})
      */
     private $type;
     /**
-     * @ORM\Column(type="integer", nullable=false)
+     * @ORM\Column(type="integer", nullable=false, options={"default":0})
      */
     private $count_members;
     /**

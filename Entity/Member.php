@@ -104,7 +104,7 @@ class Member extends CoreLocalizableEntity{
     protected $date_status_changed;
 
     /**
-     * @ORM\Column(type="string", length=1, nullable=false)
+     * @ORM\Column(type="string", length=1, nullable=false, options={"default":"i"})
      */
     protected $status;
 
@@ -114,7 +114,7 @@ class Member extends CoreLocalizableEntity{
     protected $key_activation;
 
     /**
-     * @ORM\Column(type="string", length=1, nullable=true)
+     * @ORM\Column(type="string", length=1, nullable=true, options={"default":"f"})
      */
     private $gender;
 
