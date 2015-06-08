@@ -1816,7 +1816,7 @@ class MemberManagementModel extends CoreModel {
 		if ($member->getPassword() != $hashedPass) {
 			return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, time());
 		}
-		return new ModelResponse(null, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
+		return new ModelResponse($member, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
 	}
 }
 /**
