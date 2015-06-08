@@ -6,8 +6,8 @@
  * @author		Can Berkol
  * @author		Murat Ünal
  *
- * @version     1.0.5
- * @date        03.05.2015
+ * @version     1.0.6
+ * @date        08.06.2015
  *
  * @copyright   Biber Ltd. (http://www.biberltd.com)
  * @license     GPL v3.0
@@ -29,7 +29,7 @@ use BiberLtd\Bundle\CoreBundle\CoreEntity;
  *         @ORM\Index(name="idxNMembersOfGroupDateUpdated", columns={"date_updated"}),
  *         @ORM\Index(name="idxNMembersOfGroupDateRemoved", columns={"date_removed"})
  *     },
- *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMembersOfGroup", columns={"member","member_group"})}
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="idxUMembersOfGroup", columns={"member","group"})}
  * )
  */
 class MembersOfGroup extends CoreEntity
@@ -58,7 +58,7 @@ class MembersOfGroup extends CoreEntity
 	/**
 	 * @ORM\Id
 	 * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup")
-	 * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+	 * @ORM\JoinColumn(name="group", referencedColumnName="id", nullable=false, onDelete="CASCADE")
 	 */
 	private $group;
 
@@ -133,6 +133,12 @@ class MembersOfGroup extends CoreEntity
 }
 /**
  * Change Log:
+ * **************************************
+ * v1.0.6                      08.06.2015
+ * Can Berkol
+ * **************************************
+ * CR :: member_group properrty is changed to group.
+ *
  * **************************************
  * v1.0.5                      03.05.2015
  * Can Berkol

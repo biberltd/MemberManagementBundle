@@ -1122,7 +1122,7 @@ class MemberManagementModel extends CoreModel {
      * @name 			listGroupsOfMember()
      *
      * @since			1.2.4
-     * @version         1.4.1
+     * @version         1.4.3
      * @author          Can Berkol
      *
      * @use             $this->createException()
@@ -1143,8 +1143,8 @@ class MemberManagementModel extends CoreModel {
 
         $qStr = 'SELECT ' . $this->entity['mog']['alias'] . ', ' . $this->entity['mg']['alias']
                 . ' FROM ' . $this->entity['mog']['name'] . ' ' . $this->entity['mog']['alias']
-                . ' JOIN ' . $this->entity['mog']['alias'] . '.mg ' . $this->entity['mg']['alias']
-                . ' WHERE ' . $this->entity['mog']['alias'] . '.m = ' . $member->getId();
+                . ' JOIN ' . $this->entity['mog']['alias'] . '.group ' . $this->entity['mg']['alias']
+                . ' WHERE ' . $this->entity['mog']['alias'] . '.member = ' . $member->getId();
 
         $oStr = '';
         if ($sortOrder != null) {
