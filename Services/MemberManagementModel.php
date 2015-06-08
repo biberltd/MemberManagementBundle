@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.2
- * @date        25.05.2015
+ * @version     1.4.3
+ * @date        08.06.2015
  *
  */
 
@@ -1791,7 +1791,7 @@ class MemberManagementModel extends CoreModel {
 	 * @name 			validateAccount()
 	 *
 	 * @since			1.0.0
-	 * @version         1.4.1
+	 * @version         1.4.3
 	 * @author          Can Berkol
 	 *
 	 * @use             $this->getMember()
@@ -1816,11 +1816,17 @@ class MemberManagementModel extends CoreModel {
 		if ($member->getPassword() != $hashedPass) {
 			return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, time());
 		}
-		return new ModelResponse(null, 0, 0, null, true, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
+		return new ModelResponse(null, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
 	}
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.3                      08.06.2015
+ * Can Berkol
+ * **************************************
+ * BF :: Wrong error value (true) is fixed in validateAccount method.
+ *
  * **************************************
  * v1.4.2                      25.05.2015
  * Can Berkol
