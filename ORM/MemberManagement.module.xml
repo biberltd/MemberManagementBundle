@@ -30,13 +30,13 @@
     </association>
     <entity name="\BiberLtd\Bundle\MemberManagementBundle\Entity\MembersOfGroup" local-name="MembersOfGroup" namespace="\BiberLtd\Bundle\MemberManagementBundle\Entity" description="Associates members with groups." uuid="a12d9552-e3b0-4189-870d-82bf4cd5b6ed">
       <field name="member" description="Associated member." type="integer" size="10" required="true" primary="true" uuid="1077ce84-fde9-4b93-811c-5ce669391ffb"/>
-      <field name="group" description="Associated member group." type="integer" required="true" primary="true" uuid="f3180ba8-0ec2-4500-a85f-0581d85fa3c5"/>
+      <field name="member_group" description="Associated member group." type="integer" required="true" primary="true" uuid="f3180ba8-0ec2-4500-a85f-0581d85fa3c5"/>
       <field name="date_added" description="Date when the member is added to group." type="datetime" required="true" uuid="f38e4038-b02b-4c40-9b7c-63c34ef1f970"/>
       <field name="date_updated" description="Date when the entry is last updated." type="datetime" required="true" uuid="0c3204d1-0740-4166-828e-3a594f816465"/>
       <field name="date_removed" description="Date when the entry is last removed." type="datetime" uuid="e50fcc76-476c-4f29-951d-3d2747e28291"/>
       <index name="idxUMembersOfGroup" unique="true">
         <index-field name="member"/>
-        <index-field name="group"/>
+        <index-field name="member_group"/>
       </index>
       <index name="idxNMembersOfGroupDateAdded">
         <index-field name="date_added"/>
@@ -64,7 +64,7 @@
       </orm-attributes>
     </association>
     <association from="\BiberLtd\Bundle\MemberManagementBundle\Entity\MembersOfGroup" to="\BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup" caption="idxFGroupOfMember" inverse-alias="group" many-owner="true" many-inverse="false" parent-required="true" uuid="d120204e-3d7c-47ea-bfe6-c33110876e00">
-      <association-field from="group" to="id"/>
+      <association-field from="member_group" to="id"/>
       <orm-attributes>
         <attribute name="on-delete">CASCADE</attribute>
       </orm-attributes>
@@ -289,7 +289,7 @@
     <entity uuid="9df7cd56-6a97-410f-b0fe-2fd5538bd528" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="350" position-y="51" size-x="0" size-x2="112" size-y="0" size-y2="87"/>
     <entity uuid="a12d9552-e3b0-4189-870d-82bf4cd5b6ed" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="500" position-y="151" size-x="0" size-x2="130" size-y="0" size-y2="87"/>
     <entity uuid="afaa4cd5-a9f4-4fa8-a0f3-c68989c619fc" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="50" position-y="1" size-x="0" size-x2="159" size-y="0" size-y2="269"/>
-    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="#8FC7F1" size-x="0" size-x2="800" size-y="49" size-y2="559"/>
+    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="#C70000" size-x="0" size-x2="750" size-y="49" size-y2="540"/>
     <entity uuid="d731b316-305d-4125-8824-3385eb5120ea" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="300" position-y="251" size-x="0" size-x2="130" size-y="0" size-y2="129"/>
   </visual-data>
 </skipper>
