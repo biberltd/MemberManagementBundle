@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<skipper version="3.2.1.1226" name="MemberManagementBundle" mvc="Symfony2" orm="Doctrine2" uuid="dab55a09-449b-43a5-ba17-5319ceb405ab">
+<skipper version="3.2.1.1226" name="BiberLtd-MemberManagementBundle" mvc="Symfony2" orm="Doctrine2" uuid="dab55a09-449b-43a5-ba17-5319ceb405ab">
   <external-module storage-path="../../site-management-bundle/ORM/SiteManagement.module.xml"/>
   <external-module storage-path="../../multilanguage-support-bundle/ORM/MultiLanguageSupport.module.xml"/>
   <external-module storage-path="../../file-management-bundle/ORM/FileManagement.module.xml"/>
@@ -21,7 +21,7 @@
     <association uuid="71f15a54-6bc9-4510-84b1-2b2817781440" color="#969696"/>
     <entity uuid="7ce99bbb-4d97-4ee5-8703-dfe82e965514" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="100" position-y="94" size-x="0" size-x2="109" size-y="0" size-y2="115"/>
     <association uuid="804845fb-f53d-4ae3-923e-e8d8a46ebef1" color="#969696"/>
-    <module uuid="860bb986-ef71-4cef-9da2-f560e58c2569" bg-color="#7E7975" position-x="50" position-y="50" size-x="0" size-x2="450" size-y="0" size-y2="327"/>
+    <module uuid="860bb986-ef71-4cef-9da2-f560e58c2569" bg-color="#7E7975" position-x="50" position-y="50" size-x="0" size-x2="450" size-y="0" size-y2="227"/>
     <entity uuid="9109d3a6-7a5c-4ab9-8ff7-8b5da86662c6" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="50" position-y="401" size-x="0" size-x2="363" size-y="0" size-y2="87"/>
     <association uuid="93fd6dcc-590e-4490-ad0f-03a9b480fa94" color="#969696"/>
     <association uuid="98d48d17-f488-4b18-833f-1671af44d614" color="#969696"/>
@@ -38,7 +38,7 @@
     <entity uuid="c04c801c-5047-41eb-9209-dfd6732d5e31" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="445" position-y="30" size-x="0" size-x2="156" size-y="0" size-y2="213"/>
     <association uuid="d0a6295c-5f68-40e3-bfb4-da2ca6e40fb6" color="#969696"/>
     <association uuid="d120204e-3d7c-47ea-bfe6-c33110876e00" color="#969696"/>
-    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="#8FC7F1" position-x="2221" position-y="99" size-x="0" size-x2="800" size-y="49" size-y2="559"/>
+    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="#C70000" position-x="2221" position-y="99" size-x="0" size-x2="750" size-y="49" size-y2="540"/>
     <entity uuid="d731b316-305d-4125-8824-3385eb5120ea" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="300" position-y="251" size-x="0" size-x2="130" size-y="0" size-y2="129"/>
     <project uuid="dab55a09-449b-43a5-ba17-5319ceb405ab" size-x="0" size-x2="3071" size-y="0" size-y2="708"/>
     <association uuid="dcbf1caf-6474-4dfe-90be-7b58aa71c5c7" color="#969696"/>
