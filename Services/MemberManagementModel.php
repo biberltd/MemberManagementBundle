@@ -1069,7 +1069,7 @@ class MemberManagementModel extends CoreModel {
 	 *  				Inserts one or more member localizations into database.
 	 *
 	 * @since			1.3.0
-	 * @version         1.4.1
+	 * @version         1.4.4
 	 * @author          Can Berkol
 	 *
 	 * @use             $this->createException()
@@ -1086,40 +1086,39 @@ class MemberManagementModel extends CoreModel {
 		$countInserts = 0;
 		$insertedItems = array();
 		foreach($collection as $data){
-			if($data instanceof BundleEntity\MemberLocalization){
+			if($data instanceof BundleEntity\MemberGroupLocalization){
 				$entity = $data;
 				$this->em->persist($entity);
 				$insertedItems[] = $entity;
 				$countInserts++;
 			}
-			else if(is_object($data)){
-				$entity = new BundleEntity\MemberLocalization();
-				foreach($data as $column => $value){
-					$set = 'set'.$this->translateColumnName($column);
-					switch($column){
-						case 'language':
-							$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
-							$response = $lModel->getLanguage($value);
-							if(!$response->error->exist){
-								$entity->$set($response->result->set);
-							}
-							unset($response, $lModel);
-							break;
-						case 'group':
-							$response = $this->getGroup($value);
-							if(!$response->error->exist){
-								$entity->$set($response->result->set);
-							}
-							unset($response, $lModel);
-							break;
-						default:
-							$entity->$set($value);
-							break;
+			else{
+				$member = $data['entity'];
+				foreach($data['localizations'] as $locale => $translation){
+					$entity = new BundleEntity\MemberLocalization();
+					$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
+					$response = $lModel->getLanguage($locale);
+					if($response->error->exist){
+						return $response;
 					}
+					$entity->setLanguage($response->result->set);
+					unset($response);
+					$entity->setGroup($member);
+					foreach($translation as $column => $value){
+						$set = 'set'.$this->translateColumnName($column);
+						switch($column){
+							default:
+								if(is_object($value) || is_array($value)){
+									$value = json_encode($value);
+								}
+								$entity->$set($value);
+								break;
+						}
+					}
+					$this->em->persist($entity);
+					$insertedItems[] = $entity;
+					$countInserts++;
 				}
-				$this->em->persist($entity);
-				$insertedItems[] = $entity;
-				$countInserts++;
 			}
 		}
 		if($countInserts > 0){
@@ -1947,6 +1946,7 @@ class MemberManagementModel extends CoreModel {
  * BF :: listMembersOfSite() had an invalid SQL column. Fixed.
  * BF :: listMembers() query issues fixed.
  * BF :: insertMemberLocalizations() - Rewritten as Localization Insert Example !!!!
+ * BF :: insertMemberGroupLocalizations() - Rewritten as Localization Insert Example !!!!
  * FR :: addMemberToSites() implemented.
  * FR :: isMemberOfSite() implemented.
  *
