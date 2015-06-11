@@ -1095,7 +1095,7 @@ class MemberManagementModel extends CoreModel {
 			else{
 				$member = $data['entity'];
 				foreach($data['localizations'] as $locale => $translation){
-					$entity = new BundleEntity\MemberLocalization();
+					$entity = new BundleEntity\MemberGroupLocalization();
 					$lModel = $this->kernel->getContainer()->get('multilanguagesupport.model');
 					$response = $lModel->getLanguage($locale);
 					if($response->error->exist){
