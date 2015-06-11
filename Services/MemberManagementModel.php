@@ -1260,7 +1260,7 @@ class MemberManagementModel extends CoreModel {
      * @name 			listMembers()
      *
      * @since			1.3.8
-	 * @version         1.4.1
+	 * @version         1.4.4
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
@@ -1279,7 +1279,7 @@ class MemberManagementModel extends CoreModel {
 		}
 		$oStr = $wStr = $gStr = $fStr = '';
 
-		$qStr = 'SELECT '.$this->entity['m']['alias'].', '.$this->entity['m']['alias']
+		$qStr = 'SELECT '.$this->entity['m']['alias'].', '.$this->entity['ml']['alias']
 			.' FROM '.$this->entity['ml']['name'].' '.$this->entity['ml']['alias']
 			.' JOIN '.$this->entity['ml']['alias'].'.member '.$this->entity['m']['alias'];
 
@@ -1410,7 +1410,8 @@ class MemberManagementModel extends CoreModel {
      */
     public function listMembersOfSite($site, $filter = null, $sortOrder = null, $limit = null){
 		$timeStamp = time();
-		$response = $this->getGroup($site);
+		$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+		$response = $sModel->getSite($site);
 		if($response->error->exist){
 			return $response;
 		}
@@ -1826,6 +1827,7 @@ class MemberManagementModel extends CoreModel {
  * Can Berkol
  * **************************************
  * BF :: listMembersOfSite() had an invalid SQL column. Fixed.
+ * BF :: listMembers() query issues fixed.
  *
  * **************************************
  * v1.4.3                      08.06.2015
