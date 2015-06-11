@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.3
- * @date        08.06.2015
+ * @version     1.4.4
+ * @date        11.06.2015
  *
  */
 
@@ -1395,7 +1395,7 @@ class MemberManagementModel extends CoreModel {
      * @name 			listMembersOfSite()
      *
      * @since			1.3.8
-     * @version         1.4.1
+     * @version         1.4.4
      *
      * @author          Can Berkol
      *
@@ -1416,7 +1416,7 @@ class MemberManagementModel extends CoreModel {
 		}
 		$site = $response->result->set;
 		$qStr = 'SELECT '.$this->entity['mos']['alias'].' FROM '.$this->entity['mos']['name'].' '.$this->entity['mos']['alias']
-			.' WHERE '.$this->entity['mos']['alias'].'.group = '.$site->getId();
+			.' WHERE '.$this->entity['mos']['alias'].'.site = '.$site->getId();
 
 		$q = $this->em->createQuery($qStr);
 
@@ -1821,6 +1821,12 @@ class MemberManagementModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.4                      11.06.2015
+ * Can Berkol
+ * **************************************
+ * BF :: listMembersOfSite() had an invalid SQL column. Fixed.
+ *
  * **************************************
  * v1.4.3                      08.06.2015
  * Can Berkol
