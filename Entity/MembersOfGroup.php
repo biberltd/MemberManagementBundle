@@ -58,7 +58,7 @@ class MembersOfGroup extends CoreEntity
 	/**
 	 * @ORM\Id
 	 * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup")
-	 * @ORM\JoinColumn(name="group", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+	 * @ORM\JoinColumn(name="`group`", referencedColumnName="id", nullable=false, onDelete="CASCADE")
 	 */
 	private $group;
 

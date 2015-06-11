@@ -764,7 +764,7 @@ class Member extends CoreLocalizableEntity{
      */
     public function setGender($gender)
     {
-        if(!$this->setModifiled('gender', $gender)->isModified()){
+        if(!$this->setModified('gender', $gender)->isModified()){
             return $this;
         }
         $this->gender = $gender;
@@ -800,7 +800,7 @@ class Member extends CoreLocalizableEntity{
      * @return      $this
      */
     public function setDateLastLogin($date_last_login){
-        if(!$this->setModifiled('date_last_login', $date_last_login)->isModified()){
+        if(!$this->setModified('date_last_login', $date_last_login)->isModified()){
             return $this;
         }
         $this->date_last_login = $date_last_login;
