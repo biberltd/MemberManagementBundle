@@ -252,6 +252,65 @@ class MemberManagementModel extends CoreModel {
 		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
 	}
 	/**
+	 * @name 			addMemberToSites()
+	 *
+	 * @since			1.4.4
+	 * @version         1.4.4
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->getMember()
+	 * @use             $sModel->getSite()
+	 * @use             $this->isMemberOfGroup()
+	 * @use             $this->isMemberOfSite()
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $member
+	 * @param           array           $sites
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function addMemberToSites($member, $sites) {
+		$timeStamp = time();
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+		if (!is_array($sites)) {
+			return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
+		}
+		$toAdd = array();
+		$sModel = new SMMService($this->kernel, $this->dbConnection, $this->orm);
+		foreach ($sites as $site) {
+			$response = $sModel->getSite($site);
+			if($response->error->exist){
+				break;
+			}
+			$site = $response->result->set;
+			if (!$this->isMemberOfSite($member, $site, true)) {
+				$toAdd[] = $site;
+			}
+		}
+		$now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
+		$insertedItems = array();
+		foreach ($toAdd as $site) {
+			$entity = new BundleEntity\MembersOfSite();
+			$entity->setMember($member)->setSite($site)->setDateAdded($now);
+			/**
+			 * Increment count_members of MemberGroup
+			 */
+			$this->em->persist($entity);
+			$this->em->persist($site);
+			$insertedItems[] = $entity;
+		}
+		$countInserts = count($toAdd);
+		if($countInserts > 0){
+			$this->em->flush();
+			return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+		}
+		return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+	}
+	/**
 	 * @name 		checkMemberPassword()
 	 *
 	 * @since   	1.3.4
@@ -724,6 +783,7 @@ class MemberManagementModel extends CoreModel {
 		$countInserts = 0;
 		$countLocalizations = 0;
 		$countGroups = 0;
+		$countSites = 0;
 		$insertedItems = array();
 		$localizations = array();
 		foreach ($collection as $data) {
@@ -753,6 +813,7 @@ class MemberManagementModel extends CoreModel {
 				foreach ($data as $column => $value) {
 					$localeSet = false;
 					$groupSet = false;
+					$siteSet = false;
 					$set = 'set' . $this->translateColumnName($column);
 					switch ($column) {
 						case 'local':
@@ -777,9 +838,14 @@ class MemberManagementModel extends CoreModel {
 							unset($response, $sModel);
 							break;
 						case 'groups':
-							$groups[$countInserts]['groups'] = $value;
+							$groups[$countGroups]['groups'] = $value;
 							$groupSet = true;
 							$countGroups++;
+							break;
+						case 'sites':
+							$groups[$countSites]['sites'] = $value;
+							$groupSet = true;
+							$countSites++;
 							break;
 						case 'password':
 							/** We will need the encryption service to encrypt password. */
@@ -795,7 +861,10 @@ class MemberManagementModel extends CoreModel {
 						$localizations[$countInserts]['entity'] = $entity;
 					}
 					if($groupSet){
-						$groups[$countInserts]['entity'] = $entity;
+						$groups[$countGroups]['entity'] = $entity;
+					}
+					if($siteSet){
+						$sites[$countSites]['entity'] = $entity;
 					}
 				}
 				$this->em->persist($entity);
@@ -814,6 +883,11 @@ class MemberManagementModel extends CoreModel {
 		if($countInserts > 0 && $countGroups > 0){
 			foreach($groups as $group){
 				$response =$this->addMemberToGroups($group['entity'], $group['groups']);
+			}
+		}
+		if($countInserts > 0 && $countSites > 0){
+			foreach($sites as $site){
+				$response =$this->addMemberToSites($site['entity'], $site['sites']);
 			}
 		}
 		if($countInserts > 0){
@@ -1086,6 +1160,52 @@ class MemberManagementModel extends CoreModel {
 			. ' FROM '.$this->entity['mog']['name'].' '.$this->entity['mog']['alias']
 			. ' WHERE '.$this->entity['mog']['alias'].'.group = '.$group->getId()
 			. ' AND '.$this->entity['mog']['alias'].'.member = '.$member->getId();
+
+		$q = $this->em->createQuery($qStr);
+
+		$result = $q->getResult();
+
+		$exist = false;
+		if (count($result) > 0) {
+			$exist = true;
+		}
+		if ($bypass) {
+			return $exist;
+		}
+		return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+	}
+	/**
+	 * @name 			isMemberOfSite()
+	 *
+	 * @since			1.4.4
+	 * @version         1.4.4
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $member
+	 * @param           mixed           $site
+	 * @param           bool            $bypass                 if set to true returns the result directly.
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function isMemberOfSite($member, $site, $bypass = false) {
+		$timeStamp = time();
+		$sModel = new SMMService\SiteManagementModel($this->kernel, $this->dbConnection, $this->orm);
+		$response = $sModel->getSite($site);
+		if($response->error->exist){
+			return $response;
+		}
+		$site = $response->result->set;
+		$response = $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+		$qStr = 'SELECT '.$this->entity['mos']['alias']
+			. ' FROM '.$this->entity['mos']['name'].' '.$this->entity['mos']['alias']
+			. ' WHERE '.$this->entity['mos']['alias'].'.site = '.$site->getId()
+			. ' AND '.$this->entity['mos']['alias'].'.member = '.$member->getId();
 
 		$q = $this->em->createQuery($qStr);
 
@@ -1828,6 +1948,8 @@ class MemberManagementModel extends CoreModel {
  * **************************************
  * BF :: listMembersOfSite() had an invalid SQL column. Fixed.
  * BF :: listMembers() query issues fixed.
+ * FR :: addMemberToSites() implemented.
+ * FR :: isMemberOfSite() implemented.
  *
  * **************************************
  * v1.4.3                      08.06.2015
