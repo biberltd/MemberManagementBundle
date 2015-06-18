@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.4
- * @date        11.06.2015
+ * @version     1.4.5
+ * @date        18.06.2015
  *
  */
 
@@ -1594,6 +1594,59 @@ class MemberManagementModel extends CoreModel {
 		return $this->listMemberGroups($filter, $sortOrder, $limit);
 	}
 	/**
+	 * @name 			listSitesOfMember()
+	 *
+	 * @since			1.4.5
+	 * @version         1.4.5
+	 * @author          Can Berkol
+	 *
+	 * @use             $this->createException()
+	 *
+	 * @param           mixed           $member
+	 * @param           array           $sortOrder
+	 * @param           array           $limit
+	 *
+	 * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
+	public function listSitesOfMember($member, $sortOrder = null, $limit = null){
+		$timeStamp = time();
+		$sModel = $this->kernel->getContainer()->get('sitemanagement.model');
+		$response =  $this->getMember($member);
+		if($response->error->exist){
+			return $response;
+		}
+		$member = $response->result->set;
+		$qStr = 'SELECT '.$this->entity['mos']['alias'].' FROM '.$this->entity['mos']['name'].' '.$this->entity['mos']['alias']
+			.' WHERE '.$this->entity['mos']['alias'].'.member = '.$member->getId();
+
+		$q = $this->em->createQuery($qStr);
+
+		$result = $q->getResult();
+
+		$siteIds = array();
+		foreach($result as $item){
+			$siteIds[] = $item->getSite()->getId();
+		}
+		$filter[] = array(
+			'glue' => 'and',
+			'condition' => array(
+				array(
+					'glue' => 'and',
+					'condition' => array('column' => $this->entity['m']['alias'].'.id', 'comparison' => 'in', 'value' => $siteIds),
+				)
+			)
+		);
+
+		$response = $sModel->listSites($filter, $sortOrder, $limit);
+		if($response->error->exist){
+			return $response;
+		}
+		$response->stats->execution->start = $timeStamp;
+		$response->stats->execution->end = time();
+
+		return $response;
+	}
+	/**
 	 * @name 			removeMemberFromOtherGroups()
 	 *
 	 * @since			1.0.0
@@ -1939,6 +1992,12 @@ class MemberManagementModel extends CoreModel {
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.5                      18.06.2015
+ * Can Berkol
+ * **************************************
+ * FR :: listSitesOfMember() added.
+ *
  * **************************************
  * v1.4.4                      11.06.2015
  * Can Berkol
