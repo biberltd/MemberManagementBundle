@@ -1632,7 +1632,7 @@ class MemberManagementModel extends CoreModel {
 			'condition' => array(
 				array(
 					'glue' => 'and',
-					'condition' => array('column' => $this->entity['m']['alias'].'.id', 'comparison' => 'in', 'value' => $siteIds),
+					'condition' => array('column' => $this->entity['s']['alias'].'.id', 'comparison' => 'in', 'value' => $siteIds),
 				)
 			)
 		);
