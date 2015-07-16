@@ -10,7 +10,7 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.6
+ * @version     1.4.7
  * @date        16.07.2015
  *
  */
@@ -142,8 +142,9 @@ class MemberManagementModel extends CoreModel
      * @name            addGroupToMembers ()
      *
      * @since            1.0.0
-     * @version         1.4.1
+     * @version         1.4.7
      * @author          Can Berkol
+     * @author          Said İmamoğlu
      *
      * @use             $this->getMember()
      * @use             $this->getGroup()
@@ -174,12 +175,12 @@ class MemberManagementModel extends CoreModel
             }
             $member = $response->result->set;
             if (!$this->isMemberOfGroup($member, $group, true)) {
-                $to_add[] = $group;
+                $to_add[] = $member;
             }
         }
         $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
         $insertedItems = array();
-        foreach ($to_add as $group) {
+        foreach ($to_add as $member) {
             $entity = new BundleEntity\MembersOfGroup();
             $entity->setMember($member)->setGroup($group)->setDateAdded($now);
             /**
@@ -187,7 +188,6 @@ class MemberManagementModel extends CoreModel
              */
             $group->incrementMemberCount(1);
             $this->em->persist($entity);
-            $this->em->persist($group);
             $insertedItems[] = $entity;
         }
         $countInserts = count($to_add);
@@ -2152,6 +2152,11 @@ class MemberManagementModel extends CoreModel
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.7                      18.06.2015
+ * Said İmamoğlu
+ * **************************************
+ * BF :: There was an error durign associating group and multiple members. Fixed.
  * **************************************
  * v1.4.6                      18.06.2015
  * Said İmamoğlu
