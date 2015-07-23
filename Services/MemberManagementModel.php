@@ -10,8 +10,8 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.7
- * @date        16.07.2015
+ * @version     1.4.8
+ * @date        23.07.2015
  *
  */
 
@@ -1442,7 +1442,7 @@ class MemberManagementModel extends CoreModel
      * @name            listMemberGroups ()
      *
      * @since            1.3.8
-     * @version         1.4.1
+     * @version         1.4.8
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
@@ -1502,6 +1502,7 @@ class MemberManagementModel extends CoreModel
         foreach ($result as $entry) {
             $id = $entry->getMember()->getId();
             if (!isset($unique[$id])) {
+                $unique[$id] = '';
                 $entities[] = $entry->getAction();
             }
         }
@@ -1516,7 +1517,7 @@ class MemberManagementModel extends CoreModel
      * @name            listMembers ()
      *
      * @since            1.3.8
-     * @version         1.4.4
+     * @version         1.4.8
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
@@ -1526,7 +1527,7 @@ class MemberManagementModel extends CoreModel
      * @param        array $sortOrder
      * @param        array $limit
      *
-     * @return        BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return        \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function listMembers($filter = null, $sortOrder = null, $limit = null)
     {
@@ -1581,6 +1582,7 @@ class MemberManagementModel extends CoreModel
         foreach ($result as $entry) {
             $id = $entry->getMember()->getId();
             if (!isset($unique[$id])) {
+                $unique[$id] = '';
                 $entities[] = $entry->getMember();
             }
         }
@@ -2153,10 +2155,15 @@ class MemberManagementModel extends CoreModel
 /**
  * Change Log
  * **************************************
+ * v1.4.8                      23.07.2015
+ * Said İmamoğlu
+ * **************************************
+ * BF :: There were unique array problem in listMembers() and listMemberGroups(). Fixed.
+ * **************************************
  * v1.4.7                      18.06.2015
  * Said İmamoğlu
  * **************************************
- * BF :: There was an error durign associating group and multiple members. Fixed.
+ * BF :: There was an error during associating group and multiple members. Fixed.
  * **************************************
  * v1.4.6                      18.06.2015
  * Said İmamoğlu
