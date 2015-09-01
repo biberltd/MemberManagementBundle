@@ -11,7 +11,7 @@
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
  * @version     1.4.8
- * @date        23.07.2015
+ * @date        01.09.2015
  *
  */
 
@@ -1441,8 +1441,8 @@ class MemberManagementModel extends CoreModel
     /**
      * @name            listMemberGroups ()
      *
-     * @since            1.3.8
-     * @version         1.4.8
+     * @since           1.3.8
+     * @version         1.4.9
      * @author          Can Berkol
      * @author          Said İmamoğlu
      *
@@ -1462,7 +1462,7 @@ class MemberManagementModel extends CoreModel
         }
         $oStr = $wStr = $gStr = $fStr = '';
 
-        $qStr = 'SELECT ' . $this->entity['mg']['alias'] . ', ' . $this->entity['mg']['alias']
+        $qStr = 'SELECT ' . $this->entity['mgl']['alias']
             . ' FROM ' . $this->entity['mgl']['name'] . ' ' . $this->entity['mgl']['alias']
             . ' JOIN ' . $this->entity['mgl']['alias'] . '.group ' . $this->entity['mg']['alias'];
 
