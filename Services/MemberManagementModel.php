@@ -10,7 +10,7 @@
  *
  * @copyright   Biber Ltd. www.biberltd.com (C) 2015
  *
- * @version     1.4.8
+ * @version     1.4.9
  * @date        01.09.2015
  *
  */
@@ -1500,10 +1500,10 @@ class MemberManagementModel extends CoreModel
         $result = $q->getResult();
         $entities = array();
         foreach ($result as $entry) {
-            $id = $entry->getMember()->getId();
+            $id = $entry->getGroup()->getId();
             if (!isset($unique[$id])) {
                 $unique[$id] = '';
-                $entities[] = $entry->getAction();
+                $entities[] = $entry->getGroup();
             }
         }
         $totalRows = count($entities);
@@ -1803,8 +1803,8 @@ class MemberManagementModel extends CoreModel
     /**
      * @name            removeMemberFromOtherGroups ()
      *
-     * @since            1.0.0
-     * @version         1.4.1
+     * @since           1.0.0
+     * @version         1.4.9
      * @author          Can Berkol
      *
      * @use             $this->doesMemberGroupExist()
@@ -1833,7 +1833,7 @@ class MemberManagementModel extends CoreModel
         }
         $notIn = 'NOT IN (' . implode(',', $idsToRemove) . ')';
         $qStr = 'DELETE FROM ' . $this->entity['mog']['name'] . ' ' . $this->entity['mog']['alias']
-            . ' WHERE ' . $this->entity['mog']['alias'] . '.member ' . $member->getId()
+            . ' WHERE ' . $this->entity['mog']['alias'] . '.member = ' . $member->getId()
             . ' AND ' . $this->entity['mog']['alias'] . '.group ' . $notIn;
 
         $q = $this->em->createQuery($qStr);
@@ -2154,6 +2154,12 @@ class MemberManagementModel extends CoreModel
 }
 /**
  * Change Log
+ * **************************************
+ * v1.4.9                      01.09.2015
+ * Can Berkol
+ * **************************************
+ * BF :: listMemberGroups fixed.
+ *
  * **************************************
  * v1.4.8                      23.07.2015
  * Said İmamoğlu
