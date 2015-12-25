@@ -1,18 +1,12 @@
 <?php
 /**
- * @name        MemberGroupLocalization
- * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
- *
  * @author		Can Berkol
- *              Murat Ünal
- * @version     1.0.5
- * @date        30.04.2015
+ * @author		Said İmamoğlu
  *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
 namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
@@ -33,16 +27,19 @@ class MemberGroupLocalization extends CoreEntity
 {
     /** 
      * @ORM\Column(type="string", length=45, nullable=false)
+     * @var string
      */
     private $name;
 
     /** 
      * @ORM\Column(type="string", length=55, nullable=false)
+     * @var string
      */
     private $url_key;
 
     /** 
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
     private $description;
 
@@ -53,6 +50,7 @@ class MemberGroupLocalization extends CoreEntity
 	 *     inversedBy="localizations"
 	 * )
 	 * @ORM\JoinColumn(name="member_group", referencedColumnName="id", nullable=false)
+	 * @var \BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup
 	 */
 	private $group;
 
@@ -60,25 +58,16 @@ class MemberGroupLocalization extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", nullable=false)
+     * @var \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     private $language;
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
 
-    /**
-     * @name            set_name()
-     *  				Sets $name property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $name
-     *
-     * @return          object          $this
-     */
-    public function setName($name){
+	/**
+	 * @param string $name
+	 *
+	 * @return $this
+	 */
+    public function setName(\string $name){
         if(!$this->setModified('name', $name)->isModified()){
             return $this;
         }
@@ -86,32 +75,20 @@ class MemberGroupLocalization extends CoreEntity
 
         return $this;
     }
-    /**
-     * @name            getName()
-     *  				Gets $name property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->name
-     */
+
+	/**
+	 * @return string
+	 */
     public function getName(){
         return $this->name;
     }
-    /**
-     * @name            setUrlKey()
-     *  				Sets $url_key property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $url_key
-     *
-     * @return          object          $this
-     */
-    public function setUrlKey($url_key){
+
+	/**
+	 * @param string $url_key
+	 *
+	 * @return $this
+	 */
+    public function setUrlKey(\string $url_key){
         if(!$this->setModified('url_key', $url_key)->isModified()){
             return $this;
         }
@@ -119,32 +96,20 @@ class MemberGroupLocalization extends CoreEntity
 
         return $this;
     }
-    /**
-     * @name            getUrlKey()
-     *  				Gets $url_key property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->url_key
-     */
+
+	/**
+	 * @return string
+	 */
     public function getUrlKey(){
         return $this->url_key;
     }
-    /**
-     * @name            setDescription()
-     *  				Sets $description property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $description
-     *
-     * @return          object          $this
-     */
-    public function setDescription($description){
+
+	/**
+	 * @param string $description
+	 *
+	 * @return $this
+	 */
+    public function setDescription(\string $description){
         if(!$this->setModified('description', $description)->isModified()){
             return $this;
         }
@@ -152,32 +117,20 @@ class MemberGroupLocalization extends CoreEntity
 
         return $this;
     }
-    /**
-     * @name            getDescription()
-     *  				Gets $description property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->description
-     */
+
+	/**
+	 * @return string
+	 */
     public function getDescription(){
         return $this->description;
     }
+
 	/**
-	 * @name            setGroup()
+	 * @param \BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup $member_group
 	 *
-	 * @author          Can Berkol
-	 * @author          Murat Ünal
-	 * @since			1.0.0
-	 * @version         1.0.5
-	 *
-	 * @param           string          $member_group
-	 *
-	 * @return          object          $this
+	 * @return $this
 	 */
-	public function setGroup($member_group){
+	public function setGroup(\BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup $member_group){
 		if(!$this->setModified('group', $member_group)->isModified()){
 			return $this;
 		}
@@ -185,32 +138,20 @@ class MemberGroupLocalization extends CoreEntity
 
 		return $this;
 	}
+
 	/**
-	 * @name            getGroup()
-	 *
-	 * @author          Can Berkol
-	 * @author          Murat Ünal
-	 * @since			1.0.5
-	 * @version         1.0.5
-	 *
-	 * @return          string          $this->member_group
+	 * @return \BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroup
 	 */
 	public function getGroup(){
 		return $this->group;
 	}
-    /**
-     * @name            setLanguage()
-     *  				Sets $language property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $language
-     *
-     * @return          object          $this
-     */
-    public function setLanguage($language){
+
+	/**
+	 * @param \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language
+	 *
+	 * @return $this
+	 */
+    public function setLanguage(\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language){
         if(!$this->setModified('language', $language)->isModified()){
             return $this;
         }
@@ -218,53 +159,11 @@ class MemberGroupLocalization extends CoreEntity
 
         return $this;
     }
-    /**
-     * @name            getLanguage()
-     *  				Gets $language property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->language
-     */
+
+	/**
+	 * @return \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
+	 */
     public function getLanguage(){
         return $this->language;
     }
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.5                      30.04.2015
- * Can Berkol
- * **************************************
- * CR :: ORM structure has been updated.
- *
- * **************************************
- * v1.0.4                      Can Berkol
- * 08.09.2013
- * **************************************
- * M Extends CoreEntity.
- *
- * **************************************
- * v1.0.3                      Can Berkol
- * 05.08.2013
- * **************************************
- * M Non-core functionalities have been commented out.
- *
- * **************************************
- * v1.0.1                      Murat Ünal
- * 22.07.2013
- * **************************************
- * A getDescription()
- * A setDescription()
- * A getLanguage()
- * A setLanguage()
- * A getMemberGroup()
- * A setMemberGroup()
- * A getName()
- * A setName()
- * A getUrlKey()
- * A setUrlKey()
- *
- */

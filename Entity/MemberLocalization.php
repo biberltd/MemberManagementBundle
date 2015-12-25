@@ -1,18 +1,12 @@
 <?php
 /**
- * @name        MemberLocalization
- * @package		BiberLtd\Bundle\MemberManagementBundle
- *
  * @author		Can Berkol
- *              Murat Ünal
- * @version     1.0.4
- * @date        30.04.2015
+ * @author		Said İmamoğlu
  *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
 namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 use Doctrine\ORM\Mapping AS ORM;
@@ -29,16 +23,19 @@ class MemberLocalization extends CoreEntity
 {
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @var string
      */
     private $title;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
     private $biography;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
     private $extra_data;
 
@@ -46,6 +43,7 @@ class MemberLocalization extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member", inversedBy="localizations")
      * @ORM\JoinColumn(name="member", referencedColumnName="id", nullable=false)
+     * @var \BiberLtd\Bundle\MemberManagementBundle\Entity\Member
      */
     private $member;
 
@@ -53,25 +51,16 @@ class MemberLocalization extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     private $language;
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
 
     /**
-     * @name            setTitle()
-     *  				Sets $title property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param string $title
      *
-     * @param           string          $title
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setTitle($title){
+    public function setTitle(\string $title){
         if(!$this->setModified('title', $title)->isModified()){
             return $this;
         }
@@ -79,64 +68,40 @@ class MemberLocalization extends CoreEntity
 
         return $this;
     }
+
     /**
-     * @name            getTitle()
-     *  				Gets $title property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->title
+     * @return string
      */
     public function getTitle(){
         return $this->title;
     }
+
     /**
-     * @name            setBiography()
-     *  				Sets $biography property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param string $biography
      *
-     * @param           string          $biography
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setBiography($biography){
+    public function setBiography(\string $biography){
         if(!$this->setModified('biography', $biography)->isModified()){
             return $this;
         }
         $this->biography = $biography;
         return $this;
     }
+
     /**
-     * @name            getBiography()
-     *  				Gets $biography property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->biography
+     * @return string
      */
     public function getBiography(){
         return $this->biography;
     }
+
     /**
-     * @name            setExtraData()
-     *  				Sets $extra_data property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param string $extra_data
      *
-     * @param           string          $extra_data
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setExtraData($extra_data){
+    public function setExtraData(\string $extra_data){
         if(!$this->setModified('extra_data', $extra_data)->isModified()){
             return $this;
         }
@@ -144,32 +109,20 @@ class MemberLocalization extends CoreEntity
 
         return $this;
     }
+
     /**
-     * @name            getExtraData()
-     *  				Gets $extra_data property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->extra_data
+     * @return string
      */
     public function getExtraData(){
         return $this->extra_data;
     }
+
     /**
-     * @name            setMember()
-     *  				Sets $member property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param \BiberLtd\Bundle\MemberManagementBundle\Entity\Member $member
      *
-     * @param           string          $member
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setMember($member){
+    public function setMember(\BiberLtd\Bundle\MemberManagementBundle\Entity\Member $member){
         if(!$this->setModified('member', $member)->isModified()){
             return $this;
         }
@@ -177,32 +130,20 @@ class MemberLocalization extends CoreEntity
 
         return $this;
     }
+
     /**
-     * @name            getMember()
-     *  				Gets $member property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->member
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Entity\Member
      */
     public function getMember(){
         return $this->member;
     }
+
     /**
-     * @name            setLanguage()
-     *  				Sets $language property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language
      *
-     * @param           string          $language
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setLanguage($language){
+    public function setLanguage(\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language){
         if(!$this->setModified('language', $language)->isModified()){
             return $this;
         }
@@ -210,53 +151,11 @@ class MemberLocalization extends CoreEntity
 
         return $this;
     }
+
     /**
-     * @name            getLanguage()
-     *  				Gets $language property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->language
+     * @return \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     public function getLanguage(){
         return $this->language;
     }
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.4                      30.04.2015
- * Can Berkol
- * **************************************
- * CR :: ORM structure has been updated.
- *
- * **************************************
- * v1.0.3                      Murat Ünal
- * 08.09.2013
- * **************************************
- * M Extends CoreEntity.
- *
- * **************************************
- * v1.0.2                      Murat Ünal
- * 03.08.2013
- * **************************************
- * M Namespace fixed.
- *
- * **************************************
- * v1.0.1                      Murat Ünal
- * 22.07.2013
- * **************************************
- * A getBiography()
- * A setBiography()
- * A getExtraData()
- * A setExtraData()
- * A getLanguage()
- * A setLanguage()
- * A getMember()
- * A setMember()
- * A getTitle()
- * A setTitle()
- *
- */

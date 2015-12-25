@@ -1,31 +1,20 @@
 <?php
 /**
- * @vendor      BiberLtd
- * @package        Core\Bundles\MemberManagemetBundle
- * @subpackage    Services
- * @name        MemberManagementModel
+ * @author		Can Berkol
+ * @author		Said İmamoğlu
  *
- * @author        Can Berkol
- * @author        Said İmamoğlu
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @copyright   Biber Ltd. www.biberltd.com (C) 2015
- *
- * @version     1.4.9
- * @date        01.09.2015
- *
+ * @date        23.12.2015
  */
-
 namespace BiberLtd\Bundle\MemberManagementBundle\Services;
 
-/** CoreModel */
 use BiberLtd\Bundle\CoreBundle\CoreModel;
-/** Entities to be used */
 use BiberLtd\Bundle\MemberManagementBundle\Entity as BundleEntity;
 use BiberLtd\Bundle\MultiLanguageSupportBundle\Entity as MLSEntity;
-/** Helper Models */
 use BiberLtd\Bundle\SiteManagementBundle\Services as SMMService;
 use BiberLtd\Bundle\MultiLanguageSupportBundle\Services as MLSService;
-/** Core Service */
 use BiberLtd\Bundle\CoreBundle\Services as CoreServices;
 use BiberLtd\Bundle\CoreBundle\Exceptions as CoreExceptions;
 use BiberLtd\Bundle\CoreBundle\Responses\ModelResponse;
@@ -35,18 +24,13 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 class MemberManagementModel extends CoreModel
 {
     /**
-     * @name            __construct ()
+     * MemberManagementModel constructor.
      *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.4.0
-     *
-     * @param           object $kernel
-     * @param           string $dbConnection Database connection key as set in app/config.yml
-     * @param           string $orm ORM that is used.
+     * @param object $kernel
+     * @param string $dbConnection
+     * @param string $orm
      */
-    public function __construct($kernel, $dbConnection = 'default', $orm = 'doctrine')
+    public function __construct($kernel, \string $dbConnection = 'default', \string $orm = 'doctrine')
     {
         parent::__construct($kernel, $dbConnection, $orm);
         $this->entity = array(
@@ -62,13 +46,7 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            __destruct ()
-     *
-     * @author          Can Berkol
-     *
-     * @since           1.0.0
-     * @version         1.0.0
-     *
+     * Destructor
      */
     public function __destruct()
     {
@@ -78,22 +56,14 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            activateMember ()
+     * @param mixed $member
+     * @param string|null    $key
+     * @param \DateTime|null $activationDate
+     * @param bool           $bypass
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $member Member entity, id, username, or, email.
-     * @param           string $key Activation key.
-     * @param           \DateTime $activationDate Date of activation.
-     * @param           bool $bypass If set to true, it bypasses key check.
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function activateMember($member, $key = null, $activationDate = null, $bypass = false)
+    public function activateMember($member, \string $key = null, \DateTime $activationDate = null, \bool $bypass = false)
     {
         $timeStamp = time();
         if ($activationDate == null) {
@@ -139,24 +109,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            addGroupToMembers ()
+     * @param mixed $group
+     * @param array $members
      *
-     * @since            1.0.0
-     * @version         1.4.7
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->getMember()
-     * @use             $this->getGroup()
-     * @use             $this->isMemberOfGroup()
-     * @use             $this->createException()
-     *
-     * @param           mixed $group
-     * @param           array $members
-     *
-     * @return          array           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function addGroupToMembers($group, $members)
+    public function addGroupToMembers($group, array $members)
     {
         $timeStamp = time();
         $response = $this->getGroup($group);
@@ -199,23 +157,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            addMemberToGroups ()
+     * @param mixed $member
+     * @param array $groups
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     * @use             $this->getGroup()
-     * @use             $this->isMemberOfGroup()
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           array $groups
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function addMemberToGroups($member, $groups)
+    public function addMemberToGroups($member, array $groups)
     {
         $timeStamp = time();
         $response = $this->getMember($member);
@@ -259,24 +206,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            addMemberToSites ()
+     * @param mixed $member
+     * @param array $sites
      *
-     * @since            1.4.4
-     * @version         1.4.4
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     * @use             $sModel->getSite()
-     * @use             $this->isMemberOfGroup()
-     * @use             $this->isMemberOfSite()
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           array $sites
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function addMemberToSites($member, $sites)
+    public function addMemberToSites($member, array $sites)
     {
         $timeStamp = time();
         $response = $this->getMember($member);
@@ -320,19 +255,13 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name        checkMemberPassword ()
+     * @param        $member
+     * @param string $password
+     * @param bool   $bypass
      *
-     * @since    1.3.4
-     * @version    1.4.2
-     *
-     * @use        $this->getMember()
-     *
-     * @param    mixed $member
-     * @param    string $password
-     *
-     * @return        BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function checkMemberPassword($member, $password, $bypass = false)
+    public function checkMemberPassword($member, \string $password, \bool $bypass = false)
     {
         $timeStamp = time();
         if (!is_string($password)) {
@@ -359,19 +288,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            countMembers ()
+     * @param array|null $filter
      *
-     * @since            1.2.6
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $filter
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function countMembers($filter = null)
+    public function countMembers(array $filter = null)
     {
         $timeStamp = time();
 
@@ -395,20 +316,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            countMembersOfGroup ()
+     * @param mixed $group
+     * @param array|null $filter
      *
-     * @since            1.2.7
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $group object, integer, or string
-     * @param           array $filter Multi-dimensional array
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function countMembersOfGroup($group, $filter = null)
+    public function countMembersOfGroup($group, array $filter = null)
     {
         $timeStamp = time();
         $response = $this->getGroup($group);
@@ -447,20 +360,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            deactivateMember ()
+     * @param mixed $member
+     * @param bool $bypass
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           bool $bypass if set to true it returns bool instead of response
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function deactivateMember($member, $bypass = false)
+    public function deactivateMember($member, \bool $bypass = false)
     {
         $timeStamp = time();
         $now = new DateTime('now', new DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
@@ -485,16 +390,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            deleteMember ()
+     * @param mixed $member
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->deleteMembers()
-     *
-     * @param           mixed $member
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function deleteMember($member)
     {
@@ -502,19 +400,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            deleteMembers ()
+     * @param array $collection
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function deleteMembers($collection)
+    public function deleteMembers(array $collection)
     {
         $timeStamp = time();
         if (!is_array($collection)) {
@@ -543,17 +433,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            deleteMemberGroup ()
+     * @param $group
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->deleteMemberGroups()
-     *
-     * @param           mixed $group
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function deleteMemberGroup($group)
     {
@@ -561,19 +443,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            deleteMemberGroups ()
+     * @param array $collection
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function deleteMemberGroups($collection)
+    public function deleteMemberGroups(array $collection)
     {
         $timeStamp = time();
         if (!is_array($collection)) {
@@ -602,20 +476,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            doesGroupExist ()
+     * @param mixed $group
+     * @param bool $bypass
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->getGroup()
-     *
-     * @param           mixed $group
-     * @param           bool $bypass If set to true does not return response but only the result.
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function doesGroupExist($group, $bypass = false)
+    public function doesGroupExist($group, \bool $bypass = false)
     {
         $timeStamp = time();
         $exist = false;
@@ -638,20 +504,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            doesMemberExist ()
+     * @param mixed $member
+     * @param bool $bypass
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->getGroup()
-     *
-     * @param           mixed $member
-     * @param           bool $bypass If set to true does not return response but only the result.
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function doesMemberExist($member, $bypass = false)
+    public function doesMemberExist($member, \bool $bypass = false)
     {
         $timeStamp = time();
         $exist = false;
@@ -674,15 +532,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            getGroup ()
+     * @param mixed $group
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @param           mixed $group
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function getGroup($group)
     {
@@ -707,16 +559,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            getMember ()
+     * @param mixed $member
      *
-     * @since           1.0.0
-     * @version         1.4.6
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @param           mixed $member
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
     public function getMember($member)
     {
@@ -747,20 +592,14 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            getMemberById ()
+     * @param int $id
      *
-     * @since            1.0.0
-     * @version         1.4.6
-     * @author          Said İmamoğlu
-     *
-     * @param           mixed $email
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberById($email)
+    public function getMemberById(\int $id)
     {
         $timeStamp = time();
-        $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('id' => $email));
+        $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('id' => $id));
         if (is_null($result)) {
             return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
         }
@@ -768,17 +607,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            getMemberByEmail ()
+     * @param string $email
      *
-     * @since            1.0.0
-     * @version         1.4.6
-     * @author          Said İmamoğlu
-     *
-     * @param           mixed $email
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByEmail($email)
+    public function getMemberByEmail(\string $email)
     {
         $timeStamp = time();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('email' => $email));
@@ -789,17 +622,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            getMemberByUsername ()
+     * @param string $username
      *
-     * @since            1.0.0
-     * @version         1.4.6
-     * @author          Said İmamoğlu
-     *
-     * @param           mixed $username
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByUsername($username)
+    public function getMemberByUsername(\string $username)
     {
         $timeStamp = time();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('username' => $username));
@@ -810,17 +637,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            getMemberByKey ()
+     * @param string $key
      *
-     * @since            1.0.0
-     * @version         1.4.6
-     * @author          Said İmamoğlu
-     *
-     * @param           string $key
-     *
-     * @return          mixed           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByKey($key)
+    public function getMemberByKey(\string $key)
     {
         $timeStamp = time();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('key_activation' => $key));
@@ -831,17 +652,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertGroup ()
+     * @param m,xed $group
      *
-     * @since            1.4.1
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->insertMemberGroup()
-     *
-     * @param           mixed $group
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function insertGroup($group)
     {
@@ -849,35 +662,19 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertGroups ()
+     * @param array $collection
      *
-     * @since            1.4.1
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->insertMemberGroups()
-     *
-     * @param           mixed $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function insertGroups($collection)
+    public function insertGroups(array $collection)
     {
         return $this->insertMemberGroups($collection);
     }
 
     /**
-     * @name            insertMember ()
+     * @param mixed $member
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->insertMembers()
-     *
-     * @param           mixed $member
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function insertMember($member)
     {
@@ -885,19 +682,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertMembers ()
+     * @param array $collection
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function insertMembers($collection)
+    public function insertMembers(array $collection)
     {
         $timeStamp = time();
         /** Parameter must be an array */
@@ -1021,17 +810,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertMemberGroup ()
+     * @param mixed $group
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->insertMemberGroups()
-     *
-     * @param           mixed $group
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function insertMemberGroup($group)
     {
@@ -1039,19 +820,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertMemberGroups ()
+     * @param array $collection
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function insertMemberGroups($collection)
+    public function insertMemberGroups(array $collection)
     {
         $timeStamp = time();
         /** Parameter must be an array */
@@ -1130,19 +903,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertMemberLocalizations ()
+     * @param array $collection
      *
-     * @since            1.2.9
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection Collection of entities or post data.
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function insertMemberLocalizations($collection)
+    public function insertMemberLocalizations(array $collection)
     {
         $timeStamp = time();
         if (!is_array($collection)) {
@@ -1193,20 +958,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            insertMemberGroupLocalizations ()
-     *                Inserts one or more member localizations into database.
+     * @param array $collection
      *
-     * @since            1.3.0
-     * @version         1.4.4
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection Collection of entities or post data.
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function insertMemberGroupLocalizations($collection)
+    public function insertMemberGroupLocalizations(array $collection)
     {
         $timeStamp = time();
         if (!is_array($collection)) {
@@ -1257,21 +1013,13 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            isMemberOfGroup ()
+     * @param mixed $member
+     * @param mixed $group
+     * @param bool $bypass
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           mixed $group
-     * @param           bool $bypass if set to true returns the result directly.
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function isMemberOfGroup($member, $group, $bypass = false)
+    public function isMemberOfGroup($member, $group, \bool $bypass = false)
     {
         $timeStamp = time();
         $response = $this->getGroup($group);
@@ -1304,21 +1052,13 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            isMemberOfSite ()
+     * @param mixed $member
+     * @param mixed $site
+     * @param bool $bypass
      *
-     * @since            1.4.4
-     * @version         1.4.4
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           mixed $site
-     * @param           bool $bypass if set to true returns the result directly.
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function isMemberOfSite($member, $site, $bypass = false)
+    public function isMemberOfSite($member, $site, \bool $bypass = false)
     {
         $timeStamp = time();
         $sModel = new SMMService\SiteManagementModel($this->kernel, $this->dbConnection, $this->orm);
@@ -1352,41 +1092,25 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listGroups ()
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.4.1
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $filter
-     * @param           array $sortOrder
-     * @param           array $limit
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listGroups($filter = null, $sortOrder = null, $limit = null)
+    public function listGroups(array $filter = null, array $sortOrder = null, array $limit = null)
     {
         return $this->listMemberGroups($filter, $sortOrder, $limit);
     }
 
     /**
-     * @name            listGroupsOfMember ()
+     * @param mixed $member
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.2.4
-     * @version         1.4.3
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           array $sortOrder
-     * @param           array $limit
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function listGroupsOfMember($member, $sortOrder = null, $limit = null)
+    public function listGroupsOfMember($member, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
         $response = $this->getMember($member);
@@ -1439,22 +1163,13 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listMemberGroups ()
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since           1.3.8
-     * @version         1.4.9
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     *
-     * @param        array $filter
-     * @param        array $sortOrder
-     * @param        array $limit
-     *
-     * @return        BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMemberGroups($filter = null, $sortOrder = null, $limit = null)
+    public function listMemberGroups(array $filter = null, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
         if (!is_array($sortOrder) && !is_null($sortOrder)) {
@@ -1514,22 +1229,13 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listMembers ()
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.3.8
-     * @version         1.4.8
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     *
-     * @param        array $filter
-     * @param        array $sortOrder
-     * @param        array $limit
-     *
-     * @return        \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMembers($filter = null, $sortOrder = null, $limit = null)
+    public function listMembers(array $filter = null, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
         if (!is_array($sortOrder) && !is_null($sortOrder)) {
@@ -1594,24 +1300,14 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listMembersOfGroup ()
+     * @param mixed $group
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.3.3
-     * @version         1.4.6
-     *
-     * @author          Can Berkol
-     * @author          Said İmamoğlu
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $group
-     * @param           array $filter
-     * @param           array $sortOrder
-     * @param           array $limit
-     *
-     * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMembersOfGroup($group, $filter = null, $sortOrder = null, $limit = null)
+    public function listMembersOfGroup($group, array $filter = null, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
         $response = $this->getGroup($group);
@@ -1654,23 +1350,14 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listMembersOfSite ()
+     * @param mixed $site
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.3.8
-     * @version         1.4.6
-     *
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           integer $site
-     * @param           array $filter
-     * @param           array $sortOrder
-     * @param           array $limit
-     *
-     * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listMembersOfSite($site, $filter = null, $sortOrder = null, $limit = null)
+    public function listMembersOfSite($site, array $filter = null, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
         $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
@@ -1714,20 +1401,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listRegularMemberGroups ()
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.3.1
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->listMemberGroups()
-     *
-     * @param           array $sortOrder
-     * @param           array $limit
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function listRegularMemberGroups($sortOrder = null, $limit = null)
+    public function listRegularMemberGroups(array $sortOrder = null, array $limit = null)
     {
         $column = $this->entity['mg']['alias'] . '.type';
         $condition = array('column' => $column, 'comparison' => 'eq', 'value' => 'r');
@@ -1744,21 +1423,13 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            listSitesOfMember ()
+     * @param mixed $member
+     * @param array|null $sortOrder
+     * @param array|null $limit
      *
-     * @since            1.4.5
-     * @version         1.4.6
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           mixed $member
-     * @param           array $sortOrder
-     * @param           array $limit
-     *
-     * @return          \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function listSitesOfMember($member, $sortOrder = null, $limit = null)
+    public function listSitesOfMember($member, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
         $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
@@ -1801,21 +1472,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            removeMemberFromOtherGroups ()
+     * @param mixed $member
+     * @param array $groups
      *
-     * @since           1.0.0
-     * @version         1.4.9
-     * @author          Can Berkol
-     *
-     * @use             $this->doesMemberGroupExist()
-     * @use             $this->createException()
-     *
-     * @param           mixed $member Member Entity, id, username, email.
-     * @param           array $groups MemberGroup Entities, ids, code.
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function removeMemberFromOtherGroups($member, $groups)
+    public function removeMemberFromOtherGroups($member, array $groups)
     {
         $timeStamp = time();
         $response = $this->getMember($member);
@@ -1849,17 +1511,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            updateGroup ()
+     * @param mixed $group
      *
-     * @since            1.4.1
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->updateMemberGroups()
-     *
-     * @param           array $group
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function updateGroup($group)
     {
@@ -1867,35 +1521,19 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            updateGroups ()
+     * @param array $collection
      *
-     * @since            1.4.1
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->updateMemberGroups()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function updateGroups($collection)
+    public function updateGroups(array $collection)
     {
         return $this->updateMemberGroups($collection);
     }
 
     /**
-     * @name            updateMember ()
+     * @param mixed $member
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->updateMembers()
-     *
-     * @param           array $member
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function updateMember($member)
     {
@@ -1903,19 +1541,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            updateMembers ()
+     * @param array $collection
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function updateMembers($collection)
+    public function updateMembers(array $collection)
     {
         $timeStamp = time();
         /** Parameter must be an array */
@@ -2004,17 +1634,9 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            updateMemberGroup ()
+     * @param mixed $group
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->updateMemberGroups()
-     *
-     * @param           array $group
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
     public function updateMemberGroup($group)
     {
@@ -2022,19 +1644,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            updateMemberGroups ()
+     * @param array $collection
      *
-     * @since            1.0.0
-     * @version         1.4.1
-     * @author          Can Berkol
-     *
-     * @use             $this->createException()
-     *
-     * @param           array $collection
-     *
-     * @return          BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function updateMemberGroups($collection)
+    public function updateMemberGroups(array $collection)
     {
         $timeStamp = time();
         /** Parameter must be an array */
@@ -2120,21 +1734,12 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @name            validateAccount ()
+     * @param string $username
+     * @param string $password
      *
-     * @since            1.0.0
-     * @version         1.4.3
-     * @author          Can Berkol
-     *
-     * @use             $this->getMember()
-     * @use             $this->createException()
-     *
-     * @param           string $username
-     * @param           string $password
-     *
-     * @return          array           $response
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function validateAccount($username, $password)
+    public function validateAccount(\string $username, \string $password)
     {
         $timeStamp = time();
         $response = $this->getMember($username);
@@ -2152,247 +1757,3 @@ class MemberManagementModel extends CoreModel
         return new ModelResponse($member, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
     }
 }
-/**
- * Change Log
- * **************************************
- * v1.4.9                      01.09.2015
- * Can Berkol
- * **************************************
- * BF :: listMemberGroups fixed.
- *
- * **************************************
- * v1.4.8                      23.07.2015
- * Said İmamoğlu
- * **************************************
- * BF :: There were unique array problem in listMembers() and listMemberGroups(). Fixed.
- * **************************************
- * v1.4.7                      18.06.2015
- * Said İmamoğlu
- * **************************************
- * BF :: There was an error during associating group and multiple members. Fixed.
- * **************************************
- * v1.4.6                      18.06.2015
- * Said İmamoğlu
- * **************************************
- * FR :: getMember() method implemented from new three methods.
- * FR :: getMemberByEmail(), getMemberByKey() and getMemberByUsername() methods added.
- * BF :: There were an error in listMembersOfGroup() and listMembersOfSite() methods that cause empty filter.Fixed.
- * **************************************
- * v1.4.5                      18.06.2015
- * Can Berkol
- * **************************************
- * FR :: listSitesOfMember() added.
- *
- * **************************************
- * v1.4.4                      11.06.2015
- * Can Berkol
- * **************************************
- * BF :: listMembersOfSite() had an invalid SQL column. Fixed.
- * BF :: listMembers() query issues fixed.
- * BF :: insertMemberLocalizations() - Rewritten as Localization Insert Example !!!!
- * BF :: insertMemberGroupLocalizations() - Rewritten as Localization Insert Example !!!!
- * FR :: addMemberToSites() implemented.
- * FR :: isMemberOfSite() implemented.
- *
- * **************************************
- * v1.4.3                      08.06.2015
- * Can Berkol
- * **************************************
- * BF :: Wrong error value (true) is fixed in validateAccount method.
- *
- * **************************************
- * v1.4.2                      25.05.2015
- * Can Berkol
- * **************************************
- * BF :: db_connection is replaced with dbConnection
- *
- * **************************************
- * v1.4.1                      03.05.2015
- * Can Berkol
- * **************************************
- * CR :: Made compatible with CoreBundle v3.3.
- *
- * **************************************
- * v1.3.9                      Can Berkol
- * 30.04.2015
- * **************************************
- * CR :: Fixes based on entity changes.
- *
- * **************************************
- * v1.3.8                      Can Berkol
- * 23.03.2015
- * **************************************
- * A listMembersOfSite()
- *
- * **************************************
- * v1.3.7                      Can Berkol
- * 15.08.2014
- * **************************************
- * U updateMembers()
- *
- * **************************************
- * v1.3.6                   Said İmamoğlu
- * 07.07.2014
- * **************************************
- * A validateAndGetMember()
- *
- * **************************************
- * v1.3.5                   Said İmamoğlu
- * 27.06.2014
- * **************************************
- * U listMembers()
- *
- * **************************************
- * v1.3.4                      Can Berkol
- * 05.06.2014
- * **************************************
- * A checkMemberPassword()
- *
- * **************************************
- * v1.3.3                      Can Berkol
- * 25.05.2014
- * **************************************
- * D listMembersOfGroupByGroup()
- *
- * **************************************
- * v1.3.2                   Said İmamoğlu
- * 22.04.2014
- * **************************************
- * A listMembersOfGroupByGroup()
- * A listMemberOfGroup()
- * U listMembersOfGroup()
- *
- * **************************************
- * v1.3.1                      Can Berkol
- * 22.04.2014
- * **************************************
- * A listRegularMaemberGroups()
- *
- * **************************************
- * v1.3.0                      Can Berkol
- * 19.02.2014
- * **************************************
- * A insertMemberGroupLocalizations()
- * A updateMembers()
- * U insertMemberGroups()
- * U updateMemberGroups()
- *
- * **************************************
- * v1.2.9                      Can Berkol
- * 19.02.2014
- * **************************************
- * A insertMemberLocalizations()
- * U insertMembers()
- *
- * **************************************
- * v1.2.8                      Can Berkol
- * 12.02.2014
- * **************************************
- * B countMembersOfGroup()
- *
- * **************************************
- * v1.2.7                      Can Berkol
- * 17.01.2014
- * **************************************
- * A countMembersOfGroup()
- *
- * **************************************
- * v1.2.6                      Can Berkol
- * 08.01.2014
- * **************************************
- * A countMembers()
- *
- * **************************************
- * v1.2.5                      Can Berkol
- * 01.01.2014
- * **************************************
- * B insertMemberGroups()
- * B insertMembers()
- * B updateMemberGroups()
- * B updateMembers()
- *
- * **************************************
- * v1.2.4                      Can Berkol
- * 31.12.2013
- * **************************************
- * A listGroupsOfMember()
- *
- * **************************************
- * v1.2.3                      Can Berkol
- * 16.12.2013
- * **************************************
- * A listMembersOfGroup()
- * U getGroup()
- * U listMemberGroups()
- *
- * **************************************
- * v1.2.2                      Can Berkol
- * 16.11.2013
- * **************************************
- * A getMemberLocalization()
- * A getGroupLocalization()
- * M Methods are now camelCase.
- *
- * **************************************
- * v1.2.1                      Can Berkol
- * 06.11.2013
- * **************************************
- * M Response messages modified.
- *
- * **************************************
- * v1.2.0                      Can Berkol
- * 08.09.2013
- * **************************************
- * M Extends CoreModel
- * R resetResponse()
- * U __construct()
- *
- * **************************************
- * v1.0.3                      Can Berkol
- * 16.08.2013
- * **************************************
- * B list_members() Null filter query  bug fixed.
- * B list_member_goups() Null filter query  bug fixed.
- *
- * **************************************
- * v1.0.2                      Can Berkol
- * 11.08.2013
- * **************************************
- * U validate_account() Now supports validation with email.
- *
- * **************************************
- * v1.0.1                      Can Berkol
- * 09.08.2013
- * **************************************
- * A add_group_to_members()
- * A add_member_to_groups()
- * A is_member_of_group()
- * A remove_member_from_other_groups()
- * U insert_members()
- * U insert_member_groups()
- * U update_members()
- * U update_member_groups()
- *
- * **************************************
- * v1.0.0                      Can Berkol
- * 05.08.2013
- * **************************************
- * A __construct()
- * A __destruct()
- * A delete_member()
- * A delete_member_group()
- * A delete_members()
- * A delete_member_groups()
- * A does_member_exist()
- * A does_member_group_exist()
- * A getMember()
- * A getGroup()
- * A insert_member()
- * A insert_member_groups()
- * A list_members()
- * A list_member_groups()
- * A update_member()
- * A update_member_group()
- * A update_members()
- * A update_member_groups()
- */

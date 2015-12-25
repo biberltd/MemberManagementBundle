@@ -1,21 +1,14 @@
 <?php
-
-namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 /**
- * @name        MembersOfSite
- * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
- *
  * @author		Can Berkol
- *              Murat Ünal
- * @version     1.0.4
- * @date        30.04.2015
+ * @author		Said İmamoğlu
  *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
+namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use BiberLtd\Bundle\CoreBundle\CoreEntity;
@@ -37,16 +30,19 @@ class MembersOfSite extends CoreEntity
 {
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_added;
 
 	/**
 	 * @ORM\Column(type="datetime", nullable=false)
+	 * @var \DateTime
 	 */
 	public $date_updated;
 
 	/**
 	 * @ORM\Column(type="datetime", nullable=true)
+	 * @var \DateTime
 	 */
 	public $date_removed;
 
@@ -54,6 +50,7 @@ class MembersOfSite extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\Member")
      * @ORM\JoinColumn(name="member", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\MemberManagementBundle\Entity\Member
      */
     private $member;
 
@@ -61,26 +58,16 @@ class MembersOfSite extends CoreEntity
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", nullable=false, onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
      */
     private $site;
 
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
-
-    /**
-     * @name            setMember()
-     *  				Sets $member property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $member
-     *
-     * @return          object          $this
-     */
-    public function setMember($member){
+	/**
+	 * @param \BiberLtd\Bundle\MemberManagementBundle\Entity\Member $member
+	 *
+	 * @return $this
+	 */
+    public function setMember(\BiberLtd\Bundle\MemberManagementBundle\Entity\Member $member){
         if(!$this->setModified('member', $member)->isModified()){
             return $this;
         }
@@ -88,32 +75,20 @@ class MembersOfSite extends CoreEntity
 
         return $this;
     }
-    /**
-     * @name            getMember()
-     *  				Gets $member property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->member
-     */
+
+	/**
+	 * @return \BiberLtd\Bundle\MemberManagementBundle\Entity\Member
+	 */
     public function getMember(){
         return $this->member;
     }
-    /**
-     * @name            setSite()
-     *  				Sets $site property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           string          $site
-     *
-     * @return          object          $this
-     */
-    public function setSite($site){
+
+	/**
+	 * @param \BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site
+	 *
+	 * @return $this
+	 */
+    public function setSite(\BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site){
         if(!$this->setModified('site', $site)->isModified()){
             return $this;
         }
@@ -121,49 +96,11 @@ class MembersOfSite extends CoreEntity
 
         return $this;
     }
-    /**
-     * @name            getSite()
-     *  				Gets $site property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->site
-     */
+
+	/**
+	 * @return \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
+	 */
     public function getSite(){
         return $this->site;
     }
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.4                      30.04.2015
- * Can Berkol
- * **************************************
- * CR :: ORM structure has been updated.
- *
- * **************************************
- * v1.0.3                      Can Berkol
- * 08.09.2013
- * **************************************
- * M Extends CoreEntity.
- *
- * **************************************
- * v1.0.2                      Can Berkol
- * 05.08.2013
- * **************************************
- * M Namespace is fixed
- *
- * **************************************
- * v1.0.1                      Murat Ünal
- * 22.07.2013
- * **************************************
- * A getDateAdded()
- * A set_date_added()
- * A getMember()
- * A setMember()
- * A getSite()
- * A setSite()
- *
- */

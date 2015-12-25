@@ -1,18 +1,12 @@
 <?php
 /**
- * @name        MemberGroup
- * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
- *
  * @author		Can Berkol
- *              Murat Ünal
- * @version     1.0.8
- * @date        30.04.2015
+ * @author		Said İmamoğlu
  *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
 namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
@@ -40,11 +34,13 @@ use BiberLtd\Bundle\MemberManagementBundle\Exceptions;
 class MemberGroup extends CoreLocalizableEntity{
 	/**
 	 * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
 	 */
 	public $date_updated;
 
 	/**
 	 * @ORM\Column(type="datetime", nullable=true)
+     * @var \DateTime
 	 */
 	public $date_removed;
 	/**
@@ -53,68 +49,58 @@ class MemberGroup extends CoreLocalizableEntity{
      *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberGroupLocalization",
      *     mappedBy="group"
      * )
+     * @var array
      */
     protected $localizations;
     /**
      * @ORM\Id
      * @ORM\Column(type="integer", length=10)
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
      */
     private $id;
     /**
      * @ORM\Column(type="string", unique=true, length=45, nullable=false)
+     * @var string
      */
     private $code;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     public $date_added;
 
     /**
      * @ORM\Column(type="string", length=1, nullable=false, options={"default":"r"})
+     * @var string
      */
     private $type;
     /**
      * @ORM\Column(type="integer", nullable=false, options={"default":0})
+     * @var int
      */
     private $count_members;
     /**
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
      */
     private $site;
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
 
     /**
-     * @name            getId()
-     *  				Gets $id property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          integer          $this->id
+     * @return mixed
      */
     public function getId(){
         return $this->id;
     }
 
     /**
-     * @name            setCode()
-     *  				Sets $code property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param string $code
      *
-     * @param           string          $code
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setCode($code){
+    public function setCode(\string $code){
         if(!$this->setModified('code', $code)->isModified()) {
             return $this;
         }
@@ -124,32 +110,18 @@ class MemberGroup extends CoreLocalizableEntity{
     }
 
     /**
-     * @name            getCode()
-     *  				Gets $code property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->code
+     * @return string
      */
     public function getCode(){
         return $this->code;
     }
 
     /**
-     * @name            setType()
-     *  				Sets $type property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param string $type
      *
-     * @param           string          $type
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setType($type){
+    public function setType(\string $type){
         if(!$this->setModified('type', $type)->isModified()) {
             return $this;
         }
@@ -159,32 +131,18 @@ class MemberGroup extends CoreLocalizableEntity{
     }
 
     /**
-     * @name            getType()
-     *  				Gets $type property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->type
+     * @return string
      */
     public function getType(){
         return $this->type;
     }
 
     /**
-     * @name            setCountMembers()
-     *  				Sets $count_members property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
+     * @param int $count_members
      *
-     * @param           integer          $count_members
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setCountMembers($count_members){
+    public function setCountMembers(\integer $count_members){
         if(!$this->setModified('count_members', $count_members)->isModified()) {
             return $this;
         }
@@ -194,32 +152,18 @@ class MemberGroup extends CoreLocalizableEntity{
     }
 
     /**
-     * @name            getCountMembers()
-     *  				Gets $count_members property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          integer          $this->count_members
+     * @return int
      */
     public function getCountMembers(){
         return $this->count_members;
     }
 
     /**
-     * @name            setSite()
-     *  				Sets $site property.
+     * @param \BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site
      *
-     * @author          Can Berkol
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           BiberLtd\Bundle\SiteManagementBundle\Entity\Site          $site
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setSite($site){
+    public function setSite(\BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site){
         if(!$this->setModified('site', $site)->isModified()) {
             return $this;
         }
@@ -229,14 +173,7 @@ class MemberGroup extends CoreLocalizableEntity{
     }
 
     /**
-     * @name            getSite()
-     *  				Gets $site property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          BiberLtd\Bundle\SiteManagementBundle\Entity\Site          $this->site
+     * @return \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
      */
     public function getSite(){
         return $this->site;
@@ -248,18 +185,11 @@ class MemberGroup extends CoreLocalizableEntity{
     }
 
     /**
-     * @name            increment_member_count()
-     *  				Increments the member count.
-     * .
-     * @author          Can Berkol
-     * @since			1.0.4
-     * @version         1.0.4
+     * @param int $value
      *
-     * @param           integer         $value
-     *
-     * @return          mixed           $this
+     * @return $this
      */
-    public function incrementMemberCount($value){
+    public function incrementMemberCount(\integer $value){
         if(!is_integer($value)){
             return $this;
         }
@@ -268,18 +198,11 @@ class MemberGroup extends CoreLocalizableEntity{
     }
 
     /**
-     * @name            decrement_member_count()
-     *  				Decrements the member count.
-     * .
-     * @author          Can Berkol
-     * @since			1.0.4
-     * @version         1.0.4
+     * @param int $value
      *
-     * @param           integer         $value
-     *
-     * @return          mixed           $this
+     * @return $this
      */
-    public function decrementMemberCount($value){
+    public function decrementMemberCount(\integer $value){
         if(!is_integer($value)){
             return $this;
         }
@@ -291,58 +214,3 @@ class MemberGroup extends CoreLocalizableEntity{
         return $this;
     }
 }
-/**
- * Change Log:
- * **************************************
- * v1.0.8                      30.04.2015
- * Can Berkol
- * **************************************
- * CR :: ORM structure has been updated.
- *
- * **************************************
- * v1.0.7                      Can Berkol
- * 01.01.2014
- * **************************************
- * B setSite()
- *
- * **************************************
- * v1.0.5                      Can Berkol
- * 08.09.2013
- * **************************************
- * M Extends CoreEntity
- *
- * **************************************
- * v1.0.4                      Can Berkol
- * 09.08.2013
- * **************************************
- * A decrement_member_count()
- * A increment_member_count()
- *
- * **************************************
- * v1.0.3                      Can Berkol
- * 05.08.2013
- * **************************************
- * M Non-core functionalities are commented out.
- *
- * **************************************
- * v1.0.1                      Murat Ünal
- * 22.07.2013
- * **************************************
- * A getCode()
- * A getCountMembers()
- * A getDateCreated()
- * A getDateUpdated()
- * A getId()
- * A getLocalizations()
- * A getSite()
- * A getType()
- *
- * A setCode()
- * A setCountMembers()
- * A setDateCreated()
- * A setDateUpdated()
- * A setLocalizations()
- * A setSite()
- * A setType()
- *
- */

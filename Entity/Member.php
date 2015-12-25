@@ -1,21 +1,13 @@
 <?php
 /**
- * @name        Member
- * @package		BiberLtd\Bundle\CoreBundle\MemberManagementBundle
- *
  * @author		Can Berkol
- *              Murat Ünal
- *              Said İmamoğlu
- * @version     1.1.5
- * @date        30.04.2015
+ * @author		Said İmamoğlu
  *
- * @copyright   Biber Ltd. (http://www.biberltd.com)
- * @license     GPL v3.0
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
  *
- * @description Model / Entity class.
- *
+ * @date        23.12.2015
  */
-
 namespace BiberLtd\Bundle\MemberManagementBundle\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
@@ -46,80 +38,97 @@ class Member extends CoreLocalizableEntity{
      * @ORM\Id
      * @ORM\Column(type="integer", length=10)
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @var int
      */
     protected $id;
 
     /**
-     *
-    @ORM\Column(type="text", nullable=true)*/
+     * @ORM\Column(type="text", nullable=true)
+     * @var string
+     */
     protected $extra_info;
+
     /**
      * @ORM\Column(type="string", length=155, nullable=true)
+     * @var string
      */
     protected $name_first;
 
     /**
      * @ORM\Column(type="string", length=155, nullable=true)
+     * @var string
      */
     protected $name_last;
 
     /**
      * @ORM\Column(type="string", unique=true, length=255, nullable=false)
+     * @var string
      */
     protected $email;
 
     /**
      * @ORM\Column(type="string", unique=true, length=155, nullable=false)
+     * @var string
      */
     protected $username;
 
     /**
      * @ORM\Column(type="text", nullable=false)
+     * @var string
      */
     protected $password;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @var \DateTime
      */
     protected $date_birth;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
     protected $file_avatar;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     protected $date_registration;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     protected $date_activation;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @var \DateTime
      */
     protected $date_status_changed;
 
     /**
      * @ORM\Column(type="string", length=1, nullable=false, options={"default":"i"})
+     * @var string
      */
     protected $status;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @var string
      */
     protected $key_activation;
 
     /**
      * @ORM\Column(type="string", length=1, nullable=true, options={"default":"f"})
+     * @var string
      */
     private $gender;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @var \DateTime
      */
     private $date_last_login;
 
@@ -128,71 +137,51 @@ class Member extends CoreLocalizableEntity{
      *     targetEntity="BiberLtd\Bundle\MemberManagementBundle\Entity\MemberLocalization",
      *     mappedBy="member"
      * )
+     * @var array
      */
     protected $localizations;
 
     /**
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language")
      * @ORM\JoinColumn(name="language", referencedColumnName="id", onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language
      */
     protected $language;
 
     /**
      * @ORM\ManyToOne(targetEntity="BiberLtd\Bundle\SiteManagementBundle\Entity\Site")
      * @ORM\JoinColumn(name="site", referencedColumnName="id", onDelete="CASCADE")
+     * @var \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
      */
     protected $site;
 
+    /**
+     * @var bool
+     */
     private $passwordChanged = false;
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
 
     /**
-     * @name            __construct()
-     *  				Initializes entity..
-     * .
-     * @author          Can Berkol
-     * @since			1.0.0
-     * @version         1.0.3
-     *
-     *
+     * Member constructor.
      */
     public function __construct(){
         parent::__construct();
         /** Initialize associations to ArrayCollection */
         $this->member_groups = new ArrayCollection();
     }
-    /******************************************************************
-     * PUBLIC SET AND GET FUNCTIONS                                   *
-     ******************************************************************/
+
     /**
-     * @name            getId()
-     *  				Gets $id property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->id
+     * @return int
      */
     public function getId(){
         return $this->id;
     }
+
     /**
-     * @name            setNameFirst()
-     *  				Sets $name_first property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
+     * @param string $name_first
      *
-     * @param           string          $name_first
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setNameFirst($name_first){
+    public function setNameFirst(\string $name_first){
         if(!$this->setModified('name_first', $name_first)->isModified()) {
             return $this;
         }
@@ -200,33 +189,20 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
+
     /**
-     * @name            getNameFirst()
-     *  				Gets $name_first property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->name_first
+     * @return string
      */
     public function getNameFirst(){
         return $this->name_first;
     }
+
     /**
-     * @name            setNameLast()
-     *  				Sets $name_last property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
+     * @param string $name_last
      *
-     * @param           string          $name_last
-     *
-     * @return          object          $this
+     * @return $this
      */
-    public function setNameLast($name_last){
+    public function setNameLast(\string $name_last){
         if(!$this->setModified('name_last', $name_last)->isModified()) {
             return $this;
         }
@@ -234,46 +210,27 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
+
     /**
-     * @name            getNameLast()
-     *  				Gets $name_last property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->name_last
+     * @return string
      */
     public function getNameLast(){
         return $this->name_last;
     }
+
     /**
-     * @name            getFullName()
-     *  				Gets $name_first.' '.$name_last property.
-     * .
-     * @author          Can Berkol
-     * @since			1.0.0
-     * @version         1.0.3
-     *
-     * @return          string
+     * @return string
      */
     public function getFullName(){
         return $this->name_first.' '.$this->name_last;
     }
-    /**
-     * @name            setEmail()
-     *  				Sets $email property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $email
-     *
-     * @return          object          $this
-     */
-    public function setEmail($email){
+
+	/**
+	 * @param string $email
+	 *
+	 * @return $this
+	 */
+    public function setEmail(\string $email){
         if(!$this->setModified('email', $email)->isModified()) {
             return $this;
         }
@@ -281,33 +238,20 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getEmail()
-     *  				Gets $email property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->email
-     */
+
+	/**
+	 * @return string
+	 */
     public function getEmail(){
         return $this->email;
     }
-    /**
-     * @name            setUsername()
-     *  				Sets $username property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $username
-     *
-     * @return          object          $this
-     */
-    public function setUsername($username){
+
+	/**
+	 * @param string $username
+	 *
+	 * @return $this
+	 */
+    public function setUsername(\string $username){
         if(!$this->setModified('username', $username)->isModified()){
             return $this;
         }
@@ -315,33 +259,20 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getUsername()
-     *  				Gets $username property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->username
-     */
+
+	/**
+	 * @return string
+	 */
     public function getUsername(){
         return $this->username;
     }
-    /**
-     * @name            setPassword()
-     *  				Sets $password property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.1.2
-     *
-     * @param           string          $password
-     *
-     * @return          object          $this
-     */
-    public function setPassword($password){
+
+	/**
+	 * @param string $password
+	 *
+	 * @return $this
+	 */
+    public function setPassword(\string $password){
         if(!$this->setModified('password', $password)->isModified()){
             return $this;
         }
@@ -349,61 +280,36 @@ class Member extends CoreLocalizableEntity{
         $this->passwordChanged = true;
         return $this;
     }
-    /**
-     * @name            setPasswordChanged()
-     *  				Sets $passwordChanged property.
-     * .
-     * @author          Can Berkol
-     * @since			1.1.2
-     * @version         1.1.2
-     *
-     * @param           bool            $status
-     *
-     * @return          bool
-     */
-    public function setPasswordChanged($status){
+
+	/**
+	 * @param bool $status
+	 *
+	 * @return bool
+	 */
+    public function setPasswordChanged(\bool $status){
         return $this->passwordChanged = $status;
     }
-    /**
-     * @name            getPassword()
-     *  				Gets $password property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->password
-     */
+
+	/**
+	 * @return string
+	 */
     public function getPassword(){
         return $this->password;
     }
-    /**
-     * @name            isPasswordChanged()
-     *  				Gets $passwordChanged property.
-     * .
-     * @author          Can Berkol
-     * @since			1.1.2
-     * @version         1.1.2
-     *
-     * @return          bool
-     */
+
+	/**
+	 * @return bool
+	 */
     public function isPasswordChanged(){
         return $this->passwordChanged;
     }
-    /**
-     * @name            setDateBirth()
-     *  				Sets $date_birth property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           DateTime          $date_birth
-     *
-     * @return          object          $this
-     */
-    public function setDateBirth($date_birth){
+
+	/**
+	 * @param \DateTime $date_birth
+	 *
+	 * @return $this
+	 */
+    public function setDateBirth(\DateTime $date_birth){
         if(!$this->setModified('date_birth', $date_birth)->isModified()){
             return $this;
         }
@@ -411,66 +317,40 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getDateBirth()
-     *  				Gets $date_birth property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          DateTime          $this->date_birth
-     */
+
+	/**
+	 * @return \DateTime
+	 */
     public function getDateBirth(){
         return $this->date_birth;
     }
-    /**
-     * @name            setFileAvatar()
-     *  				Sets $file_avatar property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $file_avatar
-     *
-     * @return          object          $this
-     */
-    public function setFileAvatar($file_avatar){
+
+	/**
+	 * @param string $file_avatar
+	 *
+	 * @return $this
+	 */
+    public function setFileAvatar(\string $file_avatar){
         if(!$this->setModified('file_avatar', $file_avatar)->isModified()){
             return $this;
         }
         $this->file_avatar = $file_avatar;
         return $this;
     }
-    /**
-     * @name            getFileAvatar()
-     *  				Gets $file_avatar property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->file_avatar
-     */
+
+	/**
+	 * @return string
+	 */
     public function getFileAvatar(){
         return $this->file_avatar;
     }
-    /**
-     * @name            setDateRegistration()
-     *  				Sets $date_registration property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.9
-     *
-     * @param           DateTime          $date_registration
-     *
-     * @return          object          $this
-     */
-    public function setDateRegistration($date_registration){
+
+	/**
+	 * @param \DateTime $date_registration
+	 *
+	 * @return $this
+	 */
+    public function setDateRegistration(\DateTime $date_registration){
         if(!$this->setModified('date_registration', $date_registration)->isModified()){
             return $this;
         }
@@ -478,33 +358,20 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getDateRegistration()
-     *  				Gets $date_registration property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          DateTime          $this->date_registration
-     */
+
+	/**
+	 * @return \DateTime
+	 */
     public function getDateRegistration(){
         return $this->date_registration;
     }
-    /**
-     * @name            setDateActivation()
-     *  				Sets $date_activation property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $date_activation
-     *
-     * @return          object          $this
-     */
-    public function setDateActivation($date_activation){
+
+	/**
+	 * @param \DateTime $date_activation
+	 *
+	 * @return $this
+	 */
+    public function setDateActivation(\DateTime $date_activation){
         if(!$this->setModified('date_activation', $date_activation)->isModified()){
             return $this;
         }
@@ -512,32 +379,20 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getDateActivation()
-     *  				Gets $date_activation property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          DateTime          $this->date_activation
-     */
+
+	/**
+	 * @return \DateTime
+	 */
     public function getDateActivation(){
         return $this->date_activation;
     }
-    /**
-     * @name            setDateStatusChanged()
-     *  				Sets $date_status_changed property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @param           DateTime          $date_status_changed
-     *
-     * @return          object          $this
-     */
-    public function setDateStatusChanged($date_status_changed){
+
+	/**
+	 * @param \DateTime $date_status_changed
+	 *
+	 * @return $this
+	 */
+    public function setDateStatusChanged(\DateTime $date_status_changed){
         if(!$this->setModified('date_status_changed', $date_status_changed)->isModified()){
             return $this;
         }
@@ -545,46 +400,27 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getDateStatusChanged()
-     *  				Gets $date_status_changed property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          DateTime          $this->date_status_changed
-     */
+
+	/**
+	 * @return \DateTime
+	 */
     public function getDateStatusChanged(){
         return $this->date_status_changed;
     }
-    /**
-     * @name            getExtraInfo()
-     *  				Gets $extra_info property.
-     * .
-     * @author          Said İmamoğlu
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->extra_info
-     */
+
+	/**
+	 * @return string
+	 */
     public function getExtraInfo(){
         return $this->extra_info;
     }
-    /**
-     * @name            setExtraInfo()
-     *  				Sets $extra_info property.
-     * .
-     * @author          Said İmamoğlu
-     *
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $extra_info
-     *
-     * @return          object          $this
-     */
-    public function setExtraInfo($extra_info){
+
+	/**
+	 * @param string $extra_info
+	 *
+	 * @return $this
+	 */
+    public function setExtraInfo(\string $extra_info){
         if(!$this->setModified('status', $extra_info)->isModified()){
             return $this;
         }
@@ -592,20 +428,13 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            setStatus()
-     *  				Sets $status property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $status
-     *
-     * @return          object          $this
-     */
-    public function setStatus($status){
+
+	/**
+	 * @param string $status
+	 *
+	 * @return $this
+	 */
+    public function setStatus(\string $status){
         if(!$this->setModified('status', $status)->isModified()){
             return $this;
         }
@@ -613,34 +442,20 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getStatus()
-     *  				Gets $status property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->status
-     */
+
+	/**
+	 * @return string
+	 */
     public function getStatus(){
         return $this->status;
     }
-    /**
-     * @name            setKeyActivation()
-     *  				Sets activation key of the member. The key is
-     *                  by default the md5 hash of username and user email.
-     *
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           mixed          $key        Optional. string or null.
-     *
-     * @return          object          $this
-     */
-    public function setKeyActivation($key = null){
+
+	/**
+	 * @param string|null $key
+	 *
+	 * @return $this
+	 */
+    public function setKeyActivation(\string $key = null){
         if(!$this->setModified('key_activation', $key)->isModified()){
             return $this;
         }
@@ -652,34 +467,20 @@ class Member extends CoreLocalizableEntity{
         }
         return $this;
     }
-    /**
-     * @name            getKeyActivation()
-     *  				Gets $key_activation property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          string          $this->key_activation
-     */
+
+	/**
+	 * @return string
+	 */
     public function getKeyActivation(){
         return $this->key_activation;
     }
 
-    /**
-     * @name            setLanguage()
-     *  				Sets $language property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $language
-     *
-     * @return          object          $this
-     */
-    public function setLanguage($language){
+	/**
+	 * @param \BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language
+	 *
+	 * @return $this
+	 */
+    public function setLanguage(\BiberLtd\Bundle\MultiLanguageSupportBundle\Entity\Language $language){
         if(!$this->setModified('language', $language)->isModified()){
             return $this;
         }
@@ -700,20 +501,13 @@ class Member extends CoreLocalizableEntity{
     public function getLanguage(){
         return $this->language;
     }
-    /**
-     * @name            setSite()
-     *  				Sets $site property.
-     * .
-     * @author          Can Berkol
-     *                  Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.7
-     *
-     * @param           string          $site
-     *
-     * @return          object          $this
-     */
-    public function setSite($site){
+
+	/**
+	 * @param \BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site
+	 *
+	 * @return $this
+	 */
+    public function setSite(\BiberLtd\Bundle\SiteManagementBundle\Entity\Site $site){
         if(!$this->setModified('site', $site)->isModified()){
             return $this;
         }
@@ -721,48 +515,28 @@ class Member extends CoreLocalizableEntity{
 
         return $this;
     }
-    /**
-     * @name            getSite()
-     *  				Gets $site property.
-     * .
-     * @author          Murat Ünal
-     * @since			1.0.0
-     * @version         1.0.0
-     *
-     * @return          BiberLtd\Core\Bunles\SiteManagementBundle\Entity\Site
-     */
+
+	/**
+	 * @return \BiberLtd\Bundle\SiteManagementBundle\Entity\Site
+	 */
     public function getSite(){
         return $this->site;
     }
 
-    /**
-     * @name        getGender ()
-     *
-     * @author      Can Berkol
-     *
-     * @since       1.1.3
-     * @version     1.1.3
-     *
-     * @return      mixed
-     */
+	/**
+	 * @return string
+	 */
     public function getGender()
     {
         return $this->gender;
     }
 
-    /**
-     * @name        setGender ()
-     *
-     * @author      Can Berkol
-     *
-     * @since       1.1.3
-     * @version     1.1.3
-     *
-     * @param       mixed $gender
-     *
-     * @return      $this
-     */
-    public function setGender($gender)
+	/**
+	 * @param string $gender
+	 *
+	 * @return $this
+	 */
+    public function setGender(\string $gender)
     {
         if(!$this->setModified('gender', $gender)->isModified()){
             return $this;
@@ -772,34 +546,20 @@ class Member extends CoreLocalizableEntity{
         return $this;
     }
 
-    /**
-     * @name        getDateLastLogin ()
-     *
-     * @author      Can Berkol
-     *
-     * @since       1.1.4
-     * @version     1.1.4
-     *
-     * @return      mixed
-     */
+	/**
+	 * @return \DateTime
+	 */
     public function getDateLastLogin()
     {
         return $this->date_last_login;
     }
 
-    /**
-     * @name        setDateLastLogin ()
-     *
-     * @author      Can Berkol
-     *
-     * @since       1.1.4
-     * @version     1.1.4
-     *
-     * @param       mixed $date_last_login
-     *
-     * @return      $this
-     */
-    public function setDateLastLogin($date_last_login){
+	/**
+	 * @param \DateTime $date_last_login
+	 *
+	 * @return $this
+	 */
+    public function setDateLastLogin(\DateTime $date_last_login){
         if(!$this->setModified('date_last_login', $date_last_login)->isModified()){
             return $this;
         }
@@ -808,132 +568,3 @@ class Member extends CoreLocalizableEntity{
         return $this;
     }
 }
-/**
- * Change Log:
- * **************************************
- * v1.1.5                      30.04.2015
- * Can Berkol
- * **************************************
- * CR :: ORM structure has been updated.
- *
- * **************************************
- * v1.1.4                      Can Berkol
- * 09.02.2015
- * **************************************
- * A getDateLastlogin()
- * A setDateLastlogin()
- *
- * **************************************
- * v1.1.3                      Can Berkol
- * 28.01.2015
- * **************************************
- * A getGender()
- * A setGender()
- *
- * **************************************
- * v1.1.2                      Can Berkol
- * 15.08.2014
- * **************************************
- * passwordChanged private member added.
- * A isPasswordChanged()
- * A setPasswordChanged()
- * U setPassword()
- *
- * **************************************
- * v1.1.1                   Said İmamoğlu
- * 07.07.2014
- * **************************************
- * A getExtraInfo()
- * A setExtraInfo()
- *
- * **************************************
- * v1.1.0                      Can Berkol
- * 31.12.2013
- * **************************************
- * D dumpGroupCodes()
- *
- * **************************************
- * v1.0.9                      Can Berkol
- * 18.12.2013
- * **************************************
- * U set methods now call setModified()
- *
- * **************************************
- * v1.0.7                      Can Berkol
- * 08.09.2013
- * **************************************
- * D get_localization()
- * M exdends CoreLocalizedEntity
- *
- * **************************************
- * v1.0.6                      Can Berkol
- * 06.09.2013
- * **************************************
- * A get_localization()
- *
- * **************************************
- * v1.0.5                      Can Berkol
- * 10.08.2013
- * **************************************
- * A dumpGroupCodes()
- *
- * **************************************
- * v1.0.4                      Can Berkol
- * 07.08.2013
- * **************************************
- * A __construct()
- *
- * **************************************
- * v1.0.2                      Can Berkol
- * 05.08.2013
- * **************************************
- * M Non-core functionalitirs commented out.
- *
- * **************************************
- * v1.0.1                      Murat Ünal
- * 22.07.2013
- * **************************************
- * A getBlogPostModerations()
- * A setBlogPostModerations()
- * A getDateActivation()
- * A setDateActivation()
- * A getDateBirth()
- * A setDateBirth()
- * A getDateRegistration()
- * A setDateRegistration()
- * A getDateStatusChanged()
- * A setDateStatusChanged()
- * A getEmail()
- * A setEmail()
- * A getFileAvatar()
- * A setFileAvatar()
- * A get_files_of_members()
- * A set_files_of_members()
- * A getId()
- * A setId()
- * A getKeyActivation()
- * A setKeyActivation()
- * A getLanguage()
- * A setLanguage()
- * A get_members_address()
- * A set_members_address()
- * A get_member_localizations()
- * A set_member_localizations()
- * A get_members_of_groups()
- * A set_members_of_groups()
- * A getNameFirst()
- * A setNameFirst()
- * A getNameLast()
- * A set_name last()
- * A getPassword()
- * A setPassword()
- * A get_redeemed_coupons()
- * A set_redeemed_coupons()
- * A getSite()
- * A setSite()
- * A getStatus()
- * A setStatus()
- * A getUsername()
- * A setUsername()
- *
- */

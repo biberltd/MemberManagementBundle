@@ -1,17 +1,12 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : localhost
-Source Server Version : 50505
-Source Host           : localhost:3306
-Source Database       : bod_core
-
-Target Server Type    : MYSQL
-Target Server Version : 50505
-File Encoding         : 65001
-
-Date: 2015-05-03 11:54:34
-*/
+/**
+ * @author		Can Berkol
+ * @author		Said İmamoğlu
+ *
+ * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
+ * @license     GPLv3
+ *
+ * @date        23.12.2015
+ */
 
 SET FOREIGN_KEY_CHECKS=0;
 
