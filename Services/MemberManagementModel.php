@@ -34,6 +34,8 @@ class MemberManagementModel extends CoreModel
     {
         parent::__construct($kernel, $dbConnection, $orm);
         $this->entity = array(
+            'f' => array('name' => 'FileManagementBundle:File', 'alias' => 'f'),
+            'fom' => array('name' => 'MemberManagementBundle:FilesOfMember', 'alias' => 'fom'),
             'm' => array('name' => 'MemberManagementBundle:Member', 'alias' => 'm'),
             'ml' => array('name' => 'MemberManagementBundle:MemberLocalization', 'alias' => 'ml'),
             'mog' => array('name' => 'MemberManagementBundle:MembersOfGroup', 'alias' => 'mog'),
@@ -654,7 +656,7 @@ class MemberManagementModel extends CoreModel
     /**
      * @param m,xed $group
      *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\ModelResponse
      */
     public function insertGroup($group)
     {
@@ -664,7 +666,7 @@ class MemberManagementModel extends CoreModel
     /**
      * @param array $collection
      *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\ModelResponse
      */
     public function insertGroups(array $collection)
     {
@@ -674,7 +676,7 @@ class MemberManagementModel extends CoreModel
     /**
      * @param mixed $member
      *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return ModelResponse
      */
     public function insertMember($member)
     {
@@ -812,7 +814,7 @@ class MemberManagementModel extends CoreModel
     /**
      * @param mixed $group
      *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return ModelResponse
      */
     public function insertMemberGroup($group)
     {
@@ -1096,7 +1098,7 @@ class MemberManagementModel extends CoreModel
      * @param array|null $sortOrder
      * @param array|null $limit
      *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     * @return ModelResponse
      */
     public function listGroups(array $filter = null, array $sortOrder = null, array $limit = null)
     {
@@ -1348,15 +1350,6 @@ class MemberManagementModel extends CoreModel
 
         return $response;
     }
-
-    /**
-     * @param mixed $site
-     * @param array|null $filter
-     * @param array|null $sortOrder
-     * @param array|null $limit
-     *
-     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
-     */
     public function listMembersOfSite($site, array $filter = null, array $sortOrder = null, array $limit = null)
     {
         $timeStamp = time();
@@ -1398,6 +1391,78 @@ class MemberManagementModel extends CoreModel
         $response->stats->execution->end = time();
 
         return $response;
+    }
+
+    /**
+     * @param mixed $member
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
+     *
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     */
+    public function listFilesOfMember($member, array $filter = null, array $sortOrder = null, array $limit = null)
+    {
+        $timeStamp = time();
+        if (!is_array($sortOrder) && !is_null($sortOrder)) {
+            return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
+        }
+
+        $response = $this->getMember($member);
+        if ($response->error->exist) {
+            return $response;
+        }
+        $member = $response->result->set;
+        $oStr = $wStr = $gStr = '';
+
+        $qStr = 'SELECT ' . $this->entity['fom']['alias']
+            . ' FROM ' . $this->entity['fom']['name'] . ' ' . $this->entity['fom']['alias'];
+
+        $filter[] = array(
+            'glue' => 'and',
+            'condition' => array(
+                array(
+                    'glue' => 'and',
+                    'condition' => array('column' => $this->entity['fom']['alias'] . '.member', 'comparison' => '=', 'value' => $member->getId()),
+                )
+            )
+        );
+
+        $qStr .= $wStr . $gStr . $oStr;
+        $q = $this->em->createQuery($qStr);
+
+        $result = $q->getResult();
+
+        $totalRows = count($result);
+        if ($totalRows < 1) {
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+        }
+        $fileIds = [];
+        foreach($result as $fomItem){
+            $fileIds[] = $fomItem->getFile()->getId();
+        }
+        $fModel = $this->kernel->getContainer()->get('filemanagement.model');
+
+        $filter[] = array(
+            'glue' => 'and',
+            'condition' => array(
+                array(
+                    'glue' => 'and',
+                    'condition' => array('column' => $this->entity['f']['alias'] . '.id', 'comparison' => 'in', 'value' => $fileIds),
+                )
+            )
+        );
+
+        $response = $fModel->listFiles($filter, $sortOrder, $limit);
+        if ($response->error->exist) {
+            return $response;
+        }
+        $response->stats->execution->start = $timeStamp;
+        $response->stats->execution->end = time();
+
+        return $response;
+
+        return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
     }
 
     /**
@@ -1510,31 +1575,31 @@ class MemberManagementModel extends CoreModel
         return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
     }
 
-    /**
-     * @param mixed $group
-     *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
-     */
+	/**
+	 * @param mixed $group
+	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
     public function updateGroup($group)
     {
         return $this->updateMemberGroups(array($group));
     }
 
-    /**
-     * @param array $collection
-     *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
-     */
+	/**
+	 * @param array $collection
+	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
     public function updateGroups(array $collection)
     {
         return $this->updateMemberGroups($collection);
     }
 
-    /**
-     * @param mixed $member
-     *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
-     */
+	/**
+	 * @param $member
+	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
     public function updateMember($member)
     {
         return $this->updateMembers(array($member));
@@ -1633,11 +1698,11 @@ class MemberManagementModel extends CoreModel
         return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
     }
 
-    /**
-     * @param mixed $group
-     *
-     * @return \BiberLtd\Bundle\MemberManagementBundle\Services\BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
-     */
+	/**
+	 * @param mixed $group
+	 *
+	 * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+	 */
     public function updateMemberGroup($group)
     {
         return $this->updateMemberGroups(array($group));
