@@ -50,7 +50,7 @@ class FilesOfMember extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setCountView(\integer $count_view) {
+    public function setCountView(int $count_view) {
         if(!$this->setModified('count_view', $count_view)->isModified()) {
             return $this;
         }

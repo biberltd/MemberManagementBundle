@@ -67,7 +67,7 @@ class MemberGroupLocalization extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setName(\string $name){
+    public function setName(string $name){
         if(!$this->setModified('name', $name)->isModified()){
             return $this;
         }
@@ -88,7 +88,7 @@ class MemberGroupLocalization extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setUrlKey(\string $url_key){
+    public function setUrlKey(string $url_key){
         if(!$this->setModified('url_key', $url_key)->isModified()){
             return $this;
         }
@@ -109,7 +109,7 @@ class MemberGroupLocalization extends CoreEntity
 	 *
 	 * @return $this
 	 */
-    public function setDescription(\string $description){
+    public function setDescription(string $description){
         if(!$this->setModified('description', $description)->isModified()){
             return $this;
         }

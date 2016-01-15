@@ -60,7 +60,7 @@ class MemberLocalization extends CoreEntity
      *
      * @return $this
      */
-    public function setTitle(\string $title){
+    public function setTitle(string $title){
         if(!$this->setModified('title', $title)->isModified()){
             return $this;
         }
@@ -81,7 +81,7 @@ class MemberLocalization extends CoreEntity
      *
      * @return $this
      */
-    public function setBiography(\string $biography){
+    public function setBiography(string $biography){
         if(!$this->setModified('biography', $biography)->isModified()){
             return $this;
         }
@@ -101,7 +101,7 @@ class MemberLocalization extends CoreEntity
      *
      * @return $this
      */
-    public function setExtraData(\string $extra_data){
+    public function setExtraData(string $extra_data){
         if(!$this->setModified('extra_data', $extra_data)->isModified()){
             return $this;
         }

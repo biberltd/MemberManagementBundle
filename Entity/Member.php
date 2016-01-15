@@ -181,7 +181,7 @@ class Member extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function setNameFirst(\string $name_first){
+    public function setNameFirst(string $name_first){
         if(!$this->setModified('name_first', $name_first)->isModified()) {
             return $this;
         }
@@ -202,7 +202,7 @@ class Member extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function setNameLast(\string $name_last){
+    public function setNameLast(string $name_last){
         if(!$this->setModified('name_last', $name_last)->isModified()) {
             return $this;
         }
@@ -230,7 +230,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setEmail(\string $email){
+    public function setEmail(string $email){
         if(!$this->setModified('email', $email)->isModified()) {
             return $this;
         }
@@ -251,7 +251,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setUsername(\string $username){
+    public function setUsername(string $username){
         if(!$this->setModified('username', $username)->isModified()){
             return $this;
         }
@@ -272,7 +272,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setPassword(\string $password){
+    public function setPassword(string $password){
         if(!$this->setModified('password', $password)->isModified()){
             return $this;
         }
@@ -286,7 +286,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return bool
 	 */
-    public function setPasswordChanged(\bool $status){
+    public function setPasswordChanged(bool $status){
         return $this->passwordChanged = $status;
     }
 
@@ -330,7 +330,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setFileAvatar(\string $file_avatar){
+    public function setFileAvatar(string $file_avatar){
         if(!$this->setModified('file_avatar', $file_avatar)->isModified()){
             return $this;
         }
@@ -420,7 +420,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setExtraInfo(\string $extra_info){
+    public function setExtraInfo(string $extra_info){
         if(!$this->setModified('status', $extra_info)->isModified()){
             return $this;
         }
@@ -434,7 +434,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setStatus(\string $status){
+    public function setStatus(string $status){
         if(!$this->setModified('status', $status)->isModified()){
             return $this;
         }
@@ -455,7 +455,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setKeyActivation(\string $key = null){
+    public function setKeyActivation(string $key = null){
         if(!$this->setModified('key_activation', $key)->isModified()){
             return $this;
         }
@@ -536,7 +536,7 @@ class Member extends CoreLocalizableEntity{
 	 *
 	 * @return $this
 	 */
-    public function setGender(\string $gender)
+    public function setGender(string $gender)
     {
         if(!$this->setModified('gender', $gender)->isModified()){
             return $this;

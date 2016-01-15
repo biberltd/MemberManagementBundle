@@ -6,7 +6,7 @@
  * @copyright   Biber Ltd. (http://www.biberltd.com) (C) 2015
  * @license     GPLv3
  *
- * @date        23.12.2015
+ * @date        15.01.2016
  */
 namespace BiberLtd\Bundle\MemberManagementBundle\Services;
 
@@ -26,13 +26,13 @@ class MemberManagementModel extends CoreModel
     /**
      * MemberManagementModel constructor.
      *
-     * @param object $kernel
-     * @param string $dbConnection
-     * @param string $orm
+     * @param object      $kernel
+     * @param string|null $dbConnection
+     * @param string|null $orm
      */
-    public function __construct($kernel, \string $dbConnection = 'default', \string $orm = 'doctrine')
+    public function __construct($kernel, string $dbConnection = null, string $orm = null)
     {
-        parent::__construct($kernel, $dbConnection, $orm);
+        parent::__construct($kernel, $dbConnection ?? 'default', $orm ?? 'doctrine');
         $this->entity = array(
             'f' => array('name' => 'FileManagementBundle:File', 'alias' => 'f'),
             'fom' => array('name' => 'MemberManagementBundle:FilesOfMember', 'alias' => 'fom'),
@@ -61,31 +61,22 @@ class MemberManagementModel extends CoreModel
      * @param mixed $member
      * @param string|null    $key
      * @param \DateTime|null $activationDate
-     * @param bool           $bypass
+     * @param bool|null      $bypass
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function activateMember($member, \string $key = null, \DateTime $activationDate = null, \bool $bypass = false)
+    public function activateMember($member, string $key = null, \DateTime $activationDate = null, bool $bypass = null)
     {
-        $timeStamp = time();
-        if ($activationDate == null) {
-            $activationDate = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
-        } else {
-            if (!$activationDate instanceof \DateTime) {
-                return $this->createException('InvalidDateTimeException', '$activationDate', 'E:S:006');
-            }
-        }
+        $timeStamp = microtime();
+        $bypass = $bypass ?? false;
+        $activationDate = $activationDate ?? new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
         /**
          * $key is required if $bypass is set to false
          */
         if (!$bypass && is_null($key)) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:001', 'Activation key is missing. The account cannot be activated.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:001', 'Activation key is missing. The account cannot be activated.', $timeStamp, microtime());
         }
         if ($member instanceof BundleEntity\Member) {
-            /**
-             * !! IMPORTANT:
-             * Use bypass = true only in MANAGE/ADMIN controller.
-             */
             if ($bypass) {
                 $member->setStatus('a');
                 $member->setDateActivation($activationDate);
@@ -95,7 +86,7 @@ class MemberManagementModel extends CoreModel
         } else {
             $response = $this->getMember($member);
             if ($response->error->exist) {
-                return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'A member with the given id / username / email cannot be found in our database.', $timeStamp, time());
+                return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'A member with the given id / username / email cannot be found in our database.', $timeStamp, microtime());
             }
             $member = $response->result->set;
         }
@@ -107,7 +98,7 @@ class MemberManagementModel extends CoreModel
         $this->em->persists($member);
 
         $this->em->flush();
-        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:001', 'The account has been successfully activated.', $timeStamp, time());
+        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:001', 'The account has been successfully activated.', $timeStamp, microtime());
     }
 
     /**
@@ -118,16 +109,13 @@ class MemberManagementModel extends CoreModel
      */
     public function addGroupToMembers($group, array $members)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getGroup($group);
         if ($response->error->exist) {
             return $response;
         }
         $group = $response->result->set;
-        if (!is_array($members)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
-        }
-        $to_add = array();
+        $to_add = [];
         foreach ($members as $member) {
             $response = $this->getMember($member);
             if ($response->error->exist) {
@@ -139,7 +127,7 @@ class MemberManagementModel extends CoreModel
             }
         }
         $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-        $insertedItems = array();
+        $insertedItems = [];
         foreach ($to_add as $member) {
             $entity = new BundleEntity\MembersOfGroup();
             $entity->setMember($member)->setGroup($group)->setDateAdded($now);
@@ -153,9 +141,9 @@ class MemberManagementModel extends CoreModel
         $countInserts = count($to_add);
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
@@ -166,16 +154,13 @@ class MemberManagementModel extends CoreModel
      */
     public function addMemberToGroups($member, array $groups)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
         }
         $member = $response->result->set;
-        if (!is_array($groups)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
-        }
-        $toAdd = array();
+        $toAdd = [];
         foreach ($groups as $group) {
             $response = $this->getGroup($group);
             if ($response->error->exist) {
@@ -187,7 +172,7 @@ class MemberManagementModel extends CoreModel
             }
         }
         $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-        $insertedItems = array();
+        $insertedItems = [];
         foreach ($toAdd as $group) {
             $entity = new BundleEntity\MembersOfGroup();
             $entity->setMember($member)->setGroup($group)->setDateAdded($now);
@@ -202,9 +187,9 @@ class MemberManagementModel extends CoreModel
         $countInserts = count($toAdd);
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
@@ -215,16 +200,14 @@ class MemberManagementModel extends CoreModel
      */
     public function addMemberToSites($member, array $sites)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
         }
         $member = $response->result->set;
-        if (!is_array($sites)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. $groups parameter must be an array collection', 'E:S:001');
-        }
-        $toAdd = array();
+
+        $toAdd = [];
         $sModel = new SMMService\SiteManagementModel($this->kernel, $this->dbConnection, $this->orm);
         foreach ($sites as $site) {
             $response = $sModel->getSite($site);
@@ -237,7 +220,7 @@ class MemberManagementModel extends CoreModel
             }
         }
         $now = new \DateTime('now', new \DateTimezone($this->kernel->getContainer()->getParameter('app_timezone')));
-        $insertedItems = array();
+        $insertedItems = [];
         foreach ($toAdd as $site) {
             $entity = new BundleEntity\MembersOfSite();
             $entity->setMember($member)->setSite($site)->setDateAdded($now);
@@ -251,24 +234,22 @@ class MemberManagementModel extends CoreModel
         $countInserts = count($toAdd);
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
-     * @param        $member
-     * @param string $password
-     * @param bool   $bypass
+     * @param mixed $member
+     * @param string    $password
+     * @param bool|null $bypass
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function checkMemberPassword($member, \string $password, \bool $bypass = false)
+    public function checkMemberPassword($member, string $password, bool $bypass = null)
     {
-        $timeStamp = time();
-        if (!is_string($password)) {
-            return $this->createException('InvalidParameterValueException', 'Password must be a string.', 'E:S:007');
-        }
+        $timeStamp = microtime();
+        $bypass = $bypass ?? false;
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -286,7 +267,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return $correct;
         }
-        return new ModelResponse($correct, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($correct, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -296,7 +277,7 @@ class MemberManagementModel extends CoreModel
      */
     public function countMembers(array $filter = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
 
         $wStr = $fStr = '';
 
@@ -314,7 +295,7 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getSingleScalarResult();
 
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, microtime());
     }
 
     /**
@@ -325,7 +306,7 @@ class MemberManagementModel extends CoreModel
      */
     public function countMembersOfGroup($group, array $filter = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getGroup($group);
 
         if ($response->error->exist) {
@@ -358,7 +339,7 @@ class MemberManagementModel extends CoreModel
         $q = $this->em->createQuery($qStr);
         $result = $q->getSingleScalarResult();
 
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, microtime());
     }
 
     /**
@@ -367,9 +348,10 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function deactivateMember($member, \bool $bypass = false)
+    public function deactivateMember($member, bool $bypass = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
+        $bypass = $bypass ?? false;
         $now = new DateTime('now', new DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
 
         $response = $this->getMember($member);
@@ -388,7 +370,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return true;
         }
-        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:002', 'The account has been successfully deactivated.', $timeStamp, time());
+        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:002', 'The account has been successfully deactivated.', $timeStamp, microtime());
     }
 
     /**
@@ -408,10 +390,7 @@ class MemberManagementModel extends CoreModel
      */
     public function deleteMembers(array $collection)
     {
-        $timeStamp = time();
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countDeleted = 0;
         foreach ($collection as $entry) {
             if ($entry instanceof BundleEntity\Member) {
@@ -427,11 +406,11 @@ class MemberManagementModel extends CoreModel
             }
         }
         if ($countDeleted < 0) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime());
         }
         $this->em->flush();
 
-        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime());
     }
 
     /**
@@ -451,10 +430,7 @@ class MemberManagementModel extends CoreModel
      */
     public function deleteMemberGroups(array $collection)
     {
-        $timeStamp = time();
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countDeleted = 0;
         foreach ($collection as $entry) {
             if ($entry instanceof BundleEntity\MemberGroup) {
@@ -470,22 +446,23 @@ class MemberManagementModel extends CoreModel
             }
         }
         if ($countDeleted < 0) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime());
         }
         $this->em->flush();
 
-        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime());
     }
 
     /**
      * @param mixed $group
-     * @param bool $bypass
+     * @param bool|null $bypass
      *
-     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool
      */
-    public function doesGroupExist($group, \bool $bypass = false)
+    public function doesGroupExist($group, bool $bypass = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
+        $bypass = $bypass ?? false;
         $exist = false;
 
         $response = $this->getGroup($group);
@@ -502,18 +479,19 @@ class MemberManagementModel extends CoreModel
             return $exist;
         }
 
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
      * @param mixed $member
-     * @param bool $bypass
+     * @param bool|null $bypass
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function doesMemberExist($member, \bool $bypass = false)
+    public function doesMemberExist($member, bool $bypass = null)
     {
-        $timeStamp = time();
+        $bypass = $bypass ?? false;
+        $timeStamp = microtime();
         $exist = false;
 
         $response = $this->getMember($member);
@@ -530,7 +508,7 @@ class MemberManagementModel extends CoreModel
             return $exist;
         }
 
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -540,9 +518,9 @@ class MemberManagementModel extends CoreModel
      */
     public function getGroup($group)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         if ($group instanceof BundleEntity\MemberGroup) {
-            return new ModelResponse($group, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+            return new ModelResponse($group, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
         }
         $result = null;
         switch ($group) {
@@ -554,10 +532,10 @@ class MemberManagementModel extends CoreModel
                 break;
         }
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
 
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -567,9 +545,9 @@ class MemberManagementModel extends CoreModel
      */
     public function getMember($member)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         if ($member instanceof BundleEntity\Member) {
-            return new ModelResponse($member, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+            return new ModelResponse($member, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
         }
         $result = null;
         switch ($member) {
@@ -590,7 +568,7 @@ class MemberManagementModel extends CoreModel
         if (!$response->error->exist) {
             return $response;
         }
-        return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+        return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
     }
 
     /**
@@ -598,14 +576,14 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberById(\int $id)
+    public function getMemberById(int $id)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('id' => $id));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -613,14 +591,14 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByEmail(\string $email)
+    public function getMemberByEmail(string $email)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('email' => $email));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -628,14 +606,14 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByUsername(\string $username)
+    public function getMemberByUsername(string $username)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('username' => $username));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -643,14 +621,14 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByKey(\string $key)
+    public function getMemberByKey(string $key)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('key_activation' => $key));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -690,17 +668,13 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMembers(array $collection)
     {
-        $timeStamp = time();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countInserts = 0;
         $countLocalizations = 0;
         $countGroups = 0;
         $countSites = 0;
-        $insertedItems = array();
-        $localizations = array();
+        $insertedItems = [];
+        $localizations = [];
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\Member) {
                 $entity = $data;
@@ -806,9 +780,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
@@ -828,15 +802,12 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMemberGroups(array $collection)
     {
-        $timeStamp = time();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
+
         $countInserts = 0;
         $countLocalizations = 0;
-        $insertedItems = array();
-        $localizations = array();
+        $insertedItems = [];
+        $localizations = [];
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\MemberGroup) {
                 $entity = $data;
@@ -899,9 +870,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
@@ -911,12 +882,9 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMemberLocalizations(array $collection)
     {
-        $timeStamp = time();
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countInserts = 0;
-        $insertedItems = array();
+        $insertedItems = [];
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\MemberLocalization) {
                 $entity = $data;
@@ -954,9 +922,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
@@ -966,12 +934,9 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMemberGroupLocalizations(array $collection)
     {
-        $timeStamp = time();
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countInserts = 0;
-        $insertedItems = array();
+        $insertedItems = [];
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\MemberGroupLocalization) {
                 $entity = $data;
@@ -1009,9 +974,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, time());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
     }
 
     /**
@@ -1021,9 +986,10 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function isMemberOfGroup($member, $group, \bool $bypass = false)
+    public function isMemberOfGroup($member, $group, bool $bypass = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
+        $bypass = $bypass ?? false;
         $response = $this->getGroup($group);
         if ($response->error->exist) {
             return $response;
@@ -1050,7 +1016,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return $exist;
         }
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -1060,9 +1026,10 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|bool|mixed
      */
-    public function isMemberOfSite($member, $site, \bool $bypass = false)
+    public function isMemberOfSite($member, $site, bool $bypass = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
+        $bypass = $bypass ?? false;
         $sModel = new SMMService\SiteManagementModel($this->kernel, $this->dbConnection, $this->orm);
         $response = $sModel->getSite($site);
         if ($response->error->exist) {
@@ -1090,7 +1057,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return $exist;
         }
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -1114,7 +1081,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listGroupsOfMember($member, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -1152,16 +1119,16 @@ class MemberManagementModel extends CoreModel
         $q = $this->addLimit($q, $limit);
 
         $result = $q->getResult();
-        $groups = array();
+        $groups = [];
         foreach ($result as $mog) {
             $groups[] = $mog->getGroup();
         }
         $totalRows = count($groups);
 
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
         }
-        return new ModelResponse($groups, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($groups, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -1173,10 +1140,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMemberGroups(array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
-        if (!is_array($sortOrder) && !is_null($sortOrder)) {
-            return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
-        }
+        $timeStamp = microtime();
         $oStr = $wStr = $gStr = $fStr = '';
 
         $qStr = 'SELECT ' . $this->entity['mgl']['alias']
@@ -1215,7 +1179,7 @@ class MemberManagementModel extends CoreModel
         $q = $this->addLimit($q, $limit);
 
         $result = $q->getResult();
-        $entities = array();
+        $entities = [];
         foreach ($result as $entry) {
             $id = $entry->getGroup()->getId();
             if (!isset($unique[$id])) {
@@ -1225,9 +1189,9 @@ class MemberManagementModel extends CoreModel
         }
         $totalRows = count($entities);
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
         }
-        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -1239,10 +1203,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMembers(array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
-        if (!is_array($sortOrder) && !is_null($sortOrder)) {
-            return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
-        }
+        $timeStamp = microtime();
         $oStr = $wStr = $gStr = $fStr = '';
 
         $qStr = 'SELECT ' . $this->entity['m']['alias'] . ', ' . $this->entity['ml']['alias']
@@ -1286,7 +1247,7 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
 
-        $entities = array();
+        $entities = [];
         foreach ($result as $entry) {
             $id = $entry->getMember()->getId();
             if (!isset($unique[$id])) {
@@ -1296,9 +1257,9 @@ class MemberManagementModel extends CoreModel
         }
         $totalRows = count($entities);
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
         }
-        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -1311,7 +1272,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMembersOfGroup($group, array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getGroup($group);
         if ($response->error->exist) {
             return $response;
@@ -1324,9 +1285,9 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
         if (empty($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
-        $memberIds = array();
+        $memberIds = [];
         foreach ($result as $item) {
             $memberIds[] = $item->getMember()->getId();
         }
@@ -1346,13 +1307,22 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = time();
+        $response->stats->execution->end = microtime();
 
         return $response;
     }
+
+    /**
+     * @param mixed $site
+     * @param array|null $filter
+     * @param array|null $sortOrder
+     * @param array|null $limit
+     *
+     * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
+     */
     public function listMembersOfSite($site, array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
         $response = $sModel->getSite($site);
         if ($response->error->exist) {
@@ -1366,10 +1336,10 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
         if (empty($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
 
-        $memberIds = array();
+        $memberIds = [];
         foreach ($result as $item) {
             $memberIds[] = $item->getMember()->getId();
         }
@@ -1388,7 +1358,7 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = time();
+        $response->stats->execution->end = microtime();
 
         return $response;
     }
@@ -1403,11 +1373,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listFilesOfMember($member, array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
-        if (!is_array($sortOrder) && !is_null($sortOrder)) {
-            return $this->createException('InvalidSortOrderException', '$sortOrder must be an array with key => value pairs where value can only be "asc" or "desc".', 'E:S:002');
-        }
-
+        $timeStamp = microtime();
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -1435,7 +1401,7 @@ class MemberManagementModel extends CoreModel
 
         $totalRows = count($result);
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
         }
         $fileIds = [];
         foreach($result as $fomItem){
@@ -1458,11 +1424,11 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = time();
+        $response->stats->execution->end = microtime();
 
         return $response;
 
-        return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, time());
+        return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
     }
 
     /**
@@ -1496,7 +1462,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listSitesOfMember($member, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
         $response = $this->getMember($member);
         if ($response->error->exist) {
@@ -1510,9 +1476,9 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
         if (empty($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, time());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
         }
-        $siteIds = array();
+        $siteIds = [];
         foreach ($result as $item) {
             $siteIds[] = $item->getSite()->getId();
         }
@@ -1531,7 +1497,7 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = time();
+        $response->stats->execution->end = microtime();
 
         return $response;
     }
@@ -1544,13 +1510,13 @@ class MemberManagementModel extends CoreModel
      */
     public function removeMemberFromOtherGroups($member, array $groups)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
         }
         $member = $response->result->set;
-        $idsToRemove = array();
+        $idsToRemove = [];
         foreach ($groups as $group) {
             $response = $this->getGroup($group);
             if ($response->error->exist) {
@@ -1570,9 +1536,9 @@ class MemberManagementModel extends CoreModel
             $deleted = false;
         }
         if ($deleted) {
-            return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime());
     }
 
 	/**
@@ -1612,14 +1578,10 @@ class MemberManagementModel extends CoreModel
      */
     public function updateMembers(array $collection)
     {
-        $timeStamp = time();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countUpdates = 0;
-        $updatedItems = array();
-        $localizations = array();
+        $updatedItems = [];
+        $localizations = [];
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\Member) {
                 $entity = $data;
@@ -1693,9 +1655,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countUpdates > 0) {
             $this->em->flush();
-            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime());
     }
 
 	/**
@@ -1715,14 +1677,10 @@ class MemberManagementModel extends CoreModel
      */
     public function updateMemberGroups(array $collection)
     {
-        $timeStamp = time();
-        /** Parameter must be an array */
-        if (!is_array($collection)) {
-            return $this->createException('InvalidParameterValueException', 'Invalid parameter value. Parameter must be an array collection', 'E:S:001');
-        }
+        $timeStamp = microtime();
         $countUpdates = 0;
-        $updatedItems = array();
-        $localizations = array();
+        $updatedItems = [];
+        $localizations = [];
         foreach ($collection as $data) {
             if ($data instanceof BundleEntity\MemberGroup) {
                 $entity = $data;
@@ -1793,9 +1751,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countUpdates > 0) {
             $this->em->flush();
-            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, time());
+            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime());
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, time());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime());
     }
 
     /**
@@ -1804,9 +1762,9 @@ class MemberManagementModel extends CoreModel
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse|mixed
      */
-    public function validateAccount(\string $username, \string $password)
+    public function validateAccount(string $username, string $password)
     {
-        $timeStamp = time();
+        $timeStamp = microtime();
         $response = $this->getMember($username);
         if ($response->error->exist) {
             return $response;
@@ -1817,8 +1775,8 @@ class MemberManagementModel extends CoreModel
         $hashedPass = $enc->input($password)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
 
         if ($member->getPassword() != $hashedPass) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, time());
+            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, microtime());
         }
-        return new ModelResponse($member, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, time());
+        return new ModelResponse($member, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, microtime());
     }
 }

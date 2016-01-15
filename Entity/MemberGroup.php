@@ -100,7 +100,7 @@ class MemberGroup extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function setCode(\string $code){
+    public function setCode(string $code){
         if(!$this->setModified('code', $code)->isModified()) {
             return $this;
         }
@@ -121,7 +121,7 @@ class MemberGroup extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function setType(\string $type){
+    public function setType(string $type){
         if(!$this->setModified('type', $type)->isModified()) {
             return $this;
         }
@@ -142,7 +142,7 @@ class MemberGroup extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function setCountMembers(\integer $count_members){
+    public function setCountMembers(int $count_members){
         if(!$this->setModified('count_members', $count_members)->isModified()) {
             return $this;
         }
@@ -189,7 +189,7 @@ class MemberGroup extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function incrementMemberCount(\integer $value){
+    public function incrementMemberCount(int $value){
         if(!is_integer($value)){
             return $this;
         }
@@ -202,7 +202,7 @@ class MemberGroup extends CoreLocalizableEntity{
      *
      * @return $this
      */
-    public function decrementMemberCount(\integer $value){
+    public function decrementMemberCount(int $value){
         if(!is_integer($value)){
             return $this;
         }

@@ -1,4 +1,4 @@
 services:
     membermanagement.model:
             class:        BiberLtd\Bundle\MemberManagementBundle\Services\MemberManagementModel
-            arguments:    [@kernel, "default", "doctrine"]
+            arguments:    ["@kernel", "default", "doctrine"]
