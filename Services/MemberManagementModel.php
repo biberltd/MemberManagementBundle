@@ -67,14 +67,14 @@ class MemberManagementModel extends CoreModel
      */
     public function activateMember($member, string $key = null, \DateTime $activationDate = null, bool $bypass = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
         $activationDate = $activationDate ?? new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
         /**
          * $key is required if $bypass is set to false
          */
         if (!$bypass && is_null($key)) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:001', 'Activation key is missing. The account cannot be activated.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:001', 'Activation key is missing. The account cannot be activated.', $timeStamp, microtime(true));
         }
         if ($member instanceof BundleEntity\Member) {
             if ($bypass) {
@@ -86,7 +86,7 @@ class MemberManagementModel extends CoreModel
         } else {
             $response = $this->getMember($member);
             if ($response->error->exist) {
-                return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'A member with the given id / username / email cannot be found in our database.', $timeStamp, microtime());
+                return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'A member with the given id / username / email cannot be found in our database.', $timeStamp, microtime(true));
             }
             $member = $response->result->set;
         }
@@ -98,7 +98,7 @@ class MemberManagementModel extends CoreModel
         $this->em->persists($member);
 
         $this->em->flush();
-        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:001', 'The account has been successfully activated.', $timeStamp, microtime());
+        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:001', 'The account has been successfully activated.', $timeStamp, microtime(true));
     }
 
     /**
@@ -109,7 +109,7 @@ class MemberManagementModel extends CoreModel
      */
     public function addGroupToMembers($group, array $members)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getGroup($group);
         if ($response->error->exist) {
             return $response;
@@ -141,9 +141,9 @@ class MemberManagementModel extends CoreModel
         $countInserts = count($to_add);
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -154,7 +154,7 @@ class MemberManagementModel extends CoreModel
      */
     public function addMemberToGroups($member, array $groups)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -187,9 +187,9 @@ class MemberManagementModel extends CoreModel
         $countInserts = count($toAdd);
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -200,7 +200,7 @@ class MemberManagementModel extends CoreModel
      */
     public function addMemberToSites($member, array $sites)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -234,9 +234,9 @@ class MemberManagementModel extends CoreModel
         $countInserts = count($toAdd);
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -248,7 +248,7 @@ class MemberManagementModel extends CoreModel
      */
     public function checkMemberPassword($member, string $password, bool $bypass = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
         $response = $this->getMember($member);
         if ($response->error->exist) {
@@ -267,7 +267,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return $correct;
         }
-        return new ModelResponse($correct, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($correct, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -277,7 +277,7 @@ class MemberManagementModel extends CoreModel
      */
     public function countMembers(array $filter = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
 
         $wStr = $fStr = '';
 
@@ -295,7 +295,7 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getSingleScalarResult();
 
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, microtime(true));
     }
 
     /**
@@ -306,7 +306,7 @@ class MemberManagementModel extends CoreModel
      */
     public function countMembersOfGroup($group, array $filter = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getGroup($group);
 
         if ($response->error->exist) {
@@ -339,7 +339,7 @@ class MemberManagementModel extends CoreModel
         $q = $this->em->createQuery($qStr);
         $result = $q->getSingleScalarResult();
 
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:005', 'Entries have been successfully counted.', $timeStamp, microtime(true));
     }
 
     /**
@@ -350,7 +350,7 @@ class MemberManagementModel extends CoreModel
      */
     public function deactivateMember($member, bool $bypass = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
         $now = new DateTime('now', new DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
 
@@ -370,7 +370,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return true;
         }
-        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:002', 'The account has been successfully deactivated.', $timeStamp, microtime());
+        return new ModelResponse($member, 1, 1, null, false, 'S:SEC:002', 'The account has been successfully deactivated.', $timeStamp, microtime(true));
     }
 
     /**
@@ -390,7 +390,7 @@ class MemberManagementModel extends CoreModel
      */
     public function deleteMembers(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countDeleted = 0;
         foreach ($collection as $entry) {
             if ($entry instanceof BundleEntity\Member) {
@@ -406,11 +406,11 @@ class MemberManagementModel extends CoreModel
             }
         }
         if ($countDeleted < 0) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
         }
         $this->em->flush();
 
-        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -430,7 +430,7 @@ class MemberManagementModel extends CoreModel
      */
     public function deleteMemberGroups(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countDeleted = 0;
         foreach ($collection as $entry) {
             if ($entry instanceof BundleEntity\MemberGroup) {
@@ -446,11 +446,11 @@ class MemberManagementModel extends CoreModel
             }
         }
         if ($countDeleted < 0) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
         }
         $this->em->flush();
 
-        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -461,7 +461,7 @@ class MemberManagementModel extends CoreModel
      */
     public function doesGroupExist($group, bool $bypass = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
         $exist = false;
 
@@ -479,7 +479,7 @@ class MemberManagementModel extends CoreModel
             return $exist;
         }
 
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -491,7 +491,7 @@ class MemberManagementModel extends CoreModel
     public function doesMemberExist($member, bool $bypass = null)
     {
         $bypass = $bypass ?? false;
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $exist = false;
 
         $response = $this->getMember($member);
@@ -508,7 +508,7 @@ class MemberManagementModel extends CoreModel
             return $exist;
         }
 
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -518,9 +518,9 @@ class MemberManagementModel extends CoreModel
      */
     public function getGroup($group)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         if ($group instanceof BundleEntity\MemberGroup) {
-            return new ModelResponse($group, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+            return new ModelResponse($group, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
         }
         $result = null;
         switch ($group) {
@@ -532,10 +532,10 @@ class MemberManagementModel extends CoreModel
                 break;
         }
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
 
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -545,9 +545,9 @@ class MemberManagementModel extends CoreModel
      */
     public function getMember($member)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         if ($member instanceof BundleEntity\Member) {
-            return new ModelResponse($member, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+            return new ModelResponse($member, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
         }
         $result = null;
         switch ($member) {
@@ -568,7 +568,7 @@ class MemberManagementModel extends CoreModel
         if (!$response->error->exist) {
             return $response;
         }
-        return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+        return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -578,12 +578,12 @@ class MemberManagementModel extends CoreModel
      */
     public function getMemberById(int $id)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('id' => $id));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -593,12 +593,12 @@ class MemberManagementModel extends CoreModel
      */
     public function getMemberByEmail(string $email)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('email' => $email));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -608,12 +608,12 @@ class MemberManagementModel extends CoreModel
      */
     public function getMemberByUsername(string $username)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('username' => $username));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -623,12 +623,12 @@ class MemberManagementModel extends CoreModel
      */
     public function getMemberByKey(string $key)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('key_activation' => $key));
         if (is_null($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($result, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -668,7 +668,7 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMembers(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countInserts = 0;
         $countLocalizations = 0;
         $countGroups = 0;
@@ -780,9 +780,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -802,7 +802,7 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMemberGroups(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
 
         $countInserts = 0;
         $countLocalizations = 0;
@@ -870,9 +870,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -882,7 +882,7 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMemberLocalizations(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countInserts = 0;
         $insertedItems = [];
         foreach ($collection as $data) {
@@ -922,9 +922,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -934,7 +934,7 @@ class MemberManagementModel extends CoreModel
      */
     public function insertMemberGroupLocalizations(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countInserts = 0;
         $insertedItems = [];
         foreach ($collection as $data) {
@@ -974,9 +974,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countInserts > 0) {
             $this->em->flush();
-            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime());
+            return new ModelResponse($insertedItems, $countInserts, 0, null, false, 'S:D:003', 'Selected entries have been successfully inserted into database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:003', 'One or more entities cannot be inserted into database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -988,7 +988,7 @@ class MemberManagementModel extends CoreModel
      */
     public function isMemberOfGroup($member, $group, bool $bypass = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
         $response = $this->getGroup($group);
         if ($response->error->exist) {
@@ -1016,7 +1016,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return $exist;
         }
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1028,7 +1028,7 @@ class MemberManagementModel extends CoreModel
      */
     public function isMemberOfSite($member, $site, bool $bypass = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
         $sModel = new SMMService\SiteManagementModel($this->kernel, $this->dbConnection, $this->orm);
         $response = $sModel->getSite($site);
@@ -1057,7 +1057,7 @@ class MemberManagementModel extends CoreModel
         if ($bypass) {
             return $exist;
         }
-        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($exist, 1, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1081,7 +1081,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listGroupsOfMember($member, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -1126,9 +1126,9 @@ class MemberManagementModel extends CoreModel
         $totalRows = count($groups);
 
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($groups, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($groups, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1140,7 +1140,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMemberGroups(array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $oStr = $wStr = $gStr = $fStr = '';
 
         $qStr = 'SELECT ' . $this->entity['mgl']['alias']
@@ -1189,9 +1189,9 @@ class MemberManagementModel extends CoreModel
         }
         $totalRows = count($entities);
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1203,7 +1203,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMembers(array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $oStr = $wStr = $gStr = $fStr = '';
 
         $qStr = 'SELECT ' . $this->entity['m']['alias'] . ', ' . $this->entity['ml']['alias']
@@ -1257,9 +1257,9 @@ class MemberManagementModel extends CoreModel
         }
         $totalRows = count($entities);
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($entities, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1272,7 +1272,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMembersOfGroup($group, array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getGroup($group);
         if ($response->error->exist) {
             return $response;
@@ -1285,7 +1285,7 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
         if (empty($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
         $memberIds = [];
         foreach ($result as $item) {
@@ -1307,7 +1307,7 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = microtime();
+        $response->stats->execution->end = microtime(true);
 
         return $response;
     }
@@ -1322,7 +1322,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listMembersOfSite($site, array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
         $response = $sModel->getSite($site);
         if ($response->error->exist) {
@@ -1336,7 +1336,7 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
         if (empty($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
 
         $memberIds = [];
@@ -1358,7 +1358,7 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = microtime();
+        $response->stats->execution->end = microtime(true);
 
         return $response;
     }
@@ -1373,7 +1373,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listFilesOfMember($member, array $filter = null, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -1401,7 +1401,7 @@ class MemberManagementModel extends CoreModel
 
         $totalRows = count($result);
         if ($totalRows < 1) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:D:002', 'No entries found in database that matches to your criterion.', $timeStamp, microtime(true));
         }
         $fileIds = [];
         foreach($result as $fomItem){
@@ -1424,11 +1424,11 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = microtime();
+        $response->stats->execution->end = microtime(true);
 
         return $response;
 
-        return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime());
+        return new ModelResponse($result, $totalRows, 0, null, false, 'S:D:002', 'Entries successfully fetched from database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1462,7 +1462,7 @@ class MemberManagementModel extends CoreModel
      */
     public function listSitesOfMember($member, array $sortOrder = null, array $limit = null)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $sModel = $this->kernel->getContainer()->get('sitemanagement.model');
         $response = $this->getMember($member);
         if ($response->error->exist) {
@@ -1476,7 +1476,7 @@ class MemberManagementModel extends CoreModel
 
         $result = $q->getResult();
         if (empty($result)) {
-            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime());
+            return new ModelResponse($result, 0, 0, null, true, 'E:D:002', 'Unable to find request entry in database.', $timeStamp, microtime(true));
         }
         $siteIds = [];
         foreach ($result as $item) {
@@ -1497,7 +1497,7 @@ class MemberManagementModel extends CoreModel
             return $response;
         }
         $response->stats->execution->start = $timeStamp;
-        $response->stats->execution->end = microtime();
+        $response->stats->execution->end = microtime(true);
 
         return $response;
     }
@@ -1510,7 +1510,7 @@ class MemberManagementModel extends CoreModel
      */
     public function removeMemberFromOtherGroups($member, array $groups)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getMember($member);
         if ($response->error->exist) {
             return $response;
@@ -1536,9 +1536,9 @@ class MemberManagementModel extends CoreModel
             $deleted = false;
         }
         if ($deleted) {
-            return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, false, 'S:D:001', 'Selected entries have been successfully removed from database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:E:001', 'Unable to delete all or some of the selected entries.', $timeStamp, microtime(true));
     }
 
 	/**
@@ -1578,7 +1578,7 @@ class MemberManagementModel extends CoreModel
      */
     public function updateMembers(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countUpdates = 0;
         $updatedItems = [];
         $localizations = [];
@@ -1655,9 +1655,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countUpdates > 0) {
             $this->em->flush();
-            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime());
+            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
     }
 
 	/**
@@ -1677,7 +1677,7 @@ class MemberManagementModel extends CoreModel
      */
     public function updateMemberGroups(array $collection)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $countUpdates = 0;
         $updatedItems = [];
         $localizations = [];
@@ -1751,9 +1751,9 @@ class MemberManagementModel extends CoreModel
         }
         if ($countUpdates > 0) {
             $this->em->flush();
-            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime());
+            return new ModelResponse($updatedItems, $countUpdates, 0, null, false, 'S:D:004', 'Selected entries have been successfully updated within database.', $timeStamp, microtime(true));
         }
-        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime());
+        return new ModelResponse(null, 0, 0, null, true, 'E:D:004', 'One or more entities cannot be updated within database.', $timeStamp, microtime(true));
     }
 
     /**
@@ -1764,7 +1764,7 @@ class MemberManagementModel extends CoreModel
      */
     public function validateAccount(string $username, string $password)
     {
-        $timeStamp = microtime();
+        $timeStamp = microtime(true);
         $response = $this->getMember($username);
         if ($response->error->exist) {
             return $response;
@@ -1775,8 +1775,8 @@ class MemberManagementModel extends CoreModel
         $hashedPass = $enc->input($password)->key($this->kernel->getContainer()->getParameter('app_key'))->encrypt('enc_reversible_pkey')->output();
 
         if ($member->getPassword() != $hashedPass) {
-            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, microtime());
+            return new ModelResponse(null, 0, 0, null, true, 'E:SEC:002', 'Invalid credentials. The user cannot be logged in.', $timeStamp, microtime(true));
         }
-        return new ModelResponse($member, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, microtime());
+        return new ModelResponse($member, 0, 0, null, false, 'E:SEC:003', 'The user has been successfully logged in.', $timeStamp, microtime(true));
     }
 }
