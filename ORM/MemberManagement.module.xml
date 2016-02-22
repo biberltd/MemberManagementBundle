@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<skipper version="3.2.1.1226" mvc="Symfony2" orm="Doctrine2">
+<skipper version="3.2.4.1256" mvc="Symfony2" orm="Doctrine2">
   <module name="\MemberManagementBundle" local-name="MemberManagementBundle" namespace="\BiberLtd\Bundle\MemberManagementBundle\Entity" local-namespace="BiberLtd\Bundle\MemberManagementBundle\Entity" export-format="Doctrine2Php" export-path="../Entity" uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833">
     <entity name="\BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember" local-name="FilesOfMember" namespace="\BiberLtd\Bundle\MemberManagementBundle\Entity" description="Associates files with members." uuid="07eeeac7-da1a-48f5-96c1-665a12f5d84f">
       <field name="file" description="Associated file." type="integer" size="15" required="true" primary="true" uuid="10fe7d79-6b4e-453b-87fb-1184aa09fe78"/>
@@ -289,7 +289,7 @@
     <entity uuid="9df7cd56-6a97-410f-b0fe-2fd5538bd528" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="350" position-y="51" size-x="0" size-x2="112" size-y="0" size-y2="87"/>
     <entity uuid="a12d9552-e3b0-4189-870d-82bf4cd5b6ed" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="500" position-y="151" size-x="0" size-x2="130" size-y="0" size-y2="87"/>
     <entity uuid="afaa4cd5-a9f4-4fa8-a0f3-c68989c619fc" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="50" position-y="1" size-x="0" size-x2="159" size-y="0" size-y2="269"/>
-    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="#C70000" size-x="0" size-x2="800" size-y="49" size-y2="559"/>
     <entity uuid="d731b316-305d-4125-8824-3385eb5120ea" bg-color="#FFFFFF" hdr-color="#D2D2D2" position-x="300" position-y="251" size-x="0" size-x2="130" size-y="0" size-y2="129"/>
+    <module uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833" bg-color="#C70000" size-x="0" size-x2="800" size-y="49" size-y2="559"/>
   </visual-data>
 </skipper>
