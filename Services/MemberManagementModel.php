@@ -552,7 +552,7 @@ class MemberManagementModel extends CoreModel
         $result = null;
         switch ($member) {
             case is_numeric($member):
-                $response = $this->getMemberById($member);
+                $response = $this->getMemberById((int) $member);
                 if (!$response->error->exist) {
                     return $response;
                 }
