@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<skipper version="3.2.4.1256" mvc="Symfony2" orm="Doctrine2">
+<skipper version="3.2.6.1309" mvc="Symfony2" orm="Doctrine2">
   <module name="\MemberManagementBundle" local-name="MemberManagementBundle" namespace="\BiberLtd\Bundle\MemberManagementBundle\Entity" local-namespace="BiberLtd\Bundle\MemberManagementBundle\Entity" export-format="Doctrine2Php" export-path="../Entity" uuid="d40aa0eb-3691-4818-880c-0a9ad1dd9833">
     <entity name="\BiberLtd\Bundle\MemberManagementBundle\Entity\FilesOfMember" local-name="FilesOfMember" namespace="\BiberLtd\Bundle\MemberManagementBundle\Entity" description="Associates files with members." uuid="07eeeac7-da1a-48f5-96c1-665a12f5d84f">
       <field name="file" description="Associated file." type="integer" size="15" required="true" primary="true" uuid="10fe7d79-6b4e-453b-87fb-1184aa09fe78"/>
