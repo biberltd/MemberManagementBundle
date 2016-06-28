@@ -330,7 +330,7 @@ class MemberManagementModel extends CoreModel
             . ' JOIN ' . $this->entity['mog']['alias'] . '.member ' . $this->entity['m']['alias'];
 
         if ($filter != null) {
-            $fStr = $this->prepare_where($filter);
+            $fStr = $this->prepareWhere($filter);
             $wStr .= ' WHERE ' . $fStr;
         }
 
