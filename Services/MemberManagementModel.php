@@ -352,7 +352,7 @@ class MemberManagementModel extends CoreModel
     {
         $timeStamp = microtime(true);
         $bypass = $bypass ?? false;
-        $now = new DateTime('now', new DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
+        $now = new \DateTime('now', new \DateTimeZone($this->kernel->getContainer()->getParameter('app_timezone')));
 
         $response = $this->getMember($member);
         if ($response->error->exist) {
@@ -361,10 +361,12 @@ class MemberManagementModel extends CoreModel
             }
             return $response;
         }
-        $member->setStatus = 'i';
-        $member->setDateStatusChanged($now);
+        if($member->getStatus() == 'a'){
+            $member->setStatus('i');
+            $member->setDateStatusChanged($now);
+        }
 
-        $this->em->persists($member);
+        $this->em->persist($member);
 
         $this->em->flush();
         if ($bypass) {
