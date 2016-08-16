@@ -22,8 +22,8 @@ CREATE TABLE `files_of_member` (
   UNIQUE KEY `idxUFilesOfMember` (`file`,`member`) USING BTREE,
   KEY `idx_f_files_of_member_file` (`file`) USING BTREE,
   KEY `idxFMemberOfFiles` (`member`) USING BTREE,
-  CONSTRAINT `idxFFileOfMember` FOREIGN KEY (`file`) REFERENCES `file` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idxFMemberOfFiles` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFFileOfFilesOfMember` FOREIGN KEY (`file`) REFERENCES `file` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFMemberOfFilesOfMember` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -60,8 +60,8 @@ CREATE TABLE `member` (
   KEY `idxNMemberDateStatusChanged` (`date_status_changed`) USING BTREE,
   KEY `idxFDefaultLanguageOfMember` (`language`) USING BTREE,
   KEY `idxFDefaultSiteOfMember` (`site`) USING BTREE,
-  CONSTRAINT `idxFDefaultLanguageOfMember` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `idxFDefaultSiteOfMember` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `idxFLanguageOfMember` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFSiteOfMember` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -101,8 +101,8 @@ CREATE TABLE `member_group_localization` (
   UNIQUE KEY `idxUMemberGroupLocalization` (`member_group`,`language`) USING BTREE,
   UNIQUE KEY `idxUMemberGroupLocalizationUrlKey` (`language`,`url_key`) USING BTREE,
   KEY `idxFMemberGroupLocalizationLanguage` (`language`) USING BTREE,
-  CONSTRAINT `idxFLocalizedMemberGroup` FOREIGN KEY (`member_group`) REFERENCES `member_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idx_f_member_group_localization_language` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFMemberGroupOfMemberGroupLocalization` FOREIGN KEY (`member_group`) REFERENCES `member_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFLanguageOfMemberGroupLocalization` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -119,8 +119,8 @@ CREATE TABLE `member_localization` (
   UNIQUE KEY `idxUMemberLocalization` (`member`,`language`) USING BTREE,
   KEY `idxFLocalizedMember` (`member`) USING BTREE,
   KEY `idxFMemberLocalizationLanguage` (`language`) USING BTREE,
-  CONSTRAINT `idxFLocalizedMember` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idxFMemberLocalizationLanguage` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFMemberOfMemberLocalization` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFLanguageOfMemberLocalization` FOREIGN KEY (`language`) REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -140,7 +140,7 @@ CREATE TABLE `members_of_group` (
   KEY `idxFMemberOfGroup` (`member`) USING BTREE,
   KEY `idxFGroupOfMember` (`group`) USING BTREE,
   CONSTRAINT `idxFGroupOfMember` FOREIGN KEY (`group`) REFERENCES `member_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idxFMemnerOfGroup` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFMemberOfGroup` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
 
 -- ----------------------------
@@ -159,6 +159,6 @@ CREATE TABLE `members_of_site` (
   KEY `idxNMembersOfSiteDateRemoved` (`date_removed`),
   KEY `idxNMembersOfSiteDateUpdated` (`date_updated`),
   KEY `idxFSiteOfMember` (`site`) USING BTREE,
-  CONSTRAINT `idxFMemberOfSite` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idxFSiteOfMember` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `idxFMemberOfMembersOfSite` FOREIGN KEY (`member`) REFERENCES `member` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `idxFSiteOfMembersOfSite` FOREIGN KEY (`site`) REFERENCES `site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci ROW_FORMAT=COMPACT;
