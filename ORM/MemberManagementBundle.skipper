@@ -503,7 +503,7 @@
         <index-field name="email"/>
         <index-field name="site"/>
       </index>
-      <index name="idxNMemberDateRegitration">
+      <index name="idxNMemberDateRegistration">
         <index-field name="date_registration"/>
       </index>
       <index name="idxNMemberDateBirth">

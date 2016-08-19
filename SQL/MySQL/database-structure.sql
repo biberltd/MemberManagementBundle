@@ -55,7 +55,7 @@ CREATE TABLE `member` (
   UNIQUE KEY `idxUMemberEmail` (`email`,`site`) USING BTREE,
   KEY `idxNFullNameOfMember` (`name_last`,`name_first`) USING BTREE,
   KEY `idxNMemberDateBirth` (`date_birth`) USING BTREE,
-  KEY `idxNMemberDateRegitration` (`date_registration`) USING BTREE,
+  KEY `idxNMemberDateRegistration` (`date_registration`) USING BTREE,
   KEY `idxNMemberDateActivation` (`date_activation`) USING BTREE,
   KEY `idxNMemberDateStatusChanged` (`date_status_changed`) USING BTREE,
   KEY `idxFDefaultLanguageOfMember` (`language`) USING BTREE,
