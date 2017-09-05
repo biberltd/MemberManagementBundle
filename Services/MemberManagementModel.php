@@ -604,11 +604,11 @@ class MemberManagementModel extends CoreModel
     }
 
     /**
-     * @param string $username
+     * @param mixed $username
      *
      * @return \BiberLtd\Bundle\CoreBundle\Responses\ModelResponse
      */
-    public function getMemberByUsername(string $username)
+    public function getMemberByUsername($username)
     {
         $timeStamp = microtime(true);
         $result = $this->em->getRepository($this->entity['m']['name'])->findOneBy(array('username' => $username));
